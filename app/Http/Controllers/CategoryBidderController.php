@@ -58,4 +58,5 @@ class CategoryBidderController extends Controller
 
         return redirect()->route('category.index');
     }
+    //hello mọi người
 }
