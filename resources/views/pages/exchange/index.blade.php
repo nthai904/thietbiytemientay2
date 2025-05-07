@@ -3,7 +3,7 @@
     <div class="container">
         <div class="page-inner">
             <div class="page-header">
-                <h3 class="fw-bold mb-3">Hồ sơ đấu thầu</h3>
+                <h3 class="fw-bold mb-3">Bán lẻ</h3>
                 <ul class="breadcrumbs mb-3">
                     <li class="nav-home">
                         <a href="#">
@@ -14,7 +14,7 @@
                         <i class="icon-arrow-right"></i>
                     </li>
                     <li class="nav-item">
-                        <a href="#">Phụ lục</a>
+                        <a href="#">Bán lẻ</a>
                     </li>
                 </ul>
             </div>
@@ -23,13 +23,13 @@
                     <div class="card">
                         <div class="card-header">
                             <div class="d-flex align-items-center justify-content-between w-100">
-                                <h4 class="card-title">Phụ lục</h4>
+                                <h4 class="card-title">Danh sách bán lẻ</h4>
                                 <div class="d-flex">
-                                    <a href="{{ route('document.create') }}" class="btn btn-primary ms-2 btn-addnew">
+                                    <a href="{{ route('exchange.create') }}" class="btn btn-primary ms-2 btn-addnew">
                                         <i class="fa fa-plus me-2"></i>
                                         Thêm mới
                                     </a>
-                                    <form action="{{ route('bidder.import') }}" method="POST" enctype="multipart/form-data"
+                                    {{-- <form action="{{ route('bidder.import') }}" method="POST" enctype="multipart/form-data"
                                         class="d-inline-block">
                                         @csrf
                                         <input type="file" name="file" accept=".xlsx,.xls,.csv"
@@ -39,7 +39,7 @@
                                             <i class="fa fa-file-import me-2"></i>
                                             Import
                                         </button>
-                                    </form>
+                                    </form> --}}
                                     {{-- <form action="{{ route('documents.exportExcel') }}" method="POST"
                                         enctype="multipart/form-data" id="exportForm">
                                         @csrf
@@ -49,7 +49,7 @@
                                             Xuất file
                                         </button>
                                     </form> --}}
-                                    <div class="dropdown ms-2">
+                                    {{-- <div class="dropdown ms-2">
                                         <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownButton"
                                             data-bs-toggle="dropdown" aria-expanded="false">
                                             <i class="fa fa-file-export me-2"></i>
@@ -105,7 +105,7 @@
                                                 </form>
                                             </li>
                                         </ul>
-                                    </div>
+                                    </div> --}}
                                 </div>
                             </div>
                         </div>
@@ -178,26 +178,26 @@
                                             <th style="min-width: 50px;">STT</th>
                                             <th style="min-width: 150px;">Mã bệnh viện</th>
                                             <th style="min-width: 150px;">Tên bệnh viện</th>
-                                            <th style="min-width: 150px;">Gói thầu</th>
                                             <th style="min-width: 120px;">Tổng thành tiền</th>
+                                            <th style="min-width: 120px;">Thời gian</th>
                                             <th style="min-width: 120px;"></th>
                                         </tr>
                                     </thead>
                                     <tbody class="text-center">
-                                        @if (isset($documents) && count($documents) > 0)
-                                            @foreach ($documents as $k => $v)
+                                        @if (isset($exchanges) && count($exchanges) > 0)
+                                            @foreach ($exchanges as $k => $v)
                                                 <tr class="clickable-row" data-id="{{ $v['code_category_bidder'] }}"
                                                     style="cursor: pointer;">
-                                                    <td>
+                                                    <td>    
                                                         <input type="checkbox" class="row-checkbox"
                                                             style="width:17px; height:17px">
                                                     </td>
                                                     <td class="clickable">{{ $k + 1 }}</td>
                                                     <td class="clickable">{{ $v['code_category_bidder'] }}</td>
                                                     <td class="clickable">{{ $v['bidder_name'] ?? '' }}</td>
-                                                    <td class="clickable">{{ $v['group'] ?? '' }}</td>
                                                     <td class="clickable">{{ number_format($v['total_price']) ?? '' }} đ
                                                     </td>
+                                                    <td>{{ $v['created_at'] ?? '' }}</td>
                                                     <td>
                                                         @if (is_array($v['code_category_bidder']))
                                                             <a
@@ -254,7 +254,7 @@
                                             @endforeach
                                         @else
                                             <tr>
-                                                <td colspan="6" class="text-center">Không có dữ liệu</td>
+                                                <td colspan="7" class="text-center">Không có dữ liệu</td>
                                             </tr>
                                         @endif
                                     </tbody>

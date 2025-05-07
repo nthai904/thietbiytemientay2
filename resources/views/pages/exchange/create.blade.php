@@ -1,0 +1,124 @@
+@extends('index')
+@section('content')
+    <div class="container">
+        <div class="page-inner">
+            <div class="page-header">
+                <h3 class="fw-bold mb-3">Thêm mới bán lẻ</h3>
+                <ul class="breadcrumbs mb-3">
+                    <li class="nav-home">
+                        <a href="#">
+                            <i class="icon-home"></i>
+                        </a>
+                    </li>
+                    <li class="separator">
+                        <i class="icon-arrow-right"></i>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#">Quản lý bán lẻ</a>
+                    </li>
+                    <li class="separator">
+                        <i class="icon-arrow-right"></i>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#">Thêm mới bán lẻ</a>
+                    </li>
+                </ul>
+            </div>
+            <form action="{{ route('exchange.store') }}" method="post">
+                @csrf
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <div class="card-title">Thêm mới bán lẻ</div>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="city-exchange" class="form-label">Tỉnh/TP</label>
+                                            <select name="" id="city-exchange" class="select2 form-control">
+                                                <option value="" selected>Chọn tỉnh/tp</option>
+                                                @foreach ($cities ?? [] as $city)
+                                                    <option value="{{ $city['id'] }}">{{ $city['name'] }}
+                                                    </option>
+                                                @endforeach
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="select-benh-vien">Bệnh viện</label>
+                                            <select name="id_nhathau" id="select-benh-vien" class="select2 form-control">
+                                                <option value="" selected>-- Chọn Bệnh viện --</option>
+                                                {{-- @if (isset($categories))
+                                                    @foreach ($categories as $k => $v)
+                                                        <option value="{{ $v['code'] }}">{{ $v['name'] }}</option>
+                                                    @endforeach
+                                                @endif --}}
+                                            </select>
+
+                                            {{-- <small id="emailHelp2" class="form-text text-muted">We'll never share your email
+                                        with anyone
+                                        else.</small> --}}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="form-group">
+                                            <label for="select-exchange-product">Hàng hóa</label>
+                                            <select name="id_product" id="select-exchange-product"
+                                                class="select2 form-control">
+                                                <option value="" selected>-- Chọn hàng hóa --</option>
+                                                @if (isset($products))
+                                                    @foreach ($products as $k => $v)
+                                                        <option value="{{ $v['code'] }}">{{ $v['name'] }}</option>
+                                                    @endforeach
+                                                @endif
+                                            </select>
+
+                                            {{-- <small id="emailHelp2" class="form-text text-muted">We'll never share your email
+                                        with anyone
+                                        else.</small> --}}
+                                        </div>
+                                    </div>
+                                    <div class="col-md-12" id="thong-tin-san-pham" style="display: none;">
+                                        <div class="table-responsive">
+
+                                            <div class="table-wrapper">
+                                                <table class="table table-bordered table-hover align-middle text-nowrap table-banle">
+                                                    <thead class="table-light text-center">
+                                                        <tr>
+                                                            <th style="min-width: 50px;">STT</th>
+                                                            <th style="min-width: 100px;">Mã sản phẩm</th>
+                                                            <th style="min-width: 150px;">Tên sản phẩm</th>
+                                                            <th style="min-width: 120px;">Quy cách</th>
+                                                            <th style="min-width: 120px;">Hãng sx</th>
+                                                            <th style="min-width: 120px;">Nước sx</th>
+                                                            <th style="min-width: 80px;">Số lượng</th>
+                                                            <th style="min-width: 120px;">Giá</th>
+                                                            <th style="min-width: 120px;">Tăng trưởng giá</th>
+                                                            <th style="min-width: 120px;">Giá bán ra</th>
+                                                            <th style="min-width: 120px;">Thành tiền</th>
+                                                            <th style="min-width: 120px;"></th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody class="text-center" id="product-table">
+                                                        <!-- Dữ liệu sản phẩm sẽ được render ở đây -->
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="card-action">
+                                <button class="btn btn-success">Thêm</button>
+                                <a href="{{ route('exchange.index') }}" class="btn btn-danger">Hủy</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+@endsection

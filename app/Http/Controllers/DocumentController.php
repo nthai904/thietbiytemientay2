@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Bidder;
 use App\Models\CategoryBidder;
+use App\Models\City;
 use App\Models\Document;
 use App\Models\Product;
 use Illuminate\Http\Request;
@@ -20,19 +21,21 @@ class DocumentController extends Controller
     {
         $documents = Document::with('bidder')
             ->orderBy('created_at', 'desc')
+            ->where('type', 'dauthau')
             ->get();
 
         $totals = $documents->groupBy('code_category_bidder')->map(function ($group) {
+
             return [
                 'code_category_bidder' => $group->first()->code_category_bidder,
                 'id_product' => $group->first()->id_product,
                 'total_price' => $group->sum('total_price'),
                 'bidder_name' => $group->first()->bidder->category->name ?? 'Không xác định',
+                'group' => $group->first()->bidder->group->name ?? 'Không xác định',
             ];
         });
 
         $documents = $totals->values();
-
         $details = Document::all();
         return view('pages.document.index', compact('documents', 'details'));
     }
@@ -41,7 +44,8 @@ class DocumentController extends Controller
     {
         $categories = CategoryBidder::all();
         $products = Product::all();
-        return view('pages.document.create', compact('categories', 'products'));
+        $cities = City::all();
+        return view('pages.document.create', compact('categories', 'products', 'cities'));
     }
 
     public function store(Request $request)
@@ -82,6 +86,7 @@ class DocumentController extends Controller
                     'id_product'           => $product->code,
                     'extra_price'          => $extra_price[$index] ?? 0,
                     'product_name_bidder'  => $bidder->product_name,
+                    'type'                 => 'dauthau'
                 ]);
             }
         }
@@ -93,9 +98,26 @@ class DocumentController extends Controller
     {
         $categories = CategoryBidder::all();
         $products = Product::all();
-        $documents = Document::with(['bidder', 'product'])->where('code_category_bidder', $code)->get();
-        return view('pages.document.edit', compact('categories', 'products', 'documents'));
+
+        $documents = Document::with(['bidder', 'product'])
+            ->where('code_category_bidder', $code)
+            ->get();
+        $total_orginal = $documents->sum(function ($doc) {
+            return ($doc->product->price ?? 0) * ($doc->quantity ?? 0);
+        });
+        $totalAmount = $documents->sum('total_price');
+
+        $totalDocuments = $documents->count();
+        $trungDocuments = $documents->where('status', 'datrung')->count();
+
+        $rate = $trungDocuments . '/' . $totalDocuments;
+        $percent = $totalDocuments > 0 ? round($trungDocuments / $totalDocuments * 100, 2) : 0;
+
+        $totalTrung = $documents->where('status', 'datrung')->sum('total_price');
+
+        return view('pages.document.edit', compact('categories', 'products', 'documents', 'total_orginal', 'totalAmount', 'rate', 'percent', 'totalTrung'));
     }
+
 
     public function update(Request $request, $code)
     {
@@ -103,13 +125,13 @@ class DocumentController extends Controller
         $giaduthau   = $request->giaduthau;
         $thanhtien   = $request->thanhtien;
         $extra_price = $request->extra_price;
+        $status    = $request->status;
 
         if (empty($productIds) || empty($giaduthau) || empty($thanhtien)) {
             return back()->withErrors(['message' => 'Thiếu thông tin cập nhật!']);
         }
 
         $documents = Document::where('code_category_bidder', $code)->get();
-
         foreach ($documents as $index => $doc) {
             $product = Product::where('code', $productIds[$index])->first();
 
@@ -124,6 +146,7 @@ class DocumentController extends Controller
                     'price'         => $giaduthau[$index],
                     'total_price'   => $thanhtien[$index],
                     'extra_price'   => $extra_price[$index],
+                    'status'        => $status[$index],
                 ]);
             }
         }
@@ -662,5 +685,54 @@ class DocumentController extends Controller
         $result = ucfirst($result);
 
         return $result;
+    }
+
+    public function bid()
+    {
+        $documents = Document::with('bidder')
+            ->orderBy('created_at', 'desc')
+            ->where('type', 'dauthau')
+            ->where('status', 'datrung')
+            ->get();
+
+        $totals = $documents->groupBy('code_category_bidder')->map(function ($group) {
+
+            return [
+                'code_category_bidder' => $group->first()->code_category_bidder,
+                'id_product' => $group->first()->id_product,
+                'total_price' => $group->sum('total_price'),
+                'bidder_name' => $group->first()->bidder->category->name ?? 'Không xác định',
+                'group' => $group->first()->bidder->group->name ?? 'Không xác định',
+            ];
+        });
+
+        $documents = $totals->values();
+        $details = Document::all();
+
+
+        return view('pages.document.bid_list', compact('documents', 'details'));
+    }
+
+    public function bidDetail($code){
+        $categories = CategoryBidder::all();
+        $products = Product::all();
+
+        $documents = Document::with(['bidder', 'product'])
+            ->where('code_category_bidder', $code)
+            ->get();
+        $total_orginal = $documents->sum(function ($doc) {
+            return ($doc->product->price ?? 0) * ($doc->quantity ?? 0);
+        });
+        $totalAmount = $documents->sum('total_price');
+
+        $totalDocuments = $documents->count();
+        $trungDocuments = $documents->where('status', 'datrung')->count();
+
+        $rate = $trungDocuments . '/' . $totalDocuments;
+        $percent = $totalDocuments > 0 ? round($trungDocuments / $totalDocuments * 100, 2) : 0;
+
+        $totalTrung = $documents->where('status', 'datrung')->sum('total_price');
+
+        return view('pages.document.bid_edit', compact('categories', 'products', 'documents', 'total_orginal', 'totalAmount', 'rate', 'percent', 'totalTrung'));
     }
 }

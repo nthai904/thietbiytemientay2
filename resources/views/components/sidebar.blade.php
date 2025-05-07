@@ -24,10 +24,10 @@
         <div class="sidebar-content">
             <ul class="nav nav-secondary">
                 <li class="nav-item">
-                    <a href="#dashboard">
+                    <a href="{{ route('dashboard.index') }}">
                         <i class="fas fa-home"></i>
                         <p>Bảng điều khiển</p>
-                        <span class="caret"></span>
+                        {{-- <span class="caret"></span> --}}
                     </a>
                     {{-- <a data-bs-toggle="collapse" href="#dashboard" class="collapsed" aria-expanded="false">
                         <i class="fas fa-home"></i>
@@ -109,19 +109,24 @@
                 <li class="nav-item">
                     <a data-bs-toggle="collapse" href="#sidebarLayouts">
                         <i class="fas fa-th-list"></i>
-                        <p>Quản lý nhà thầu</p>
+                        <p>Quản lý bệnh viện</p>
                         <span class="caret"></span>
                     </a>
                     <div class="collapse" id="sidebarLayouts">
                         <ul class="nav nav-collapse">
                             <li>
-                                <a href="{{ route('bidder.index') }}">
-                                    <span class="sub-item">Đấu thầu</span>
+                                <a href="{{ route('category.index') }}">
+                                    <span class="sub-item">Danh mục bệnh viện</span>
                                 </a>
                             </li>
                             <li>
-                                <a href="{{ route('category.index') }}">
-                                    <span class="sub-item">Danh mục thầu</span>
+                                <a href="{{ route('bidder.group') }}">
+                                    <span class="sub-item">Gói thầu</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="{{ route('bidder.index') }}">
+                                    <span class="sub-item">Đấu thầu</span>
                                 </a>
                             </li>
                         </ul>
@@ -140,13 +145,20 @@
                                     <span class="sub-item">Phụ lục</span>
                                 </a>
                             </li>
-                            {{-- <li>
-                                <a href="{{ route('document.index') }}">
-                                    <span class="sub-item">Báo giá</span>
+                            <li>
+                                <a href="{{ route('document.bid') }}">
+                                    <span class="sub-item">Danh sách trúng thầu</span>
                                 </a>
-                            </li> --}}
+                            </li>
                         </ul>
                     </div>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ route('exchange.index') }}">
+                        <i class="fas fa-exchange-alt"></i> 
+                        <p>Quản lý bán lẻ</p>
+                        {{-- <span class="caret"></span> --}}
+                    </a>
                 </li>
                 {{-- <li class="nav-item">
                     <a data-bs-toggle="collapse" href="#forms">

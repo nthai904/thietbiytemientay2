@@ -146,6 +146,7 @@
     </div>
     <!--   Core JS Files   -->
     <script src="{{ asset('assets/js/core/jquery-3.7.1.min.js') }}"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{{ asset('assets/js/core/popper.min.js') }}"></script>
     <script src="{{ asset('assets/js/core/bootstrap.min.js') }}"></script>
 
@@ -183,7 +184,7 @@
     <!-- Kaiadmin DEMO methods, don't include it in your project! -->
     <script src="{{ asset('assets/js/setting-demo.js') }}"></script>
     <script src="{{ asset('assets/js/demo.js') }}"></script>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 
     <script>
@@ -216,7 +217,52 @@
     </script>
     <script>
         $(document).ready(function() {
-            $("#basic-datatables").DataTable({});
+            // Hàm chuyển đổi tiếng Việt có dấu thành không dấu
+            function removeDiacritics(str) {
+                return str.normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '')
+                    .replace(/đ/g, 'd').replace(/Đ/g, 'D');
+            }
+
+            // Khởi tạo DataTables với tùy chỉnh cho tìm kiếm tiếng Việt
+            $('#basic-datatables').DataTable({
+                order: [],
+                pageLength: 10,
+                language: {
+                    "lengthMenu": "Hiển thị _MENU_ kết quả",
+                    "zeroRecords": "Không tìm thấy kết quả nào",
+                    "info": "Hiển thị từ _START_ đến _END_ của _TOTAL_ kết quả",
+                    "infoEmpty": "Không có dữ liệu",
+                    "infoFiltered": "(lọc từ _MAX_ tổng kết quả)",
+                    "search": "Tìm kiếm:",
+                    "paginate": {
+                        "first": "Đầu",
+                        "last": "Cuối",
+                        "next": "Sau",
+                        "previous": "Trước"
+                    },
+                    "loadingRecords": "Đang tải...",
+                    "processing": "Đang xử lý...",
+                },
+                search: {
+                    smart: false, // Tắt tìm kiếm thông minh
+                    regex: false, // Không sử dụng regex
+                    caseInsensitive: true // Không phân biệt chữ hoa/thường
+                },
+                initComplete: function() {
+                    // Lưu reference đến API DataTable
+                    var table = this.api();
+
+                    // Xử lý sự kiện tìm kiếm
+                    $('.dataTables_filter input')
+                        .off() // Tắt xử lý sự kiện mặc định
+                        .on('input', function() {
+                            var searchTerm = $(this).val().toLowerCase();
+                            // Tìm kiếm ngay khi nhập, không đợi toàn bộ từ
+                            table.search(searchTerm).draw();
+                        });
+                }
+            });
 
             $("#multi-filter-select").DataTable({
                 pageLength: 5,
@@ -252,7 +298,50 @@
 
             // Add Row
             $("#add-row").DataTable({
-                pageLength: 5,
+                pageLength: 10,
+                language: {
+                    "lengthMenu": "Hiển thị _MENU_ kết quả",
+                    "zeroRecords": "Không tìm thấy kết quả nào",
+                    "info": "Hiển thị từ _START_ đến _END_ của _TOTAL_ kết quả",
+                    "infoEmpty": "Không có dữ liệu",
+                    "infoFiltered": "(lọc từ _MAX_ tổng kết quả)",
+                    "search": "Tìm kiếm:",
+                    "paginate": {
+                        "first": "Đầu",
+                        "last": "Cuối",
+                        "next": "Sau",
+                        "previous": "Trước"
+                    },
+                    "loadingRecords": "Đang tải...",
+                    "processing": "Đang xử lý...",
+                },
+                search: {
+                    smart: false, // Tắt tìm kiếm thông minh
+                    regex: false, // Không sử dụng regex
+                    caseInsensitive: true // Không phân biệt chữ hoa/thường
+                },
+                initComplete: function() {
+                    var api = this.api();
+
+                    // Ghi đè lên chức năng tìm kiếm mặc định
+                    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+                        // Lấy giá trị tìm kiếm và chuyển sang chữ thường không dấu
+                        var searchText = removeDiacritics($('.dataTables_filter input').val()
+                            .toLowerCase());
+
+                        // Kiểm tra từng cột trong hàng hiện tại
+                        for (var i = 0; i < data.length; i++) {
+                            // Chuyển đổi nội dung cột sang chữ thường không dấu để so sánh
+                            var columnText = removeDiacritics(data[i].toLowerCase());
+
+                            // Nếu tìm thấy, trả về true
+                            if (columnText.indexOf(searchText) !== -1) {
+                                return true;
+                            }
+                        }
+                        return false;
+                    });
+                }
             });
 
             var action =
@@ -291,32 +380,34 @@
                 width: '100%',
             });
         });
-        $('#select-nha-thau').on('change', function() {
+        $('#group').on('change', function() {
             var id = $(this).val();
-            if (id) {
+            var categoryId = $('#select-nha-thau').val();
+            if (id && categoryId) {
                 $.ajax({
-                    url: '/category-bidder/' + id,
+                    url: '/category-bidder/' + categoryId + '/' + id,
                     type: 'GET',
                     dataType: 'json',
                     success: function(res) {
                         if (res.success) {
-                            var data = res.data[0];
-                            console.log(data);
-
+                            var data = res.data;
+                            var categoryBidder = data.bidder; // là object chứa thông tin nhà thầu
+                            var groupBidder = data.group_bidder;
+                            var bidderList = categoryBidder.bidder;
                             // Clear existing rows in the table
                             $('#product-table').empty();
 
                             // Loop through all bidders and create rows
-                            if (data.bidder && data.bidder.length > 0) {
-                                data.bidder.forEach(function(bidder) {
+                            if (bidderList && bidderList.length > 0) {
+                                bidderList.forEach(function(bidder) {
                                     var row = `
                                 <tr>
-                                    <td>${data.code || ''}</td>
-                                    <td>${data.name || ''}</td>
+                                    <td>${categoryBidder.code || ''}</td>
+                                    <td>${categoryBidder.name || ''}</td>
                                     <td>${bidder.ma_phan || ''}</td>
                                     <td>${bidder.ten_phan || ''}</td>
                                     <td>${bidder.product_name || ''}</td>
-                                    <td>${bidder.quantity || ''}</td>
+                                    <td id="nt-soluong">${bidder.quantity || ''}</td>
                                     <td style="width: 160px">
                                         <select name="id_product[]" class="select2 select-product" style="width: 100%">
                                             <option value="" selected disabled>Chọn mặt hàng</option>
@@ -332,7 +423,7 @@
                                     <td class="product-country"></td>
                                     <td class="product-price"></td>
                                     <td>
-                                        <input type="number" class="form-control border-primary extra-price"
+                                        <input type="number" class="form-control border-primary extra-price qty-input"
                                             title="Nhập giá chênh lệch" value="" name="extra_price[]">
                                     </td>
                                     <td class="nt-giaduthau"></td>
@@ -366,7 +457,6 @@
         $('#extra-price').addClass('d-none');
         $(document).on('change', '.select-product', function() {
             var id = $(this).val();
-            console.log(id)
             var currentRow = $(this).closest('tr');
 
             if (id) {
@@ -386,6 +476,33 @@
                                 ''
                             );
                             currentRow.find('.extra-price').removeClass('d-none');
+
+                            // Sau khi cập nhật giá gốc, gọi hàm tính toán lại giá đấu thầu
+                            var extraPriceInput = currentRow.find('.extra-price');
+                            if (extraPriceInput.val()) {
+                                extraPriceInput.trigger(
+                                    'input'); // Kích hoạt sự kiện input để tính toán lại
+                            } else {
+                                // Nếu chưa có giá trị phụ thu, cập nhật giá đấu thầu bằng giá gốc
+                                var originalPrice = data.price || 0;
+
+                                // Cập nhật giá đấu thầu
+                                currentRow.find('.nt-giaduthau').text(Number(originalPrice)
+                                    .toLocaleString('vi-VN') + ' đ');
+                                currentRow.find('.input-giaduthau').val(Math.round(originalPrice));
+
+                                // Lấy số lượng
+                                var quantity = parseInt(currentRow.find('td:eq(5)').text()) || 1;
+                                var total = originalPrice * quantity;
+
+                                // Cập nhật tổng giá từng dòng
+                                currentRow.find('.total').text(Number(total).toLocaleString('vi-VN') +
+                                    ' đ');
+                                currentRow.find('.input-total').val(Math.round(total));
+
+                                // Cập nhật tổng tiền toàn bộ
+                                updateTotals();
+                            }
                         }
                     },
                     error: function() {
@@ -394,10 +511,10 @@
                 });
             }
         });
+
         $(document).on('input', '.extra-price', function() {
             var currentRow = $(this).closest('tr');
 
-            // Get price text from the current row
             var priceText = currentRow.find('.product-price').text().replace(/[^0-9]/g, '');
             var originalPrice = parseFloat(priceText);
 
@@ -405,26 +522,59 @@
                 var extraPrice = parseFloat($(this).val()) || 0;
                 var bidPrice;
 
-                if (extraPrice >= 1 && extraPrice <= 100) {
-                    bidPrice = originalPrice * (1 + extraPrice / 100); // Tính giá theo phần trăm
+                if (extraPrice < 0) {
+                    currentRow.addClass("bg-red");
                 } else {
-                    bidPrice = originalPrice + extraPrice; // Nếu trên 100, cộng trực tiếp vào giá
+                    currentRow.removeClass("bg-red");
                 }
 
-                // Update bid price in current row
+                // 👉 Xử lý tăng/giảm theo phần trăm hoặc cộng/trừ trực tiếp
+                if (extraPrice >= 1 && extraPrice <= 100) {
+                    bidPrice = originalPrice * (1 + extraPrice / 100);
+                } else if (extraPrice >= -100 && extraPrice <= -1) {
+                } else {
+                    bidPrice = originalPrice + extraPrice;
+                }
+
+                // Cập nhật giá đấu thầu
                 currentRow.find('.nt-giaduthau').text(bidPrice.toLocaleString('vi-VN') + ' đ');
                 currentRow.find('.input-giaduthau').val(Math.round(bidPrice));
 
-                // Get quantity from current row
-                var quantity = parseInt(currentRow.find('td:eq(5)').text()) ||
-                    1; // assuming quantity is in the 6th column
+                // Lấy số lượng
+                var quantity = parseInt(currentRow.find('#nt-soluong').text()) || 1;
                 var total = bidPrice * quantity;
-
-                // Update total in current row
+                console.log(total);
+                // Cập nhật tổng giá từng dòng
                 currentRow.find('.total').text(total.toLocaleString('vi-VN') + ' đ');
                 currentRow.find('.input-total').val(Math.round(total));
+
+                // Cập nhật tổng tiền toàn bộ
+                updateTotals();
             }
         });
+
+        function updateTotals() {
+            // Tổng tiền ban đầu
+            var totalOriginal = 0;
+            $('.product-price').each(function(index) {
+                var price = parseFloat($(this).text().replace(/[^0-9]/g, '')) || 0;
+                var qty = parseInt($('tr').eq(index + 1).find('#nt-soluong').text()) || 1; // +1 bỏ header
+                totalOriginal += price * qty;
+            });
+            $('#total-original').text(totalOriginal.toLocaleString('vi-VN') + ' đ');
+
+            // Tổng thành tiền sau bid
+            var grandTotal = 0;
+            $('.input-total').each(function() {
+                var val = parseFloat($(this).val()) || 0;
+                grandTotal += val;
+            });
+            $('#display-total-amount').text(grandTotal.toLocaleString('vi-VN') + ' đ');
+
+            // 👉 Cập nhật lợi nhuận = tổng thành tiền - tổng gốc
+            var profit = grandTotal - totalOriginal;
+            $('#total-profit').text(profit.toLocaleString('vi-VN') + ' đ');
+        }
         $(document).ready(function() {
             // Khi người dùng bấm vào một hàng, hiển thị chi tiết
             $(".clickable-row").click(function() {
@@ -440,13 +590,10 @@
                 }
             });
         });
-
-        // Hàm bắt sự kiện change cho select bằng ID
         $(document).ready(function() {
             // Bắt sự kiện cho tất cả các phần tử có ID bắt đầu bằng "select-product"
             $(document).on('change', 'select[id^="select-product"]', function() {
                 var code = $(this).val();
-                console.log("Đã chọn sản phẩm có mã:", code);
                 var currentRow = $(this).closest('tr');
 
                 if (code) {
@@ -504,14 +651,14 @@
             // Lặp qua tất cả các checkbox trong bảng và thay đổi trạng thái chúng
             checkboxes.forEach(function(checkbox) {
                 checkbox.checked = isChecked;
+                toggleStatus(checkbox); 
             });
-
         });
 
         // Lắng nghe sự kiện thay đổi của checkbox trong mỗi hàng
         document.querySelectorAll('.row-checkbox').forEach(function(checkbox) {
             checkbox.addEventListener('change', function() {
-
+                toggleStatus(checkbox); // Cập nhật lại trạng thái "Trúng thầu" hoặc "Chưa trúng"
             });
         });
 
@@ -629,6 +776,8 @@
         // Thêm sự kiện cho nút "Thêm dữ liệu mẫu"
         document.getElementById('addSampleBtn').addEventListener('click', addSampleData);
     </script>
+    <script src="{{ asset('assets/js/app.js') }}"></script>
+
 </body>
 
 </html>

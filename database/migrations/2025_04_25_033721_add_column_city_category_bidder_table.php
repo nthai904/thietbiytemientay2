@@ -11,12 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('detail_document', function (Blueprint $table) {
-            $table->id();
-            $table->string('code');
-            $table->string('name');
-            $table->double('total');
-            $table->timestamps();
+        Schema::table('category_bidder', function (Blueprint $table) {
+            $table->string('city')->after('name');
         });
     }
 
@@ -25,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('detail_document');
+        Schema::table('category_bidder', function (Blueprint $table) {
+            $table->dropColumn('city');
+        });
     }
 };

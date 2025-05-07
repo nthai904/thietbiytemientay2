@@ -14,7 +14,7 @@
                         <i class="icon-arrow-right"></i>
                     </li>
                     <li class="nav-item">
-                        <a href="#">Phụ lục</a>
+                        <a href="#">Danh sách trúng thầu</a>
                     </li>
                 </ul>
             </div>
@@ -23,13 +23,13 @@
                     <div class="card">
                         <div class="card-header">
                             <div class="d-flex align-items-center justify-content-between w-100">
-                                <h4 class="card-title">Phụ lục</h4>
+                                <h4 class="card-title">Danh sách trúng thầu</h4>
                                 <div class="d-flex">
-                                    <a href="{{ route('document.create') }}" class="btn btn-primary ms-2 btn-addnew">
+                                    {{-- <a href="{{ route('document.create') }}" class="btn btn-primary ms-2 btn-addnew">
                                         <i class="fa fa-plus me-2"></i>
                                         Thêm mới
-                                    </a>
-                                    <form action="{{ route('bidder.import') }}" method="POST" enctype="multipart/form-data"
+                                    </a> --}}
+                                    {{-- <form action="{{ route('bidder.import') }}" method="POST" enctype="multipart/form-data"
                                         class="d-inline-block">
                                         @csrf
                                         <input type="file" name="file" accept=".xlsx,.xls,.csv"
@@ -39,7 +39,7 @@
                                             <i class="fa fa-file-import me-2"></i>
                                             Import
                                         </button>
-                                    </form>
+                                    </form> --}}
                                     {{-- <form action="{{ route('documents.exportExcel') }}" method="POST"
                                         enctype="multipart/form-data" id="exportForm">
                                         @csrf
@@ -178,7 +178,6 @@
                                             <th style="min-width: 50px;">STT</th>
                                             <th style="min-width: 150px;">Mã bệnh viện</th>
                                             <th style="min-width: 150px;">Tên bệnh viện</th>
-                                            <th style="min-width: 150px;">Gói thầu</th>
                                             <th style="min-width: 120px;">Tổng thành tiền</th>
                                             <th style="min-width: 120px;"></th>
                                         </tr>
@@ -195,16 +194,15 @@
                                                     <td class="clickable">{{ $k + 1 }}</td>
                                                     <td class="clickable">{{ $v['code_category_bidder'] }}</td>
                                                     <td class="clickable">{{ $v['bidder_name'] ?? '' }}</td>
-                                                    <td class="clickable">{{ $v['group'] ?? '' }}</td>
                                                     <td class="clickable">{{ number_format($v['total_price']) ?? '' }} đ
                                                     </td>
                                                     <td>
                                                         @if (is_array($v['code_category_bidder']))
                                                             <a
-                                                                href="{{ route('document.edit', ['code' => $v['code_category_bidder'][0]]) }}">Chi
+                                                                href="{{ route('document.bidDetail', ['code' => $v['code_category_bidder'][0]]) }}">Chi
                                                                 tiết <i class="fa pointer ms-2 fa-caret-right"></i></a>
                                                         @else
-                                                            <a href="{{ route('document.edit', ['code' => $v['code_category_bidder']]) }}"
+                                                            <a href="{{ route('document.bidDetail', ['code' => $v['code_category_bidder']]) }}"
                                                                 class="text-dark">Chi tiết <i
                                                                     class="fa pointer ms-2 fa-caret-right"></i></a>
                                                         @endif

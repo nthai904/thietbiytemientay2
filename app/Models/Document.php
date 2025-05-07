@@ -22,7 +22,9 @@ class Document extends Model
         'country',
         'price',
         'extra_price',
-        'total_price'
+        'total_price',
+         'type',
+         'status'
     ];
 
     public function bidder()

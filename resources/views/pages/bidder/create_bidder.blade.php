@@ -14,7 +14,7 @@
                         <i class="icon-arrow-right"></i>
                     </li>
                     <li class="nav-item">
-                        <a href="#">Quản lý nhà thầu</a>
+                        <a href="#">Quản lý bệnh viện</a>
                     </li>
                     <li class="separator">
                         <i class="icon-arrow-right"></i>
@@ -34,54 +34,91 @@
                             </div>
                             <div class="card-body">
                                 <div class="row">
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="category_id">Nhà thầu</label>
-                                            <select name="category_id" id="category_id" class="select2">
-                                                @if (isset($categories))
-                                                    @foreach ($categories as $category)
-                                                        <option value="{{$category['code']}}">{{$category['name']}}</option>
-                                                    @endforeach
-                                                @endif
-                                            </select>
-                                            {{-- <small id="emailHelp2" class="form-text text-muted">We'll never share your email
-                                        with anyone
-                                        else.</small> --}}
+                                    {{-- Thông tin nhà thầu --}}
+                                    <div class="col-12">
+                                        <div class="card shadow-sm mb-4">
+                                            <div class="card-header bg-den text-white d-flex justify-content-between align-items-center"
+                                                style="cursor: pointer;" data-bs-toggle="collapse"
+                                                data-bs-target="#thong-tin-nha-thau" aria-expanded="true"
+                                                aria-controls="thong-tin-nha-thau">
+                                                <strong>Thông tin nhà thầu</strong>
+                                                <i class="fa fa-chevron-down"></i>
+                                            </div>
+                                            <div class="collapse show" id="thong-tin-nha-thau">
+                                                <div class="card-body">
+                                                    <div class="row g-3">
+                                                        <div class="col-md-4">
+                                                            <label for="city" class="form-label">Tỉnh/TP</label>
+                                                            <select name="city" id="city"
+                                                                class="select2 form-control">
+                                                                <option value="" selected>Chọn tỉnh/tp</option>
+                                                                @foreach ($cities ?? [] as $city)
+                                                                    <option value="{{ $city['id'] }}">{{ $city['name'] }}
+                                                                    </option>
+                                                                @endforeach
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <label for="category_id" class="form-label">Bệnh viện</label>
+                                                            <select name="category_id" id="category_id"
+                                                                class="select2 form-control">
+                                                                <option value="" selected>Chọn bệnh viện</option>
+                                                            </select>
+                                                        </div>
+                                                        <div class="col-md-4">
+                                                            <label for="group" class="form-label">Gói thầu</label>
+                                                            <select name="group" id="group"
+                                                                class="select2 form-control">
+                                                                <option value="" selected>Chọn gói thầu</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+
+                                    {{-- Chi tiết --}}
+                                    <div class="col-12">
+                                        <div class="card shadow-sm mb-4">
+                                            <div class="card-header bg-den text-white d-flex justify-content-between align-items-center"
+                                                style="cursor: pointer;" data-bs-toggle="collapse"
+                                                data-bs-target="#chi-tiet-card" aria-expanded="true"
+                                                aria-controls="chi-tiet-card">
+                                                <strong>Chi tiết</strong>
+                                                <i class="fa fa-chevron-down"></i> {{-- có thể thay bằng font-awesome nếu không dùng Bootstrap Icon --}}
+                                            </div>
+                                            <div class="collapse show" id="chi-tiet-card">
+                                                <div class="card-body">
+                                                    <div class="row g-3">
+                                                        <div class="col-md-6">
+                                                            <label for="ma_phan" class="form-label">Mã phần</label>
+                                                            <input type="text" class="form-control" name="ma_phan"
+                                                                id="ma_phan" placeholder="Nhập mã phần">
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label for="ten_phan" class="form-label">Tên phần</label>
+                                                            <input type="text" class="form-control" name="ten_phan"
+                                                                id="ten_phan" placeholder="Nhập tên phần">
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label for="product_name" class="form-label">Danh mục hàng
+                                                                hóa</label>
+                                                            <input type="text" class="form-control" name="product_name"
+                                                                id="product_name" placeholder="Nhập danh mục hàng hóa">
+                                                        </div>
+                                                        <div class="col-md-6">
+                                                            <label for="quantity" class="form-label">Số lượng</label>
+                                                            <input type="number" class="form-control" name="quantity"
+                                                                id="quantity" placeholder="Nhập số lượng">
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="ma_phan">Mã phần</label>
-                                            <input type="text" class="form-control" name="ma_phan" id="ma_phan" placeholder="Nhập mã phần">
-                                            {{-- <small id="emailHelp2" class="form-text text-muted">We'll never share your email
-                                        with anyone
-                                        else.</small> --}}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="ten_phan">Tên phần</label>
-                                            <input type="text" class="form-control" name="ten_phan" id="ten_phan" placeholder="Nhập tên phần">
-                                            {{-- <small id="emailHelp2" class="form-text text-muted">We'll never share your email
-                                        with anyone
-                                        else.</small> --}}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="product_name">Danh mục hàng hóa</label>
-                                            <input type="text" class="form-control" name="product_name" id="product_name" placeholder="Nhập danh mục hàng hóa">
-                                            {{-- <small id="emailHelp2" class="form-text text-muted">We'll never share your email
-                                        with anyone
-                                        else.</small> --}}
-                                        </div>
-                                    </div>
-                                    <div class="col-md-6">
-                                        <div class="form-group">
-                                            <label for="quantity">Số lượng</label>
-                                            <input type="number" class="form-control" name="quantity" id="quantity" placeholder="Nhập số lượng">
-                                        </div>
-                                    </div>
+
                                 </div>
 
                             </div>

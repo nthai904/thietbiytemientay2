@@ -3,7 +3,7 @@
     <div class="container">
         <div class="page-inner">
             <div class="page-header">
-                <h3 class="fw-bold mb-3">Cập nhật hồ sơ</h3>
+                <h3 class="fw-bold mb-3">Chi tiết trúng thầu</h3>
                 <ul class="breadcrumbs mb-3">
                     <li class="nav-home">
                         <a href="#">
@@ -20,7 +20,7 @@
                         <i class="icon-arrow-right"></i>
                     </li>
                     <li class="nav-item">
-                        <a href="#">Cập nhật hồ sơ</a>
+                        <a href="#">Chi tiết trúng thầu</a>
                     </li>
                 </ul>
             </div>
@@ -31,7 +31,7 @@
                     <div class="col-md-12">
                         <div class="card">
                             <div class="card-header">
-                                <div class="card-title">Cập nhật hồ sơ</div>
+                                <div class="card-title">Chi tiết trúng thầu</div>
                             </div>
                             <div class="card-body pt-4">
                                 <div class="row">
@@ -187,7 +187,7 @@
                             </div>
                             <div class="card-action">
                                 <button class="btn btn-success">Cập nhật</button>
-                                <a href="{{ route('document.index') }}" class="btn btn-danger">Hủy</a>
+                                <a href="{{ route('document.bid') }}" class="btn btn-danger">Hủy</a>
                             </div>
                         </div>
                     </div>

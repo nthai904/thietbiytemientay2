@@ -11,6 +11,7 @@ class CategoryBidder extends Model
     protected $fillable = [
         'code',
         'name',
+        'city',
         'address',
         'phone',
         'fax',
@@ -20,9 +21,17 @@ class CategoryBidder extends Model
         'gender',
         'position',
     ];
-    
+
     public function bidder()
     {
         return $this->hasMany(Bidder::class, 'category_id', 'code');
+    }
+
+    public function group()
+    {
+        return $this->hasMany(GroupBidder::class, 'code', 'category_id');
+    }
+    public function city() {
+        return $this->belongsTo(City::class, 'city', 'id');
     }
 }

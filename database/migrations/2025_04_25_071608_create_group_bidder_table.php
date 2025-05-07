@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('detail_document', function (Blueprint $table) {
+        Schema::create('group_bidder', function (Blueprint $table) {
             $table->id();
-            $table->string('code');
-            $table->string('name');
-            $table->double('total');
+            $table->string('name')->unique();
+            $table->string('category_id');
             $table->timestamps();
         });
     }
@@ -25,6 +24,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('detail_document');
+        Schema::dropIfExists('group_bidder');
     }
 };

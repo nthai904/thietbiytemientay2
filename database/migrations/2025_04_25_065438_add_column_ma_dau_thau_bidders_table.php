@@ -11,12 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('detail_document', function (Blueprint $table) {
-            $table->id();
-            $table->string('code');
-            $table->string('name');
-            $table->double('total');
-            $table->timestamps();
+        Schema::table('bidders', function (Blueprint $table) {
+            $table->string('ma_dau_thau')->after('category_id');
         });
     }
 
@@ -25,6 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('detail_document');
+        Schema::table('bidders', function (Blueprint $table) {
+            $table->dropColumn('ma_dau_thau');
+        });
     }
 };

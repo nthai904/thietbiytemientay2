@@ -13,16 +13,17 @@ return new class extends Migration
     {
         Schema::create('bidding_document', function (Blueprint $table) {
             $table->id();
-            $table->string('ma_phan');
-            $table->string('ten_phan');
-            $table->string('unit');
-            $table->integer('quantity');
-            $table->string('product_name');
-            $table->string('quy_cach');
-            $table->string('brand');
-            $table->string('country');
-            $table->decimal('price');
-            $table->decimal('total_price');
+            $table->string('ma_phan')->nullable();
+            $table->string('ten_phan')->nullable();
+            $table->string('unit')->nullable();
+            $table->integer('quantity')->nullable();
+            $table->string('product_name')->nullable();
+            $table->string('quy_cach')->nullable();
+            $table->string('brand')->nullable();
+            $table->string('country')->nullable();
+            $table->double('price')->nullable();
+            $table->double('total_price')->nullable();
+            $table->string('type')->nullable();
             $table->timestamps();
         });
     }
@@ -32,6 +33,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('bidding_doccument');
+        Schema::dropIfExists('bidding_document');
     }
 };

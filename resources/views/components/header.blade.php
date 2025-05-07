@@ -345,31 +345,29 @@
                   <div class="user-box">
                     <div class="avatar-lg">
                       <img
-                        src="{{asset('assets/img/profile.jpg')}}"
+                        src="{{asset('assets/img/mita-3755.png')}}"
                         alt="image profile"
                         class="avatar-img rounded"
                       />
                     </div>
                     <div class="u-text">
-                      <h4>Hizrian</h4>
-                      <p class="text-muted">hello@example.com</p>
+                      <h4>Admin</h4>
+                      <p class="text-muted">mitacorp@gmail.com</p>
                       <a
                         href="profile.html"
                         class="btn btn-xs btn-secondary btn-sm"
-                        >View Profile</a
+                        >Hồ sơ cá nhân</a
                       >
                     </div>
                   </div>
                 </li>
                 <li>
                   <div class="dropdown-divider"></div>
-                  <a class="dropdown-item" href="#">My Profile</a>
-                  <a class="dropdown-item" href="#">My Balance</a>
-                  <a class="dropdown-item" href="#">Inbox</a>
+                  <a class="dropdown-item" href="#">Hồ sơ của tôi</a>
+                  {{-- <div class="dropdown-divider"></div> --}}
+                  <a class="dropdown-item" href="#">Cài đặt tài khoản</a>
                   <div class="dropdown-divider"></div>
-                  <a class="dropdown-item" href="#">Account Setting</a>
-                  <div class="dropdown-divider"></div>
-                  <a class="dropdown-item" href="#">Logout</a>
+                  <a class="dropdown-item" href="#">Đăng xuất</a>
                 </li>
               </div>
             </ul>

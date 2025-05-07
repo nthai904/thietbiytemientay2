@@ -3,7 +3,7 @@
     <div class="container">
         <div class="page-inner">
             <div class="page-header">
-                <h3 class="fw-bold mb-3">Quản lý nhà thầu</h3>
+                <h3 class="fw-bold mb-3">Quản lý bệnh viện</h3>
                 <ul class="breadcrumbs mb-3">
                     <li class="nav-home">
                         <a href="#">
@@ -14,7 +14,7 @@
                         <i class="icon-arrow-right"></i>
                     </li>
                     <li class="nav-item">
-                        <a href="#">Danh mục nhà thầu</a>
+                        <a href="#">Danh mục bệnh viện</a>
                     </li>
                 </ul>
             </div>
@@ -23,7 +23,7 @@
                     <div class="card">
                         <div class="card-header">
                             <div class="d-flex align-items-center justify-content-between w-100">
-                                <h4 class="card-title">Danh mục nhà thầu</h4>
+                                <h4 class="card-title">Danh mục bệnh viện</h4>
                                 <div class="d-flex">
                                     <a href="{{ route('categorybidder.create') }}" class="btn btn-primary ms-2 btn-addnew">
                                         <i class="fa fa-plus me-2"></i>
@@ -110,8 +110,8 @@
                                     <thead class="table-light text-center">
                                         <tr>
                                             <th style="min-width: 50px;">STT</th>
-                                            <th style="min-width: 150px;">Mã nhà thầu</th>
-                                            <th style="min-width: 120px;">Tên nhà thầu</th>
+                                            <th style="min-width: 150px;">Mã bệnh viện</th>
+                                            <th style="min-width: 120px;">Tên bệnh viện</th>
                                             <th style="min-width: 120px;">Thao tác</th>
                                         </tr>
                                     </thead>

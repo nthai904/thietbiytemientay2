@@ -5,10 +5,12 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\BidderController;
 use App\Http\Controllers\CategoryBidderController;
 use App\Http\Controllers\DocumentController;
+use App\Http\Controllers\ExchangeController;
 
 Route::get('/', function () {
     return view('pages.dashboard.index');
-});
+})->name('dashboard.index');
+
 
 // Product Routes
 Route::controller(ProductController::class)->group(function () {
@@ -23,12 +25,18 @@ Route::controller(BidderController::class)->group(function () {
     Route::get('/bidder/create', 'create')->name('bidder.create');
     Route::post('/bidder/store', 'store')->name('bidder.store');
     Route::post('/bidder', 'import')->name('bidder.import');
+    Route::get('/bidder/group', 'group')->name('bidder.group');
+    Route::get('/bidder/create-group', 'create_group')->name('bidder.createGroup');
+    Route::post('/bidder/create-group', 'storeGroup')->name('bidder.storeGroup');
+    Route::get('/get-categories-by-city/{cityId}', 'getCategory')->name('categories.byCity');
+    Route::get('/get-group-by-categories/{categoryId}', 'getGroup')->name('categories.byCategory');
+    
 });
 
 // Category Bidder Routes
 Route::controller(CategoryBidderController::class)->group(function () {
     Route::get('/category-bidder', 'index')->name('category.index');
-    Route::get('/category-bidder/{code}', 'detail')->name('category.detail');
+    Route::get('/category-bidder/{code}/{group}', 'detail')->name('category.detail');
     Route::get('/create-bidder', 'create')->name('categorybidder.create');
     Route::post('/create-bidder', 'store')->name('categorybidder.store');
 });
@@ -44,4 +52,12 @@ Route::controller(DocumentController::class)->group(function () {
     Route::post('/documents/export-word', 'exportWord')->name('documents.exportWord');
     Route::post('/documents/export-contract', 'exportContract')->name('documents.exportContract');
     Route::post('/documents/export-contract-phuluc', 'exportContractPhuluc')->name('documents.exportContractPhuluc');
+    Route::get('/bid' , 'bid')->name('document.bid');
+    Route::get('/bid/detail/{code}' , 'bidDetail')->name('document.bidDetail');
+});
+
+Route::controller(ExchangeController::class)->group(function () {
+    Route::get('/exchange', 'index')->name('exchange.index');
+    Route::get('/exchange/create', 'create')->name('exchange.create');
+    Route::post('/exchange/store', 'store')->name('exchange.store');
 });

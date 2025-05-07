@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Bidder;
 use App\Models\CategoryBidder;
+use App\Models\City;
+use App\Models\GroupBidder;
 use Illuminate\Http\Request;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 
@@ -12,7 +14,7 @@ class BidderController extends Controller
 {
     public function index()
     {
-        $bidders = Bidder::all();
+        $bidders = Bidder::with('category', 'group')->get()->groupBy('ma_dau_thau');
         return view('pages.bidder.index', compact('bidders'));
     }
 
@@ -46,19 +48,56 @@ class BidderController extends Controller
 
     public function create()
     {
-        $categories = CategoryBidder::all();
-        return view('pages.bidder.create_bidder', compact('categories'));
+        $cities = City::all();
+        return view('pages.bidder.create_bidder', compact('cities'));
     }
 
     public function store(Request $request)
     {
         Bidder::create([
             'category_id'   => $request->category_id ?? null,
+            'ma_dau_thau'   => $request->group ?? null,
             'ma_phan'       => $request->ma_phan ?? null,
             'ten_phan'      => $request->ten_phan ?? null,
             'product_name'  => $request->product_name ?? null,
             'quantity'      => $request->quantity ?? null,
         ]);
         return redirect()->route('bidder.index');
+    }
+
+    public function getCategory($cityId)
+    {
+        $categories = CategoryBidder::where('city', $cityId)->get();
+
+        return response()->json($categories);
+    }
+
+    public function getGroup($categoryId)
+    {
+
+        $groups = GroupBidder::where('category_id', $categoryId)->get();
+
+        return response()->json($groups);
+    }
+
+    public function group()
+    {
+        $groups = GroupBidder::with('category')->orderBy('created_at', 'desc')->get();
+        return view('pages.bidder.group_bidder', compact('groups'));
+    }
+
+    public function create_group(Request $request)
+    {
+        $cities = City::all();
+        return view('pages.bidder.group_bidder_create', compact('cities'));
+    }
+
+    public function storeGroup(Request $request)
+    {
+        GroupBidder::create([
+            'category_id'   => $request->category_id ?? null,
+            'name'   => $request->name ?? null,
+        ]);
+        return redirect()->route('bidder.group');
     }
 }
