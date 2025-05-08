@@ -14,31 +14,32 @@ class ExchangeController extends Controller
 {
     public function index()
     {
-        
+
         $exchanges = Document::with('bidder')
             ->orderBy('created_at', 'desc')
             ->where('type', 'banle')
             ->get();
 
-        $totals = $exchanges->groupBy('code_category_bidder')->map(function ($group) {
+        $totals = $exchanges->groupBy('created_at')->map(function ($group) {
             $firstItem = $group->first();
             $createdAt = Carbon::parse($firstItem->created_at)->format('H:i d/m/Y ');
-
+            $date_slug = Carbon::parse($firstItem->created_at)->format('HisdmY');
             return [
+                'id' => $firstItem->id,
                 'code_category_bidder' => $firstItem->code_category_bidder,
                 'id_product' => $firstItem->id_product,
                 'created_at' => $createdAt,
+                'date_slug' => $date_slug,
                 'total_price' => $group->sum('total_price'),
                 'bidder_name' => $firstItem->bidder->category->name ?? 'Không xác định',
             ];
         });
 
-        $exchanges = $totals->values(); 
+        $exchanges = $totals->values();
         $details = Document::all();
 
         return view('pages.exchange.index', compact('exchanges', 'details'));
     }
-
 
     public function create()
     {
@@ -84,5 +85,32 @@ class ExchangeController extends Controller
         }
 
         return redirect()->route('exchange.index')->with('success', 'Tạo document thành công!');
+    }
+
+    public function detail($date)
+    {
+        $hour = substr($date, 0, 2);
+        $minute = substr($date, 2, 2);
+        $second = substr($date, 4, 2);
+        $day = substr($date, 6, 2);
+        $month = substr($date, 8, 2);
+        $year = substr($date, 10, 4);
+
+        try {
+            $formattedDate = Carbon::createFromFormat('Y-m-d H:i:s', "$year-$month-$day $hour:$minute:$second");
+        } catch (\Exception $e) {
+            return back()->with('error', 'Định dạng ngày không hợp lệ: ' . $e->getMessage());
+        }
+
+        $products = Product::all();
+
+        $documents = Document::whereDate('created_at', $formattedDate->toDateString())
+            ->whereTime('created_at', $formattedDate->format('H:i:s'))
+            ->where('type', 'banle')
+            ->with(['bidder', 'product'])
+            ->get();
+
+
+        return view('pages.exchange.detail', compact('documents', 'products'));
     }
 }

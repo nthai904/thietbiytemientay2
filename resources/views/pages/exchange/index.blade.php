@@ -186,28 +186,28 @@
                                     <tbody class="text-center">
                                         @if (isset($exchanges) && count($exchanges) > 0)
                                             @foreach ($exchanges as $k => $v)
-                                                <tr class="clickable-row" data-id="{{ $v['code_category_bidder'] }}"
+                                                <tr
                                                     style="cursor: pointer;">
                                                     <td>    
                                                         <input type="checkbox" class="row-checkbox"
                                                             style="width:17px; height:17px">
                                                     </td>
-                                                    <td class="clickable">{{ $k + 1 }}</td>
-                                                    <td class="clickable">{{ $v['code_category_bidder'] }}</td>
-                                                    <td class="clickable">{{ $v['bidder_name'] ?? '' }}</td>
-                                                    <td class="clickable">{{ number_format($v['total_price']) ?? '' }} đ
+                                                    <td>{{ $k + 1 }}</td>
+                                                    <td>{{ $v['code_category_bidder'] }}</td>
+                                                    <td>{{ $v['bidder_name'] ?? '' }}</td>
+                                                    <td>{{ number_format($v['total_price']) ?? '' }} đ
                                                     </td>
                                                     <td>{{ $v['created_at'] ?? '' }}</td>
                                                     <td>
-                                                        @if (is_array($v['code_category_bidder']))
+                                                        {{-- @if (is_array($v['code_category_bidder']))
                                                             <a
                                                                 href="{{ route('document.edit', ['code' => $v['code_category_bidder'][0]]) }}">Chi
                                                                 tiết <i class="fa pointer ms-2 fa-caret-right"></i></a>
-                                                        @else
-                                                            <a href="{{ route('document.edit', ['code' => $v['code_category_bidder']]) }}"
+                                                        @else --}}
+                                                            <a href="{{route('exchange.detail', ['date' => $v['date_slug']])}}"
                                                                 class="text-dark">Chi tiết <i
                                                                     class="fa pointer ms-2 fa-caret-right"></i></a>
-                                                        @endif
+                                                        {{-- @endif --}}
                                                     </td>
                                                 </tr>
                                                 {{-- <tr class="details-row" id="details-{{ $v['code_category_bidder'] }}"

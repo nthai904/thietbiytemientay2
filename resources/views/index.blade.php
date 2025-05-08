@@ -38,10 +38,57 @@
     <link rel="stylesheet" href="{{ asset('assets/css/demo.css') }}" />
 
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-
+    <!-- Add this to your <head> section -->
+        <style>
+            #loading-overlay {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-color: rgba(0, 0, 0, 0.85);
+                display: flex;
+                flex-direction: column;
+                justify-content: center;
+                align-items: center;
+                z-index: 9999;
+                transition: opacity 0.5s ease;
+            }
+            
+            .loader {
+                width: 60px;
+                height: 60px;
+                border: 5px solid #333;
+                border-top: 5px solid #177dff; /* Matches your theme color */
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+                margin-bottom: 15px;
+            }
+            
+            .loader-text {
+                font-family: "Public Sans", sans-serif;
+                color: #ffffff;
+                font-size: 16px;
+                font-weight: 500;
+            }
+            
+            @keyframes spin {
+                0% { transform: rotate(0deg); }
+                100% { transform: rotate(360deg); }
+            }
+            
+            .fade-out {
+                opacity: 0;
+                pointer-events: none;
+            }
+        </style>
 </head>
 
 <body>
+    <div id="loading-overlay">
+        <div class="loader"></div>
+        <div class="loader-text">Đang tải...</div>
+    </div>
     <div class="wrapper">
         <!-- Sidebar -->
         @include('components.sidebar')
@@ -423,7 +470,7 @@
                                     <td class="product-country"></td>
                                     <td class="product-price"></td>
                                     <td>
-                                        <input type="number" class="form-control border-primary extra-price qty-input"
+                                        <input type="number" class="form-control border-primary extra-price qty-input-document"
                                             title="Nhập giá chênh lệch" value="" name="extra_price[]">
                                     </td>
                                     <td class="nt-giaduthau"></td>
@@ -532,6 +579,7 @@
                 if (extraPrice >= 1 && extraPrice <= 100) {
                     bidPrice = originalPrice * (1 + extraPrice / 100);
                 } else if (extraPrice >= -100 && extraPrice <= -1) {
+                    bidPrice = originalPrice * (1 + extraPrice / 100);
                 } else {
                     bidPrice = originalPrice + extraPrice;
                 }
@@ -706,7 +754,9 @@
                 // Lấy mã ID từ thuộc tính data-id của tr
                 var codeCategoryBidder = this.closest('tr').getAttribute('data-id');
                 // Tạo URL chi tiết
-                var url = '{{ route('document.edit', ['code' => '__code__']) }}'.replace('__code__',
+
+                //cần sửa lại
+                var url = '{{ route('document.edit', ['code' => '__code__', 'group' => 1]) }}'.replace('__code__',
                     codeCategoryBidder);
                 // Chuyển hướng đến trang chi tiết
                 window.location.href = url;
@@ -777,7 +827,24 @@
         document.getElementById('addSampleBtn').addEventListener('click', addSampleData);
     </script>
     <script src="{{ asset('assets/js/app.js') }}"></script>
-
+    <script>
+        function hideLoadingOverlay() {
+        const overlay = document.getElementById('loading-overlay');
+        overlay.classList.add('fade-out');
+        setTimeout(() => {
+            overlay.style.display = 'none';
+        }, 500); // Matches the transition duration
+    }
+    
+    // Hide loader when the window has fully loaded
+    window.addEventListener('load', function() {
+        // Add a small delay to ensure all scripts have initialized
+        setTimeout(hideLoadingOverlay, 300);
+    });
+    
+    // Fallback: Hide loader after 8 seconds maximum
+    setTimeout(hideLoadingOverlay, 8000);
+    </script>
 </body>
 
 </html>

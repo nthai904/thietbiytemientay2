@@ -10283,7 +10283,7 @@ body[data-background-color="dark"] .jvm-zoom-btn {
   
   .checkbox-toggle:checked + .status-label {
     color: #34a853;
-    background-color: #e6f4ea; /* xanh lá nhạt */
+    background-color: #e6f4ea; 
     border-color: #34a853;
     content: "Trúng thầu";
   }

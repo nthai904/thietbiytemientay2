@@ -23,8 +23,9 @@ class Document extends Model
         'price',
         'extra_price',
         'total_price',
-         'type',
-         'status'
+        'type',
+        'status',
+        'group_id',
     ];
 
     public function bidder()
@@ -38,5 +39,9 @@ class Document extends Model
 
     public function product() {
         return $this->belongsTo(Product::class, 'id_product', 'code');
+    }
+
+    public function group() {
+        return $this->belongsTo(GroupBidder::class, 'group_id', 'id');
     }
 }

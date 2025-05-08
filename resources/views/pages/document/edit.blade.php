@@ -24,7 +24,7 @@
                     </li>
                 </ul>
             </div>
-            <form action="{{ route('document.update', ['code' => $documents[0]['code_category_bidder']]) }}" method="post">
+            <form action="{{ route('document.update', ['code' => $documents[0]['code_category_bidder'], 'group' => $documents[0]['group_id']]) }}" method="post">
                 @csrf
                 @method('PUT')
                 <div class="row">

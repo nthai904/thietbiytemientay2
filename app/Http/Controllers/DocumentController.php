@@ -7,6 +7,7 @@ use App\Models\Bidder;
 use App\Models\CategoryBidder;
 use App\Models\City;
 use App\Models\Document;
+use App\Models\GroupBidder;
 use App\Models\Product;
 use Illuminate\Http\Request;
 use PhpOffice\PhpSpreadsheet\IOFactory;
@@ -23,18 +24,16 @@ class DocumentController extends Controller
             ->orderBy('created_at', 'desc')
             ->where('type', 'dauthau')
             ->get();
-
-        $totals = $documents->groupBy('code_category_bidder')->map(function ($group) {
-
+        $totals = $documents->groupBy('group_id')->map(function ($group) {
             return [
                 'code_category_bidder' => $group->first()->code_category_bidder,
                 'id_product' => $group->first()->id_product,
                 'total_price' => $group->sum('total_price'),
                 'bidder_name' => $group->first()->bidder->category->name ?? 'Không xác định',
-                'group' => $group->first()->bidder->group->name ?? 'Không xác định',
+                'group' => $group->first()->group->name ?? 'Không xác định',
+                'group_id' => $group->first()->group->id ?? 'Không xác định',
             ];
         });
-
         $documents = $totals->values();
         $details = Document::all();
         return view('pages.document.index', compact('documents', 'details'));
@@ -61,7 +60,7 @@ class DocumentController extends Controller
         $giaduthau = $request->giaduthau;
         $thanhtien = $request->thanhtien;
         $extra_price = $request->extra_price;
-
+        $group = $request->group;
         if (empty($productIds) || empty($giaduthau) || empty($thanhtien)) {
             return back()->withErrors(['message' => 'Thông tin sản phẩm hoặc giá trị không hợp lệ!']);
         }
@@ -86,7 +85,8 @@ class DocumentController extends Controller
                     'id_product'           => $product->code,
                     'extra_price'          => $extra_price[$index] ?? 0,
                     'product_name_bidder'  => $bidder->product_name,
-                    'type'                 => 'dauthau'
+                    'type'                 => 'dauthau',
+                    'group_id'             => $group,
                 ]);
             }
         }
@@ -94,14 +94,16 @@ class DocumentController extends Controller
         return redirect()->route('document.index')->with('success', 'Tạo document thành công!');
     }
 
-    public function edit($code)
+    public function edit($code, $group)
     {
         $categories = CategoryBidder::all();
         $products = Product::all();
 
         $documents = Document::with(['bidder', 'product'])
             ->where('code_category_bidder', $code)
+            ->where('group_id', $group)
             ->get();
+
         $total_orginal = $documents->sum(function ($doc) {
             return ($doc->product->price ?? 0) * ($doc->quantity ?? 0);
         });
@@ -119,7 +121,7 @@ class DocumentController extends Controller
     }
 
 
-    public function update(Request $request, $code)
+    public function update(Request $request, $code, $group)
     {
         $productIds  = $request->id_product;
         $giaduthau   = $request->giaduthau;
@@ -131,25 +133,30 @@ class DocumentController extends Controller
             return back()->withErrors(['message' => 'Thiếu thông tin cập nhật!']);
         }
 
-        $documents = Document::where('code_category_bidder', $code)->get();
+        $documents = Document::where('code_category_bidder', $code)->where('group_id', $group)->get();
         foreach ($documents as $index => $doc) {
-            $product = Product::where('code', $productIds[$index])->first();
+            if (
+                isset($productIds[$index], $giaduthau[$index], $thanhtien[$index], $extra_price[$index], $status[$index])
+            ) {
+                $product = Product::where('code', $productIds[$index])->first();
 
-            if ($product) {
-                $doc->update([
-                    'id_product'    => $product->code,
-                    'product_name'  => $product->name,
-                    'unit'          => $product->unit,
-                    'quy_cach'      => $product->quy_cach,
-                    'brand'         => $product->brand,
-                    'country'       => $product->country,
-                    'price'         => $giaduthau[$index],
-                    'total_price'   => $thanhtien[$index],
-                    'extra_price'   => $extra_price[$index],
-                    'status'        => $status[$index],
-                ]);
+                if ($product) {
+                    $doc->update([
+                        'id_product'    => $product->code,
+                        'product_name'  => $product->name,
+                        'unit'          => $product->unit,
+                        'quy_cach'      => $product->quy_cach,
+                        'brand'         => $product->brand,
+                        'country'       => $product->country,
+                        'price'         => $giaduthau[$index],
+                        'total_price'   => $thanhtien[$index],
+                        'extra_price'   => $extra_price[$index],
+                        'status'        => $status[$index],
+                    ]);
+                }
             }
         }
+
 
         return redirect()->route('document.index')->with('success', 'Cập nhật thành công!');
     }
@@ -694,32 +701,33 @@ class DocumentController extends Controller
             ->where('type', 'dauthau')
             ->where('status', 'datrung')
             ->get();
-
-        $totals = $documents->groupBy('code_category_bidder')->map(function ($group) {
-
+        $totals = $documents->groupBy('group_id')->map(function ($group) {
             return [
                 'code_category_bidder' => $group->first()->code_category_bidder,
                 'id_product' => $group->first()->id_product,
                 'total_price' => $group->sum('total_price'),
                 'bidder_name' => $group->first()->bidder->category->name ?? 'Không xác định',
-                'group' => $group->first()->bidder->group->name ?? 'Không xác định',
+                'group' => $group->first()->group->name ?? 'Không xác định',
+                'group_id' => $group->first()->group->id ?? 'Không xác định',
             ];
         });
-
         $documents = $totals->values();
         $details = Document::all();
-
 
         return view('pages.document.bid_list', compact('documents', 'details'));
     }
 
-    public function bidDetail($code){
+    public function bidDetail($code, $group)
+    {
         $categories = CategoryBidder::all();
         $products = Product::all();
 
         $documents = Document::with(['bidder', 'product'])
             ->where('code_category_bidder', $code)
+            ->where('group_id', $group)
+            ->where('status', 'datrung')
             ->get();
+
         $total_orginal = $documents->sum(function ($doc) {
             return ($doc->product->price ?? 0) * ($doc->quantity ?? 0);
         });

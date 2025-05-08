@@ -24,7 +24,7 @@
                     </li>
                 </ul>
             </div>
-            <form action="{{ route('document.update', ['code' => $documents[0]['code_category_bidder']]) }}" method="post">
+            <form action="{{ route('document.update', ['code' => $documents[0]['code_category_bidder'], 'group' => $documents[0]['group']]) }}" method="post">
                 @csrf
                 @method('PUT')
                 <div class="row">
@@ -93,10 +93,7 @@
                                                 <thead class="table-light text-center">
                                                     <tr>
                                                         <th style="min-width: 40px;">
-                                                            <label class="status-wrapper">
-                                                                <input type="checkbox" class="checkbox-toggle" id="check-all">
-                                                                <span class="status-label">Tất cả</span>
-                                                            </label>
+                                                            <input type="checkbox" id="check-all" style="width:17px; height:17px">
                                                         </th>
                                                         <th style="min-width: 50px;">Mã nhà thầu</th>
                                                         <th style="min-width: 150px;">Tên nhà thầu</th>
@@ -119,18 +116,8 @@
                                                         @foreach ($documents as $k => $v)
                                                             <tr style="cursor: pointer;">
                                                                 <td>
-                                                                    <label class="status-wrapper">
-                                                                        <input type="hidden"
-                                                                            name="status[{{ $k }}]"
-                                                                            value="chuatrung">
-                                                                        <input type="checkbox" class="checkbox-toggle row-checkbox"
-                                                                            onchange="toggleStatus(this)"
-                                                                            name="status[{{ $k }}]"
-                                                                            value="datrung"
-                                                                            {{ $v->status == 'datrung' ? 'checked' : '' }}>
-                                                                        <span
-                                                                            class="status-label">{{ $v->status == 'datrung' ? 'Trúng thầu' : 'Chưa trúng' }}</span>
-                                                                    </label>
+                                                                    <input type="checkbox" class="row-checkbox"
+                                                                        style="width:17px; height:17px">
                                                                 </td>
                                                                 <td id="nt-ma">{{ $v['code_category_bidder'] }}</td>
                                                                 <td id="nt-ten">{{ $v->bidder->category->name }}</td>

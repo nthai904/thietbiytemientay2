@@ -194,20 +194,20 @@
                                                     </td>
                                                     <td class="clickable">{{ $k + 1 }}</td>
                                                     <td class="clickable">{{ $v['code_category_bidder'] }}</td>
-                                                    <td class="clickable">{{ $v['bidder_name'] ?? '' }}</td>
+                                                    <td class="clickable">{{ $v['bidder_name'] }}</td>
                                                     <td class="clickable">{{ $v['group'] ?? '' }}</td>
                                                     <td class="clickable">{{ number_format($v['total_price']) ?? '' }} đ
                                                     </td>
                                                     <td>
-                                                        @if (is_array($v['code_category_bidder']))
+                                                        {{-- @if (is_array($v['code_category_bidder']))
                                                             <a
                                                                 href="{{ route('document.edit', ['code' => $v['code_category_bidder'][0]]) }}">Chi
                                                                 tiết <i class="fa pointer ms-2 fa-caret-right"></i></a>
-                                                        @else
-                                                            <a href="{{ route('document.edit', ['code' => $v['code_category_bidder']]) }}"
-                                                                class="text-dark">Chi tiết <i
-                                                                    class="fa pointer ms-2 fa-caret-right"></i></a>
-                                                        @endif
+                                                        @else --}}
+                                                        <a href="{{ route('document.edit', ['code' => $v['code_category_bidder'], 'group' => $v['group_id']]) }}"
+                                                            class="text-dark">Chi tiết <i class="fa pointer ms-2 fa-caret-right"></i></a>
+                                                         
+                                                        {{-- @endif --}}
                                                     </td>
                                                 </tr>
                                                 {{-- <tr class="details-row" id="details-{{ $v['code_category_bidder'] }}"

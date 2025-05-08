@@ -334,14 +334,48 @@ $(document).on("keydown", ".qty-input", function (e) {
         if (currentIndex + 1 < inputs.length) {
             const nextInput = inputs.eq(currentIndex + 1);
             nextInput.val(currentValue).focus();
-
+            
             // Lấy hàng chứa ô kế tiếp
             const nextRow = nextInput.closest("tr");
-
+            
+            // Đánh dấu màu nếu giá trị âm
             if (currentValue < 0) {
                 nextRow.addClass("bg-red");
             } else {
                 nextRow.removeClass("bg-red");
+            }
+            
+            // Lấy giá gốc từ product-price
+            var priceText = nextRow.find('.product-price').text().replace(/[^0-9]/g, '');
+            var originalPrice = parseFloat(priceText);
+            
+            if (!isNaN(originalPrice) && originalPrice > 0) {
+                var extraPrice = currentValue;
+                var bidPrice;
+                
+                // 👉 Xử lý tăng/giảm theo phần trăm hoặc cộng/trừ trực tiếp
+                if (extraPrice >= 1 && extraPrice <= 100) {
+                    bidPrice = originalPrice * (1 + extraPrice / 100);
+                } else if (extraPrice >= -100 && extraPrice <= -1) {
+                    bidPrice = originalPrice * (1 + extraPrice / 100);
+                } else {
+                    bidPrice = originalPrice + extraPrice;
+                }
+                
+                // Cập nhật giá đấu thầu
+                nextRow.find('.exchange-price').text(bidPrice.toLocaleString('vi-VN') + ' đ');
+                nextRow.find('.input-exchange-price').val(Math.round(bidPrice));
+                
+                // Lấy số lượng
+                var quantity = parseInt(nextRow.find('#nt-soluong').text()) || 1;
+                var total = bidPrice * quantity;
+                
+                // Cập nhật tổng giá từng dòng
+                nextRow.find('.total').text(total.toLocaleString('vi-VN') + ' đ');
+                nextRow.find('.input-total').val(Math.round(total));
+                
+                // Cập nhật tổng tiền toàn bộ
+                updateTotals();
             }
         }
     }
@@ -359,6 +393,64 @@ function toggleStatus(checkbox) {
         checkbox.value = "chuatrung"; 
     }
 }
+$(document).on("keydown", ".qty-input-document", function (e) {
+    if (e.ctrlKey && (e.key === "d" || e.key === "c")) {
+        e.preventDefault();
+        const currentValue = parseFloat($(this).val());
+        const inputs = $(".qty-input-document");
+        const currentIndex = inputs.index(this);
+
+        if (currentIndex + 1 < inputs.length) {
+            const nextInput = inputs.eq(currentIndex + 1);
+            nextInput.val(currentValue).focus();
+            
+            // Lấy hàng chứa ô kế tiếp
+            const nextRow = nextInput.closest("tr");
+            
+            // Đánh dấu màu nếu giá trị âm
+            if (currentValue < 0) {
+                nextRow.addClass("bg-red");
+            } else {
+                nextRow.removeClass("bg-red");
+            }
+            
+            // Lấy giá gốc từ product-price
+            var priceText = nextRow.find('.product-price').text().replace(/[^0-9]/g, '');
+            var originalPrice = parseFloat(priceText);
+            
+            if (!isNaN(originalPrice) && originalPrice > 0) {
+                var extraPrice = currentValue;
+                var bidPrice;
+                
+                // 👉 Xử lý tăng/giảm theo phần trăm hoặc cộng/trừ trực tiếp
+                if (extraPrice >= 1 && extraPrice <= 100) {
+                    bidPrice = originalPrice * (1 + extraPrice / 100);
+                } else if (extraPrice >= -100 && extraPrice <= -1) {
+                    bidPrice = originalPrice * (1 + extraPrice / 100);
+                } else {
+                    bidPrice = originalPrice + extraPrice;
+                }
+                
+                // Cập nhật giá đấu thầu
+                nextRow.find('.nt-giaduthau').text(bidPrice.toLocaleString('vi-VN') + ' đ');
+                nextRow.find('.input-giaduthau').val(Math.round(bidPrice));
+                
+                // Lấy số lượng
+                var quantity = parseInt(nextRow.find('#nt-soluong').text()) || 1;
+                var total = bidPrice * quantity;
+                
+                // Cập nhật tổng giá từng dòng
+                nextRow.find('.total').text(total.toLocaleString('vi-VN') + ' đ');
+                nextRow.find('.input-total').val(Math.round(total));
+                
+                // Cập nhật tổng tiền toàn bộ
+                updateTotals();
+            }
+        }
+    }
+});
+
+
 
 
 
