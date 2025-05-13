@@ -12,6 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('bidding_document', function (Blueprint $table) {
+            $table->string('group_id')->after('code_category_bidder')->nullable();
+            $table->integer('so_luong_da_giao')->after('quantity')->nullable();
+            $table->integer('so_luong_con_lai')->after('so_luong_da_giao')->nullable();
             $table->string('status')->nullable();
         });
     }
@@ -22,6 +25,7 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('bidding_document', function (Blueprint $table) {
+            $table->dropColumn('group_id');
             $table->dropColumn('status');
         });
     }

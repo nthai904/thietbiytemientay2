@@ -3343,6 +3343,9 @@ label {
 .card-stats .icon-big.round {
     border-radius: 50% !important;
 }
+
+
+
 .card-stats .icon-big i.fa,
 .card-stats .icon-big i.fab,
 .card-stats .icon-big i.fal,
@@ -4983,7 +4986,7 @@ label.error {
     font-size: 0.95rem;
     text-transform: uppercase;
     letter-spacing: 1px;
-    padding: 12px 24px !important;
+    padding: 12px 24px ;
     border-bottom-width: 1px;
     font-weight: 600;
 }
@@ -10226,26 +10229,26 @@ body[data-background-color="dark"] .jvm-zoom-btn {
     border-radius: var(--bs-border-radius) !important;
 }
 
-.bg-den{
+.bg-den {
     background-color: #1a2035 !important;
 }
 .bg-red > td {
-    background-color:  #ed7171 !important;
+    background-color: #ed7171 !important;
 }
 
 .table-wrapper {
-    max-height: 500px; 
+    max-height: 500px;
     overflow-y: auto;
     border: 1px solid #dee2e6;
-  }
+}
 
-  .table-banle thead th {
+.table-banle thead th {
     position: sticky;
     top: 0;
-    background-color: #f8f9fa; 
+    background-color: #f8f9fa;
     z-index: 1;
-  }
-  .sticky-total.tiny-total-table {
+}
+.sticky-total.tiny-total-table {
     background-color: white;
     z-index: 10;
     padding: 5px;
@@ -10264,13 +10267,13 @@ body[data-background-color="dark"] .jvm-zoom-btn {
     display: inline-flex;
     align-items: center;
     cursor: pointer;
-  }
-  
-  .checkbox-toggle {
+}
+
+.checkbox-toggle {
     display: none; /* Ẩn checkbox gốc */
-  }
-  
-  .status-label {
+}
+
+.status-label {
     padding: 4px 12px;
     border-radius: 20px;
     font-weight: 600;
@@ -10279,21 +10282,39 @@ body[data-background-color="dark"] .jvm-zoom-btn {
     color: #999;
     background-color: #f2f2f2;
     transition: all 0.2s ease;
-  }
-  
-  .checkbox-toggle:checked + .status-label {
+}
+
+.checkbox-toggle:checked + .status-label {
     color: #34a853;
-    background-color: #e6f4ea; /* xanh lá nhạt */
+    background-color: #e6f4ea;
     border-color: #34a853;
     content: "Trúng thầu";
-  }
-  .custom-col {
+}
+.custom-col {
     flex: 0 0 20%;
     max-width: 20%;
 }
+.no-click {
+    pointer-events: none;   /* Không cho click */
+    background-color: #fff; /* Nền trắng */
+    color: #000;            /* Chữ đen */
+    -webkit-appearance: none;
+    appearance: none;
+}
+
+.success .swal2-timer-progress-bar {
+  background: #10b981 !important;
+}
+
 @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 @media screen and (max-width: 576px) {
     .wrapper.not-found h1 {

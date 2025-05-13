@@ -14,7 +14,7 @@ class BidderController extends Controller
 {
     public function index()
     {
-        $bidders = Bidder::with('category', 'group')->get()->groupBy('ma_dau_thau');
+        $bidders = Bidder::with('category', 'group')->orderBy('created_at', 'desc')->get()->groupBy('ma_dau_thau');
         return view('pages.bidder.index', compact('bidders'));
     }
 
@@ -43,7 +43,7 @@ class BidderController extends Controller
         }
 
 
-        return redirect()->back();
+        return redirect()->back()->with('success', 'Thêm mới thành công');
     }
 
     public function create()
@@ -52,17 +52,49 @@ class BidderController extends Controller
         return view('pages.bidder.create_bidder', compact('cities'));
     }
 
+    public function edit($id)
+    {
+       $bidder = Bidder::with('category', 'group')->where('ma_dau_thau', $id)->get()->groupBy('ma_dau_thau');
+       $cities = City::all();
+       return view('pages.bidder.edit_bidder', compact('bidder', 'cities'));
+    }
+
     public function store(Request $request)
     {
-        Bidder::create([
-            'category_id'   => $request->category_id ?? null,
-            'ma_dau_thau'   => $request->group ?? null,
-            'ma_phan'       => $request->ma_phan ?? null,
-            'ten_phan'      => $request->ten_phan ?? null,
-            'product_name'  => $request->product_name ?? null,
-            'quantity'      => $request->quantity ?? null,
-        ]);
-        return redirect()->route('bidder.index');
+        $file = $request->file('file');
+        if (isset($file)) {
+            $spreadsheet = IOFactory::load($file);
+            $sheet = $spreadsheet->getActiveSheet();
+            $data = $sheet->toArray(null, true, true, true);
+            $rows = 0;
+
+            foreach ($data as $index => $row) {
+                if ($index === 1 || empty($row['B'])) {
+                    continue;
+                }
+
+                Bidder::create([
+                    'category_id'   => $request->category_id ?? null,
+                    'ma_dau_thau'   => $request->group ?? null,
+                    'ma_phan'       => $row['A'] ?? null,
+                    'ten_phan'      => $row['B'] ?? null,
+                    'product_name'  => $row['C'] ?? null,
+                    'quantity'      => $row['D'] ?? null,
+                ]);
+
+                $rows++;
+            }
+        } else {
+            Bidder::create([
+                'category_id'   => $request->category_id ?? null,
+                'ma_dau_thau'   => $request->group ?? null,
+                'ma_phan'       => $request->ma_phan ?? null,
+                'ten_phan'      => $request->ten_phan ?? null,
+                'product_name'  => $request->product_name ?? null,
+                'quantity'      => $request->quantity ?? null,
+            ]);
+        }
+        return redirect()->route('bidder.edit', ['id' => $request->group])->with('success', 'Thêm mới thành công');
     }
 
     public function getCategory($cityId)
@@ -98,6 +130,6 @@ class BidderController extends Controller
             'category_id'   => $request->category_id ?? null,
             'name'   => $request->name ?? null,
         ]);
-        return redirect()->route('bidder.group');
+        return redirect()->route('bidder.group')->with('success', 'Thêm mới thành công');
     }
 }

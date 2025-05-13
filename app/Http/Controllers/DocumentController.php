@@ -7,7 +7,10 @@ use App\Models\Bidder;
 use App\Models\CategoryBidder;
 use App\Models\City;
 use App\Models\Document;
+use App\Models\DocumentLog;
+use App\Models\GroupBidder;
 use App\Models\Product;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
@@ -23,18 +26,16 @@ class DocumentController extends Controller
             ->orderBy('created_at', 'desc')
             ->where('type', 'dauthau')
             ->get();
-
-        $totals = $documents->groupBy('code_category_bidder')->map(function ($group) {
-
+        $totals = $documents->groupBy('group_id')->map(function ($group) {
             return [
                 'code_category_bidder' => $group->first()->code_category_bidder,
                 'id_product' => $group->first()->id_product,
                 'total_price' => $group->sum('total_price'),
                 'bidder_name' => $group->first()->bidder->category->name ?? 'Không xác định',
-                'group' => $group->first()->bidder->group->name ?? 'Không xác định',
+                'group' => $group->first()->group->name ?? 'Không xác định',
+                'group_id' => $group->first()->group->id ?? 'Không xác định',
             ];
         });
-
         $documents = $totals->values();
         $details = Document::all();
         return view('pages.document.index', compact('documents', 'details'));
@@ -61,7 +62,7 @@ class DocumentController extends Controller
         $giaduthau = $request->giaduthau;
         $thanhtien = $request->thanhtien;
         $extra_price = $request->extra_price;
-
+        $group = $request->group;
         if (empty($productIds) || empty($giaduthau) || empty($thanhtien)) {
             return back()->withErrors(['message' => 'Thông tin sản phẩm hoặc giá trị không hợp lệ!']);
         }
@@ -86,22 +87,25 @@ class DocumentController extends Controller
                     'id_product'           => $product->code,
                     'extra_price'          => $extra_price[$index] ?? 0,
                     'product_name_bidder'  => $bidder->product_name,
-                    'type'                 => 'dauthau'
+                    'type'                 => 'dauthau',
+                    'group_id'             => $group,
                 ]);
             }
         }
 
-        return redirect()->route('document.index')->with('success', 'Tạo document thành công!');
+        return redirect()->route('document.index')->with('success', 'Thêm mới thành công'); 
     }
 
-    public function edit($code)
+    public function edit($code, $group)
     {
         $categories = CategoryBidder::all();
         $products = Product::all();
 
         $documents = Document::with(['bidder', 'product'])
             ->where('code_category_bidder', $code)
+            ->where('group_id', $group)
             ->get();
+
         $total_orginal = $documents->sum(function ($doc) {
             return ($doc->product->price ?? 0) * ($doc->quantity ?? 0);
         });
@@ -118,8 +122,7 @@ class DocumentController extends Controller
         return view('pages.document.edit', compact('categories', 'products', 'documents', 'total_orginal', 'totalAmount', 'rate', 'percent', 'totalTrung'));
     }
 
-
-    public function update(Request $request, $code)
+    public function update(Request $request, $code, $group)
     {
         $productIds  = $request->id_product;
         $giaduthau   = $request->giaduthau;
@@ -131,25 +134,30 @@ class DocumentController extends Controller
             return back()->withErrors(['message' => 'Thiếu thông tin cập nhật!']);
         }
 
-        $documents = Document::where('code_category_bidder', $code)->get();
+        $documents = Document::where('code_category_bidder', $code)->where('group_id', $group)->get();
         foreach ($documents as $index => $doc) {
-            $product = Product::where('code', $productIds[$index])->first();
+            if (
+                isset($productIds[$index], $giaduthau[$index], $thanhtien[$index], $extra_price[$index], $status[$index])
+            ) {
+                $product = Product::where('code', $productIds[$index])->first();
 
-            if ($product) {
-                $doc->update([
-                    'id_product'    => $product->code,
-                    'product_name'  => $product->name,
-                    'unit'          => $product->unit,
-                    'quy_cach'      => $product->quy_cach,
-                    'brand'         => $product->brand,
-                    'country'       => $product->country,
-                    'price'         => $giaduthau[$index],
-                    'total_price'   => $thanhtien[$index],
-                    'extra_price'   => $extra_price[$index],
-                    'status'        => $status[$index],
-                ]);
+                if ($product) {
+                    $doc->update([
+                        'id_product'    => $product->code,
+                        'product_name'  => $product->name,
+                        'unit'          => $product->unit,
+                        'quy_cach'      => $product->quy_cach,
+                        'brand'         => $product->brand,
+                        'country'       => $product->country,
+                        'price'         => $giaduthau[$index],
+                        'total_price'   => $thanhtien[$index],
+                        'extra_price'   => $extra_price[$index],
+                        'status'        => $status[$index],
+                    ]);
+                }
             }
         }
+
 
         return redirect()->route('document.index')->with('success', 'Cập nhật thành công!');
     }
@@ -164,7 +172,7 @@ class DocumentController extends Controller
             return back()->with('error', 'Không có dữ liệu để xuất.');
         }
 
-        $templatePath = storage_path('app/public/template.xlsx');
+        $templatePath = public_path('template/template.xlsx');
         $spreadsheet = IOFactory::load($templatePath);
         $sheet = $spreadsheet->getActiveSheet();
 
@@ -218,13 +226,13 @@ class DocumentController extends Controller
     public function exportWord(Request $request)
     {
         $selectedRows = json_decode($request->selectedRows, true);
-        $documents = Document::whereIn('code_category_bidder', $selectedRows)->get();
+        $documents = Document::whereIn('code_category_bidder', $selectedRows)->where('type', 'dauthau')->get();
 
         if ($documents->isEmpty()) {
             return back()->with('error', 'Không có dữ liệu để xuất.');
         }
 
-        $templatePath = storage_path('app/public/template.docx');
+        $templatePath = public_path('template/template.docx');
         $templateProcessor = new TemplateProcessor($templatePath);
 
         $templateProcessor->setValue('day', now()->format('d'));
@@ -291,7 +299,7 @@ class DocumentController extends Controller
         $bao_lanh = $total_price * 0.03;
 
         // Tạo template
-        $templatePath = storage_path('app/public/hopdong.docx');
+        $templatePath = public_path('template/hopdong.docx');
         $templateProcessor = new TemplateProcessor($templatePath);
 
         // Gán dữ liệu vào file Word
@@ -353,7 +361,7 @@ class DocumentController extends Controller
             return back()->with('error', 'Không có dữ liệu để xuất.');
         }
 
-        $templatePath = storage_path('app/public/mau_phuluc2.xlsx');
+        $templatePath = public_path('template/mau_phuluc2.xlsx');
         $spreadsheet = \PhpOffice\PhpSpreadsheet\IOFactory::load($templatePath);
         $sheet = $spreadsheet->getActiveSheet();
         $count = count($documents);
@@ -690,43 +698,48 @@ class DocumentController extends Controller
     public function bid()
     {
         $documents = Document::with('bidder')
-            ->orderBy('created_at', 'desc')
+            ->orderBy('updated_at', 'desc')
             ->where('type', 'dauthau')
             ->where('status', 'datrung')
             ->get();
-
-        $totals = $documents->groupBy('code_category_bidder')->map(function ($group) {
-
+        $totals = $documents->groupBy('group_id')->map(function ($group) {
             return [
                 'code_category_bidder' => $group->first()->code_category_bidder,
                 'id_product' => $group->first()->id_product,
                 'total_price' => $group->sum('total_price'),
                 'bidder_name' => $group->first()->bidder->category->name ?? 'Không xác định',
-                'group' => $group->first()->bidder->group->name ?? 'Không xác định',
+                'group' => $group->first()->group->name ?? 'Không xác định',
+                'group_id' => $group->first()->group->id ?? 'Không xác định',
             ];
         });
-
         $documents = $totals->values();
         $details = Document::all();
-
 
         return view('pages.document.bid_list', compact('documents', 'details'));
     }
 
-    public function bidDetail($code){
+    public function bidDetail($code, $group)
+    {
         $categories = CategoryBidder::all();
         $products = Product::all();
 
         $documents = Document::with(['bidder', 'product'])
             ->where('code_category_bidder', $code)
+            ->where('group_id', $group)
+            ->where('status', 'datrung')
+            ->get();
+        $allDocument = Document::with(['bidder', 'product'])
+            ->where('code_category_bidder', $code)
+            ->where('group_id', $group)
             ->get();
         $total_orginal = $documents->sum(function ($doc) {
             return ($doc->product->price ?? 0) * ($doc->quantity ?? 0);
         });
-        $totalAmount = $documents->sum('total_price');
+        $totalAmount = $allDocument->sum('total_price');
 
-        $totalDocuments = $documents->count();
-        $trungDocuments = $documents->where('status', 'datrung')->count();
+        $totalDocuments = $allDocument->count();
+
+        $trungDocuments = $documents ->count();
 
         $rate = $trungDocuments . '/' . $totalDocuments;
         $percent = $totalDocuments > 0 ? round($trungDocuments / $totalDocuments * 100, 2) : 0;
@@ -734,5 +747,129 @@ class DocumentController extends Controller
         $totalTrung = $documents->where('status', 'datrung')->sum('total_price');
 
         return view('pages.document.bid_edit', compact('categories', 'products', 'documents', 'total_orginal', 'totalAmount', 'rate', 'percent', 'totalTrung'));
+    }
+
+    public function bidUpdate(Request $request)
+    {
+        $documents = Document::all()->keyBy('id');
+        foreach ($request->products as $product) {
+            $document = $documents[$product['id']] ?? null;
+            if (!$document) continue;
+
+            if (is_null($document->so_luong_da_giao)) {
+                $so_luong_da_giao_moi = $product['so_luong_giao'];
+            } else {
+                $so_luong_da_giao_moi = $document->so_luong_da_giao + $product['so_luong_giao'];
+            }
+
+            if (is_null($document->so_luong_con_lai)) {
+                $so_luong_con_lai_moi = $product['so_luong_con_lai'];
+            } else {
+                $so_luong_con_lai_moi = $document->so_luong_con_lai - $product['so_luong_giao'];
+            }
+
+            $document->update([
+                'so_luong_da_giao' => $so_luong_da_giao_moi,
+                'so_luong_con_lai' => $so_luong_con_lai_moi,
+            ]);
+
+            DocumentLog::create([
+                'document_id' => $product['id'],
+                'group_id' => $product['group_id'],
+                'so_luong_da_giao' => $product['so_luong_giao'],
+                'so_luong_con_lai' => $product['so_luong_con_lai'],
+            ]);
+        }
+
+        return redirect()->back()->with('success', 'Cập nhật thành công!');
+    }
+
+
+    public function docLogs()
+    {
+        $documents = Document::with('bidder')
+            ->orderBy('created_at', 'desc')
+            ->where('type', 'dauthau')
+            ->where('status', 'datrung')
+            ->whereNotNull('so_luong_da_giao')
+            ->get();
+
+        $details = [];
+        $logsByBidderCode = [];
+        $logsByGroupId = [];
+
+        foreach ($documents as $document) {
+            // Lấy logs của document theo document_id
+            $logs = DocumentLog::where('document_id', $document->id)
+                ->with('document')
+                ->get();
+
+            // Lưu logs vào details
+            $details[$document->id] = $logs;
+
+
+            // Nhóm logs theo group_id
+            if ($document->group_id) {
+                if (!isset($logsByGroupId[$document->group_id])) {
+                    $logsByGroupId[$document->group_id] = [];
+                }
+                $logsByGroupId[$document->group_id] = array_merge(
+                    $logsByGroupId[$document->group_id],
+                    $logs->toArray()
+                );
+            }
+        }
+
+        // Tính tổng theo group_id của document
+        $totals = $documents->groupBy('group_id')->map(function ($group) {
+            $updateAt = Carbon::parse($group->first()->updated_at)->format('H:i d/m/Y ');
+            return [
+                'code_category_bidder' => $group->first()->code_category_bidder,
+                'id' => $group->first()->id,
+                'id_product' => $group->first()->id_product,
+                'total_price' => $group->sum('total_price'),
+                'bidder_name' => $group->first()->bidder->category->name ?? 'Không xác định',
+                'group' => $group->first()->group->name ?? 'Không xác định',
+                'group_id' => $group->first()->group->id ?? 'Không xác định',
+                'updated_at' => $updateAt,
+            ];
+        });
+
+        $documents = $totals->values();
+
+        return view('pages.document.document_log', compact('documents', 'details', 'logsByGroupId'));
+    }
+
+    public function docLogDetail($code, $group)
+    {
+        $documents = Document::with('bidder')
+            ->orderBy('created_at', 'desc')
+            ->where('type', 'dauthau')
+            ->where('code_category_bidder', $code)
+            ->where('group_id', $group)
+            ->where('status', 'datrung')
+            ->get();
+        $details = [];
+        $logsByGroupId = [];
+
+        foreach ($documents as $document) {
+            $logs = DocumentLog::where('document_id', $document->id)
+                ->with('document')
+                ->orderBy('created_at', 'desc')
+                ->get();
+
+            $details[$document->id] = $logs;
+
+            foreach ($logs as $log) {
+                $createdAt = Carbon::parse($log->created_at)->format('H:i Y/m/d'); // Chỉ lấy ngày (loại bỏ giờ)
+
+                if (!isset($logsByGroupId[$document->group_id][$createdAt])) {
+                    $logsByGroupId[$document->group_id][$createdAt] = [];
+                }
+
+                $logsByGroupId[$document->group_id][$createdAt][] = $log;
+            }
+        }
+        return view('pages.document.document_log_detail', compact('logsByGroupId'));
     }
 }

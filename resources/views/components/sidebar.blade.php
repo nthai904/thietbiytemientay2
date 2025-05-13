@@ -23,7 +23,7 @@
     <div class="sidebar-wrapper scrollbar scrollbar-inner">
         <div class="sidebar-content">
             <ul class="nav nav-secondary">
-                <li class="nav-item">
+                <li class="nav-item {{ request()->routeIs('dashboard.index') ? 'active' : '' }}">
                     <a href="{{ route('dashboard.index') }}">
                         <i class="fas fa-home"></i>
                         <p>Bảng điều khiển</p>
@@ -50,112 +50,88 @@
                     </span>
                     <h4 class="text-section">Components</h4>
                 </li> --}}
-                <li class="nav-item">
-                    <a data-bs-toggle="collapse" href="#base">
+                <li class="nav-item {{ request()->routeIs('product.*') ? 'active' : '' }}">
+                    <a data-bs-toggle="collapse" href="#base"
+                        aria-expanded="{{ request()->routeIs('product.*') ? 'true' : 'false' }}">
                         <i class="fas fa-layer-group"></i>
                         <p>Quản lý hàng hóa</p>
                         <span class="caret"></span>
                     </a>
-                    <div class="collapse" id="base">
+                    <div class="collapse {{ request()->routeIs('product.*') ? 'show' : '' }}" id="base">
                         <ul class="nav nav-collapse">
-                            <li>
+                            <li class="{{ request()->routeIs('product.index') ? 'active' : '' }}">
                                 <a href="{{ route('product.index') }}">
                                     <span class="sub-item">Hàng hóa</span>
                                 </a>
                             </li>
-                            {{-- <li>
-                                <a href="components/buttons.html">
-                                    <span class="sub-item">Buttons</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="components/gridsystem.html">
-                                    <span class="sub-item">Grid System</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="components/panels.html">
-                                    <span class="sub-item">Panels</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="components/notifications.html">
-                                    <span class="sub-item">Notifications</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="components/sweetalert.html">
-                                    <span class="sub-item">Sweet Alert</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="components/font-awesome-icons.html">
-                                    <span class="sub-item">Font Awesome Icons</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="components/simple-line-icons.html">
-                                    <span class="sub-item">Simple Line Icons</span>
-                                </a>
-                            </li>
-                            <li>
-                                <a href="components/typography.html">
-                                    <span class="sub-item">Typography</span>
-                                </a>
-                            </li> --}}
                         </ul>
                     </div>
                 </li>
-                <li class="nav-item">
-                    <a data-bs-toggle="collapse" href="#sidebarLayouts">
+
+                <li
+                    class="nav-item {{ request()->routeIs('category.index') || request()->routeIs('bidder.group') || request()->routeIs('bidder.index') ? 'active' : '' }}">
+                    <a data-bs-toggle="collapse" href="#sidebarLayouts"
+                        aria-expanded="{{ request()->routeIs('category.index') || request()->routeIs('bidder.group') || request()->routeIs('bidder.index') ? 'true' : 'false' }}">
                         <i class="fas fa-th-list"></i>
                         <p>Quản lý bệnh viện</p>
                         <span class="caret"></span>
                     </a>
-                    <div class="collapse" id="sidebarLayouts">
+                    <div class="collapse {{ request()->routeIs('category.index') || request()->routeIs('bidder.group') || request()->routeIs('bidder.index') ? 'show' : '' }}"
+                        id="sidebarLayouts">
                         <ul class="nav nav-collapse">
-                            <li>
+                            <li class="{{ request()->routeIs('category.index') ? 'active' : '' }}">
                                 <a href="{{ route('category.index') }}">
                                     <span class="sub-item">Danh mục bệnh viện</span>
                                 </a>
                             </li>
-                            <li>
+                            <li class="{{ request()->routeIs('bidder.group') ? 'active' : '' }}">
                                 <a href="{{ route('bidder.group') }}">
                                     <span class="sub-item">Gói thầu</span>
                                 </a>
                             </li>
-                            <li>
+                            <li class="{{ request()->routeIs('bidder.index') ? 'active' : '' }}">
                                 <a href="{{ route('bidder.index') }}">
                                     <span class="sub-item">Đấu thầu</span>
                                 </a>
                             </li>
+
                         </ul>
                     </div>
                 </li>
-                <li class="nav-item">
-                    <a data-bs-toggle="collapse" href="#sidebarLayouts1">
+
+                <li
+                    class="nav-item {{ request()->routeIs('document.index') || request()->routeIs('document.bid') || request()->routeIs('document.docLog') ? 'active' : '' }}">
+                    <a data-bs-toggle="collapse" href="#sidebarLayouts1"
+                        aria-expanded="{{ request()->routeIs('document.index') || request()->routeIs('document.bid') || request()->routeIs('document.docLog') ? 'true' : 'false' }}">
                         <i class="fas fa-folder"></i>
                         <p>Hồ sơ đấu thầu</p>
                         <span class="caret"></span>
                     </a>
-                    <div class="collapse" id="sidebarLayouts1">
+                    <div class="collapse {{ request()->routeIs('document.index') || request()->routeIs('document.bid') || request()->routeIs('document.docLog') ? 'show' : '' }}"
+                        id="sidebarLayouts1">
                         <ul class="nav nav-collapse">
-                            <li>
+                            <li class="{{ request()->routeIs('document.index') ? 'active' : '' }}">
                                 <a href="{{ route('document.index') }}">
                                     <span class="sub-item">Phụ lục</span>
                                 </a>
                             </li>
-                            <li>
+                            <li class="{{ request()->routeIs('document.bid') ? 'active' : '' }}">
                                 <a href="{{ route('document.bid') }}">
                                     <span class="sub-item">Danh sách trúng thầu</span>
+                                </a>
+                            </li>
+                            <li class="{{ request()->routeIs('document.docLog') ? 'active' : '' }}">
+                                <a href="{{ route('document.docLog') }}">
+                                    <span class="sub-item">Phiếu giao hàng</span>
                                 </a>
                             </li>
                         </ul>
                     </div>
                 </li>
-                <li class="nav-item">
+
+                <li class="nav-item {{ request()->routeIs('exchange.index') ? 'active' : '' }}">
                     <a href="{{ route('exchange.index') }}">
-                        <i class="fas fa-exchange-alt"></i> 
+                        <i class="fas fa-exchange-alt"></i>
                         <p>Quản lý bán lẻ</p>
                         {{-- <span class="caret"></span> --}}
                     </a>

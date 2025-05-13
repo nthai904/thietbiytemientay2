@@ -24,7 +24,7 @@
                     </li>
                 </ul>
             </div>
-            <form action="{{ route('bidder.store') }}" method="post">
+            <form action="{{ route('bidder.store') }}" method="post" enctype="multipart/form-data">
                 @csrf
                 <div class="row">
                     <div class="col-md-12">
@@ -42,7 +42,7 @@
                                                 data-bs-target="#thong-tin-nha-thau" aria-expanded="true"
                                                 aria-controls="thong-tin-nha-thau">
                                                 <strong>Thông tin nhà thầu</strong>
-                                                <i class="fa fa-chevron-down"></i>
+                                                {{-- <i class="fa fa-chevron-down"></i> --}}
                                             </div>
                                             <div class="collapse show" id="thong-tin-nha-thau">
                                                 <div class="card-body">
@@ -87,9 +87,18 @@
                                                 data-bs-target="#chi-tiet-card" aria-expanded="true"
                                                 aria-controls="chi-tiet-card">
                                                 <strong>Chi tiết</strong>
-                                                <i class="fa fa-chevron-down"></i> {{-- có thể thay bằng font-awesome nếu không dùng Bootstrap Icon --}}
+                                                {{-- <i class="fa fa-chevron-down"></i> --}}
+
+                                                <input type="file" name="file" accept=".xlsx,.xls,.csv"
+                                                    class="form-control d-none" id="fileInput" />
+                                                <button type="button" class="btn btn-primary ms-2 btn-addnew"
+                                                    id="importButton">
+                                                    <i class="fa fa-file-import me-2"></i>
+                                                    Import
+                                                </button>
+
                                             </div>
-                                            <div class="collapse show" id="chi-tiet-card">
+                                            <div class="collapse show">
                                                 <div class="card-body">
                                                     <div class="row g-3">
                                                         <div class="col-md-6">

@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>MITA DEMO</title>
     <meta content="width=device-width, initial-scale=1.0, shrink-to-fit=no" name="viewport" />
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link rel="icon" href="{{ asset('assets/img/mita-3755.png') }}" type="image/x-icon" />
 
     <!-- Fonts and icons -->
@@ -38,10 +39,64 @@
     <link rel="stylesheet" href="{{ asset('assets/css/demo.css') }}" />
 
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <!-- Add this to your <head> section -->
+    <style>
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgb(251, 251, 251);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
 
+        .loader {
+            width: 60px;
+            height: 60px;
+            border: 5px solid #333;
+            border-top: 5px solid #177dff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 15px;
+        }
+
+        .loader-text {
+            font-family: "Public Sans", sans-serif;
+            color: black;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        .fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+    </style>
+
+    <meta name="csrf-token" content="{{ csrf_token() }}">
 </head>
 
 <body>
+    <div id="loading-overlay">
+        <div class="loader"></div>
+        <div class="loader-text">Đang tải...</div>
+    </div>
     <div class="wrapper">
         <!-- Sidebar -->
         @include('components.sidebar')
@@ -184,196 +239,10 @@
     <!-- Kaiadmin DEMO methods, don't include it in your project! -->
     <script src="{{ asset('assets/js/setting-demo.js') }}"></script>
     <script src="{{ asset('assets/js/demo.js') }}"></script>
+    <!-- SweetAlert2 -->
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
-    <script>
-        $("#lineChart").sparkline([102, 109, 120, 99, 110, 105, 115], {
-            type: "line",
-            height: "70",
-            width: "100%",
-            lineWidth: "2",
-            lineColor: "#177dff",
-            fillColor: "rgba(23, 125, 255, 0.14)",
-        });
-
-        $("#lineChart2").sparkline([99, 125, 122, 105, 110, 124, 115], {
-            type: "line",
-            height: "70",
-            width: "100%",
-            lineWidth: "2",
-            lineColor: "#f3545d",
-            fillColor: "rgba(243, 84, 93, .14)",
-        });
-
-        $("#lineChart3").sparkline([105, 103, 123, 100, 95, 105, 115], {
-            type: "line",
-            height: "70",
-            width: "100%",
-            lineWidth: "2",
-            lineColor: "#ffa534",
-            fillColor: "rgba(255, 165, 52, .14)",
-        });
-    </script>
-    <script>
-        $(document).ready(function() {
-            // Hàm chuyển đổi tiếng Việt có dấu thành không dấu
-            function removeDiacritics(str) {
-                return str.normalize('NFD')
-                    .replace(/[\u0300-\u036f]/g, '')
-                    .replace(/đ/g, 'd').replace(/Đ/g, 'D');
-            }
-
-            // Khởi tạo DataTables với tùy chỉnh cho tìm kiếm tiếng Việt
-            $('#basic-datatables').DataTable({
-                order: [],
-                pageLength: 10,
-                language: {
-                    "lengthMenu": "Hiển thị _MENU_ kết quả",
-                    "zeroRecords": "Không tìm thấy kết quả nào",
-                    "info": "Hiển thị từ _START_ đến _END_ của _TOTAL_ kết quả",
-                    "infoEmpty": "Không có dữ liệu",
-                    "infoFiltered": "(lọc từ _MAX_ tổng kết quả)",
-                    "search": "Tìm kiếm:",
-                    "paginate": {
-                        "first": "Đầu",
-                        "last": "Cuối",
-                        "next": "Sau",
-                        "previous": "Trước"
-                    },
-                    "loadingRecords": "Đang tải...",
-                    "processing": "Đang xử lý...",
-                },
-                search: {
-                    smart: false, // Tắt tìm kiếm thông minh
-                    regex: false, // Không sử dụng regex
-                    caseInsensitive: true // Không phân biệt chữ hoa/thường
-                },
-                initComplete: function() {
-                    // Lưu reference đến API DataTable
-                    var table = this.api();
-
-                    // Xử lý sự kiện tìm kiếm
-                    $('.dataTables_filter input')
-                        .off() // Tắt xử lý sự kiện mặc định
-                        .on('input', function() {
-                            var searchTerm = $(this).val().toLowerCase();
-                            // Tìm kiếm ngay khi nhập, không đợi toàn bộ từ
-                            table.search(searchTerm).draw();
-                        });
-                }
-            });
-
-            $("#multi-filter-select").DataTable({
-                pageLength: 5,
-                initComplete: function() {
-                    this.api()
-                        .columns()
-                        .every(function() {
-                            var column = this;
-                            var select = $(
-                                    '<select class="form-select"><option value=""></option></select>'
-                                )
-                                .appendTo($(column.footer()).empty())
-                                .on("change", function() {
-                                    var val = $.fn.dataTable.util.escapeRegex($(this).val());
-
-                                    column
-                                        .search(val ? "^" + val + "$" : "", true, false)
-                                        .draw();
-                                });
-
-                            column
-                                .data()
-                                .unique()
-                                .sort()
-                                .each(function(d, j) {
-                                    select.append(
-                                        '<option value="' + d + '">' + d + "</option>"
-                                    );
-                                });
-                        });
-                },
-            });
-
-            // Add Row
-            $("#add-row").DataTable({
-                pageLength: 10,
-                language: {
-                    "lengthMenu": "Hiển thị _MENU_ kết quả",
-                    "zeroRecords": "Không tìm thấy kết quả nào",
-                    "info": "Hiển thị từ _START_ đến _END_ của _TOTAL_ kết quả",
-                    "infoEmpty": "Không có dữ liệu",
-                    "infoFiltered": "(lọc từ _MAX_ tổng kết quả)",
-                    "search": "Tìm kiếm:",
-                    "paginate": {
-                        "first": "Đầu",
-                        "last": "Cuối",
-                        "next": "Sau",
-                        "previous": "Trước"
-                    },
-                    "loadingRecords": "Đang tải...",
-                    "processing": "Đang xử lý...",
-                },
-                search: {
-                    smart: false, // Tắt tìm kiếm thông minh
-                    regex: false, // Không sử dụng regex
-                    caseInsensitive: true // Không phân biệt chữ hoa/thường
-                },
-                initComplete: function() {
-                    var api = this.api();
-
-                    // Ghi đè lên chức năng tìm kiếm mặc định
-                    $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-                        // Lấy giá trị tìm kiếm và chuyển sang chữ thường không dấu
-                        var searchText = removeDiacritics($('.dataTables_filter input').val()
-                            .toLowerCase());
-
-                        // Kiểm tra từng cột trong hàng hiện tại
-                        for (var i = 0; i < data.length; i++) {
-                            // Chuyển đổi nội dung cột sang chữ thường không dấu để so sánh
-                            var columnText = removeDiacritics(data[i].toLowerCase());
-
-                            // Nếu tìm thấy, trả về true
-                            if (columnText.indexOf(searchText) !== -1) {
-                                return true;
-                            }
-                        }
-                        return false;
-                    });
-                }
-            });
-
-            var action =
-                '<td> <div class="form-button-action"> <button type="button" data-bs-toggle="tooltip" title="" class="btn btn-link btn-primary btn-lg" data-original-title="Edit Task"> <i class="fa fa-edit"></i> </button> <button type="button" data-bs-toggle="tooltip" title="" class="btn btn-link btn-danger" data-original-title="Remove"> <i class="fa fa-times"></i> </button> </div> </td>';
-
-            $("#addRowButton").click(function() {
-                $("#add-row")
-                    .dataTable()
-                    .fnAddData([
-                        $("#addName").val(),
-                        $("#addPosition").val(),
-                        $("#addOffice").val(),
-                        action,
-                    ]);
-                $("#addRowModal").modal("hide");
-            });
-        });
-    </script>
-    <script>
-        document.getElementById('importButton').addEventListener('click', function() {
-            // Mở hộp thoại chọn tệp khi bấm vào nút Import
-            document.getElementById('fileInput').click();
-        });
-
-        // Khi người dùng chọn tệp, gửi form
-        document.getElementById('fileInput').addEventListener('change', function(event) {
-            if (this.files.length > 0) {
-                // Nếu người dùng đã chọn tệp, gửi form
-                event.target.form.submit(); // Đảm bảo là form được gửi
-            }
-        });
-    </script>
     <script>
         $(document).ready(function() {
             $('.select2').select2({
@@ -423,7 +292,7 @@
                                     <td class="product-country"></td>
                                     <td class="product-price"></td>
                                     <td>
-                                        <input type="number" class="form-control border-primary extra-price qty-input"
+                                        <input type="number" class="form-control border-primary extra-price qty-input-document"
                                             title="Nhập giá chênh lệch" value="" name="extra_price[]">
                                     </td>
                                     <td class="nt-giaduthau"></td>
@@ -532,6 +401,7 @@
                 if (extraPrice >= 1 && extraPrice <= 100) {
                     bidPrice = originalPrice * (1 + extraPrice / 100);
                 } else if (extraPrice >= -100 && extraPrice <= -1) {
+                    bidPrice = originalPrice * (1 + extraPrice / 100);
                 } else {
                     bidPrice = originalPrice + extraPrice;
                 }
@@ -643,24 +513,220 @@
         });
     </script>
     <script>
-        // Lắng nghe sự kiện thay đổi của checkbox "check-all"
-        document.getElementById('check-all').addEventListener('change', function() {
-            var checkboxes = document.querySelectorAll('.row-checkbox');
-            var isChecked = this.checked; // Lấy trạng thái checkbox "check-all"
-
-            // Lặp qua tất cả các checkbox trong bảng và thay đổi trạng thái chúng
-            checkboxes.forEach(function(checkbox) {
-                checkbox.checked = isChecked;
-                toggleStatus(checkbox); 
-            });
+        $("#lineChart").sparkline([102, 109, 120, 99, 110, 105, 115], {
+            type: "line",
+            height: "70",
+            width: "100%",
+            lineWidth: "2",
+            lineColor: "#177dff",
+            fillColor: "rgba(23, 125, 255, 0.14)",
         });
 
-        // Lắng nghe sự kiện thay đổi của checkbox trong mỗi hàng
-        document.querySelectorAll('.row-checkbox').forEach(function(checkbox) {
-            checkbox.addEventListener('change', function() {
-                toggleStatus(checkbox); // Cập nhật lại trạng thái "Trúng thầu" hoặc "Chưa trúng"
+        $("#lineChart2").sparkline([99, 125, 122, 105, 110, 124, 115], {
+            type: "line",
+            height: "70",
+            width: "100%",
+            lineWidth: "2",
+            lineColor: "#f3545d",
+            fillColor: "rgba(243, 84, 93, .14)",
+        });
+
+        $("#lineChart3").sparkline([105, 103, 123, 100, 95, 105, 115], {
+            type: "line",
+            height: "70",
+            width: "100%",
+            lineWidth: "2",
+            lineColor: "#ffa534",
+            fillColor: "rgba(255, 165, 52, .14)",
+        });
+    </script>
+    <script>
+        $(document).ready(function() {
+            // Hàm chuyển đổi tiếng Việt có dấu thành không dấu
+
+
+            // Khởi tạo DataTables với tùy chỉnh cho tìm kiếm tiếng Việt
+            $('#basic-datatables').DataTable({
+                order: [],
+
+                pageLength: 10,
+                language: {
+                    "lengthMenu": "Hiển thị _MENU_ kết quả",
+                    "zeroRecords": "Không tìm thấy kết quả nào",
+                    "info": "Hiển thị từ _START_ đến _END_ của _TOTAL_ kết quả",
+                    "infoEmpty": "Không có dữ liệu",
+                    "infoFiltered": "(lọc từ _MAX_ tổng kết quả)",
+                    "search": "Tìm kiếm:",
+                    "paginate": {
+                        "first": "Đầu",
+                        "last": "Cuối",
+                        "next": "Sau",
+                        "previous": "Trước"
+                    },
+                    "loadingRecords": "Đang tải...",
+                    "processing": "Đang xử lý...",
+                }
+            });
+
+            $("#multi-filter-select").DataTable({
+                pageLength: 5,
+                initComplete: function() {
+                    this.api()
+                        .columns()
+                        .every(function() {
+                            var column = this;
+                            var select = $(
+                                    '<select class="form-select"><option value=""></option></select>'
+                                )
+                                .appendTo($(column.footer()).empty())
+                                .on("change", function() {
+                                    var val = $.fn.dataTable.util.escapeRegex($(this).val());
+
+                                    column
+                                        .search(val ? "^" + val + "$" : "", true, false)
+                                        .draw();
+                                });
+
+                            column
+                                .data()
+                                .unique()
+                                .sort()
+                                .each(function(d, j) {
+                                    select.append(
+                                        '<option value="' + d + '">' + d + "</option>"
+                                    );
+                                });
+                        });
+                },
+            });
+
+            // Add Row
+            $("#add-row").DataTable({
+                pageLength: 10,
+                language: {
+                    "lengthMenu": "Hiển thị _MENU_ kết quả",
+                    "zeroRecords": "Không tìm thấy kết quả nào",
+                    "info": "Hiển thị từ _START_ đến _END_ của _TOTAL_ kết quả",
+                    "infoEmpty": "Không có dữ liệu",
+                    "infoFiltered": "(lọc từ _MAX_ tổng kết quả)",
+                    "search": "Tìm kiếm:",
+                    "paginate": {
+                        "first": "Đầu",
+                        "last": "Cuối",
+                        "next": "Sau",
+                        "previous": "Trước"
+                    },
+                    "loadingRecords": "Đang tải...",
+                    "processing": "Đang xử lý...",
+                }
+            });
+            $("#add-row-bid").DataTable({
+                paging: false,
+                info: false,
+                order: [],
+                language: {
+                    "lengthMenu": "Hiển thị _MENU_ kết quả",
+                    "zeroRecords": "Không tìm thấy kết quả nào",
+                    "info": "Hiển thị từ _START_ đến _END_ của _TOTAL_ kết quả",
+                    "infoEmpty": "Không có dữ liệu",
+                    "infoFiltered": "(lọc từ _MAX_ tổng kết quả)",
+                    "search": "Tìm kiếm:",
+                    "paginate": {
+                        "first": "Đầu",
+                        "last": "Cuối",
+                        "next": "Sau",
+                        "previous": "Trước"
+                    },
+                    "loadingRecords": "Đang tải...",
+                    "processing": "Đang xử lý...",
+                },
+                search: {
+                    smart: true,
+                    regex: false,
+                    caseInsensitive: true
+                },
+                initComplete: function() {
+                    $('.dataTables_filter input')
+                        .attr('placeholder', 'Nhập mã phần lô để tìm kiếm...')
+                        .css('width', '250px');
+                }
+            });
+            $("#table-no-paging").DataTable({
+                paging: false,
+                searching: true,
+                info: false,
+                order: [],
+                search: {
+                    smart: true,
+                    regex: false,
+                    caseInsensitive: true
+                },
+                language: {
+                    "lengthMenu": "Hiển thị _MENU_ kết quả",
+                    "zeroRecords": "Không tìm thấy kết quả nào",
+                    "info": "Hiển thị từ _START_ đến _END_ của _TOTAL_ kết quả",
+                    "infoEmpty": "Không có dữ liệu",
+                    "infoFiltered": "(lọc từ _MAX_ tổng kết quả)",
+                    "search": "Tìm kiếm:",
+                    "paginate": {
+                        "first": "Đầu",
+                        "last": "Cuối",
+                        "next": "Sau",
+                        "previous": "Trước"
+                    },
+                    "loadingRecords": "Đang tải...",
+                    "processing": "Đang xử lý...",
+                },
+            });
+            var action =
+                '<td> <div class="form-button-action"> <button type="button" data-bs-toggle="tooltip" title="" class="btn btn-link btn-primary btn-lg" data-original-title="Edit Task"> <i class="fa fa-edit"></i> </button> <button type="button" data-bs-toggle="tooltip" title="" class="btn btn-link btn-danger" data-original-title="Remove"> <i class="fa fa-times"></i> </button> </div> </td>';
+
+            $("#addRowButton").click(function() {
+                $("#add-row")
+                    .dataTable()
+                    .fnAddData([
+                        $("#addName").val(),
+                        $("#addPosition").val(),
+                        $("#addOffice").val(),
+                        action,
+                    ]);
+                $("#addRowModal").modal("hide");
             });
         });
+    </script>
+    <script>
+        document.getElementById('importButton').addEventListener('click', function() {
+            // Mở hộp thoại chọn tệp khi bấm vào nút Import
+            document.getElementById('fileInput').click();
+        });
+
+        // Khi người dùng chọn tệp, gửi form
+        document.getElementById('fileInput').addEventListener('change', function(event) {
+            if (this.files.length > 0) {
+                // Nếu người dùng đã chọn tệp, gửi form
+                event.target.form.submit(); // Đảm bảo là form được gửi
+            }
+        });
+    </script>
+
+    <script>
+        // Bắt sự kiện trên cha chứa bảng
+        document.addEventListener('change', function(e) {
+            if (e.target && e.target.classList.contains('row-checkbox')) {
+                // Đây là checkbox trong dòng
+                // toggleStatus(e.target); // nếu cần xử lý
+            }
+
+            if (e.target && e.target.id === 'check-all') {
+                var isChecked = e.target.checked;
+                var checkboxes = document.querySelectorAll('.row-checkbox');
+                checkboxes.forEach(function(checkbox) {
+                    checkbox.checked = isChecked;
+                    // toggleStatus(checkbox);
+                });
+            }
+        });
+
 
         document.querySelector('body').addEventListener('click', function(event) {
             if (event.target && event.target.classList.contains('exportButton')) {
@@ -673,7 +739,16 @@
                 document.querySelectorAll('.row-checkbox:checked').forEach(function(checkbox) {
                     var row = checkbox.closest('tr');
                     var rowData = row.dataset.id;
-                    selectedRows.push(rowData);
+                    var rowDate = row.dataset.date;
+                    if (row.dataset.date?.trim()) {
+                        selectedRows.push({
+                            id: rowData,
+                            date: rowDate
+                        });
+                    } else {
+                        selectedRows.push(rowData);
+                    }
+
                 });
 
                 // Nếu là Word mà chọn nhiều hơn 1 dòng → alert rồi dừng
@@ -700,65 +775,79 @@
         function capitalizeFirstLetter(string) {
             return string.charAt(0).toUpperCase() + string.slice(1);
         }
-
-        document.querySelectorAll('.clickable').forEach(td => {
-            td.addEventListener('click', function(event) {
-                // Lấy mã ID từ thuộc tính data-id của tr
-                var codeCategoryBidder = this.closest('tr').getAttribute('data-id');
-                // Tạo URL chi tiết
-                var url = '{{ route('document.edit', ['code' => '__code__']) }}'.replace('__code__',
-                    codeCategoryBidder);
-                // Chuyển hướng đến trang chi tiết
-                window.location.href = url;
-            });
-        });
     </script>
     <script>
-        // Mảng chứa các dữ liệu mẫu khác nhau liên quan đến bệnh viện
         const sampleData = [{
-                code: 'NT001',
-                name: 'Bệnh Viện ABC',
-                address: '123 Đường ABC, Quận 1, TP.HCM',
-                phone: '02812345678',
-                fax: '02887654321',
-                tk: 'abc123',
-                tax_code: '123456789',
-                represent: 'Nguyễn Văn A',
-                gender: 'male', // Giới tính Nam
-                position: 'ceo' // Giám Đốc
+                code: 'BV001',
+                name: 'Bệnh viện Chợ Rẫy',
+                address: '201B Nguyễn Chí Thanh, Phường 12, Quận 5, TP.HCM',
+                phone: '02838554137',
+                fax: '02838565900',
+                tk: '0200123456789',
+                tax_code: '0301440971',
+                represent: 'BS. Nguyễn Văn Hùng',
+                gender: 'male',
+                position: 'Giám Đốc',
+                city_id: 60 // TP.HCM (ví dụ)
             },
             {
-                code: 'NT002',
-                name: 'Bệnh Viện XYZ',
-                address: '456 Đường XYZ, Quận 2, TP.HCM',
-                phone: '02898765432',
-                fax: '02876543210',
-                tk: 'xyz456',
-                tax_code: '987654321',
-                represent: 'Trần Thị B',
-                gender: 'female', // Giới tính Nữ
-                position: 'deputy_ceo' // Phó Giám Đốc
+                code: 'BV002',
+                name: 'Bệnh viện Bạch Mai',
+                address: '78 Giải Phóng, Đống Đa, Hà Nội',
+                phone: '02438693731',
+                fax: '02438692163',
+                tk: '0100123456789',
+                tax_code: '0100116755',
+                represent: 'PGS.TS. Trần Thị Lan',
+                gender: 'female',
+                position: 'Phó Giám Đốc',
+                city_id: 25 // Hà Nội
             },
             {
-                code: 'NT003',
-                name: 'Bệnh Viện PQR',
-                address: '789 Đường PQR, Quận 3, TP.HCM',
-                phone: '02854321098',
-                fax: '02865432109',
-                tk: 'pqr789',
-                tax_code: '456789123',
-                represent: 'Lê Minh C',
-                gender: 'male', // Giới tính Nam
-                position: 'ceo' // Giám Đốc
+                code: 'BV003',
+                name: 'Bệnh viện Trung ương Huế',
+                address: '16 Lê Lợi, Vĩnh Ninh, TP. Huế',
+                phone: '02343822448',
+                fax: '02343822519',
+                tk: '1900123456789',
+                tax_code: '3300100281',
+                represent: 'TS. Phạm Văn Khoa',
+                gender: 'male',
+                position: 'Giám Đốc',
+                city_id: 56 // Thừa Thiên Huế
+            },
+            {
+                code: 'BV004',
+                name: 'Bệnh viện Đại học Y Dược TP.HCM',
+                address: '215 Hồng Bàng, Phường 11, Quận 5, TP.HCM',
+                phone: '02838554269',
+                fax: '02838554270',
+                tk: '0300123456789',
+                tax_code: '0303193689',
+                represent: 'ThS. Nguyễn Thị Hạnh',
+                gender: 'female',
+                position: 'Phó Giám Đốc',
+                city_id: 60 // TP.HCM
+            },
+            {
+                code: 'BV005',
+                name: 'Bệnh viện Đại học Y Dược Cần Thơ',
+                address: '179 Nguyễn Văn Cừ, An Khánh, Ninh Kiều, Cần Thơ',
+                phone: '02923835678',
+                fax: '02923835679',
+                tk: '0300987654321',
+                tax_code: '1800123456',
+                represent: 'BS. Trần Văn Minh',
+                gender: 'male',
+                position: 'Giám Đốc',
+                city_id: 14 // Cần Thơ
             }
+
         ];
 
-        // Hàm để điền dữ liệu mẫu vào form
         function addSampleData() {
-            // Chọn một dữ liệu ngẫu nhiên từ mảng dữ liệu mẫu
             const randomData = sampleData[Math.floor(Math.random() * sampleData.length)];
 
-            // Cập nhật thông tin các trường
             document.getElementById('manhathau').value = randomData.code;
             document.getElementById('name').value = randomData.name;
             document.getElementById('address').value = randomData.address;
@@ -767,16 +856,64 @@
             document.getElementById('tk').value = randomData.tk;
             document.getElementById('tax_code').value = randomData.tax_code;
             document.getElementById('represent').value = randomData.represent;
+            document.getElementById(randomData.gender).checked = true;
 
-            // Chọn giới tính và chức vụ
-            document.getElementById(randomData.gender).checked = true; // Chọn giới tính
-            document.getElementById('position').value = randomData.position; // Chức vụ
+            // Set select2 position
+            $('#position').val(randomData.position).trigger('change');
+
+            // Set select2 city
+            $('#city').val(randomData.city_id).trigger('change');
         }
 
-        // Thêm sự kiện cho nút "Thêm dữ liệu mẫu"
         document.getElementById('addSampleBtn').addEventListener('click', addSampleData);
     </script>
+
     <script src="{{ asset('assets/js/app.js') }}"></script>
+    <script>
+        function hideLoadingOverlay() {
+            const overlay = document.getElementById('loading-overlay');
+            overlay.classList.add('fade-out');
+            setTimeout(() => {
+                overlay.style.display = 'none';
+            }, 500); // Matches the transition duration
+        }
+
+        window.addEventListener('load', function() {
+            setTimeout(hideLoadingOverlay, 300);
+        });
+
+        setTimeout(hideLoadingOverlay, 8000);
+    </script>
+    @if (session('success'))
+        <script>
+            const Toast = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                customClass: {
+                    popup: 'success',
+                    closeButton: 'toast-close-btn'
+                }
+            });
+
+            Toast.fire({
+                icon: 'success',
+                title: "{{ session('success') }}",
+                showCloseButton: true
+            });
+
+            setTimeout(() => {
+                const closeBtn = document.querySelector('.toast-close-btn');
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', () => {
+                        Swal.close();
+                    });
+                }
+            }, 50);
+        </script>
+    @endif
 
 </body>
 

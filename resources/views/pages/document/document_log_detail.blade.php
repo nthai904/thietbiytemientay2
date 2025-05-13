@@ -3,7 +3,7 @@
     <div class="container">
         <div class="page-inner">
             <div class="page-header">
-                <h3 class="fw-bold mb-3">Bán lẻ</h3>
+                <h3 class="fw-bold mb-3">Chi tiết phiếu giao hàng</h3>
                 <ul class="breadcrumbs mb-3">
                     <li class="nav-home">
                         <a href="#">
@@ -14,7 +14,7 @@
                         <i class="icon-arrow-right"></i>
                     </li>
                     <li class="nav-item">
-                        <a href="#">Bán lẻ</a>
+                        <a href="#">Chi tiết phiếu giao hàng</a>
                     </li>
                 </ul>
             </div>
@@ -23,12 +23,12 @@
                     <div class="card">
                         <div class="card-header">
                             <div class="d-flex align-items-center justify-content-between w-100">
-                                <h4 class="card-title">Danh sách bán lẻ</h4>
+                                <h4 class="card-title">Chi tiết phiếu giao hàng</h4>
                                 <div class="d-flex">
-                                    <a href="{{ route('exchange.create') }}" class="btn btn-primary ms-2 btn-addnew">
+                                    {{-- <a href="{{ route('document.create') }}" class="btn btn-primary ms-2 btn-addnew">
                                         <i class="fa fa-plus me-2"></i>
                                         Thêm mới
-                                    </a>
+                                    </a> --}}
                                     {{-- <form action="{{ route('bidder.import') }}" method="POST" enctype="multipart/form-data"
                                         class="d-inline-block">
                                         @csrf
@@ -49,14 +49,15 @@
                                             Xuất file
                                         </button>
                                     </form> --}}
-                                    <div class="dropdown ms-2">
+                                    {{-- <div class="dropdown ms-2">
                                         <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownButton"
                                             data-bs-toggle="dropdown" aria-expanded="false">
                                             <i class="fa fa-file-export me-2"></i>
                                             Xuất file
                                         </button>
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownButton" style="min-width: 200px;">
-                                            {{-- <li>
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownButton"
+                                            style="min-width: 200px;">
+                                            <li>
                                                 <form action="{{ route('documents.exportExcel') }}" method="POST"
                                                     enctype="multipart/form-data" id="exportFormExcel">
                                                     @csrf
@@ -67,9 +68,9 @@
                                                         Phụ lục
                                                     </button>
                                                 </form>
-                                            </li> --}}
+                                            </li>
                                             <li>
-                                                <form action="{{ route('exchange.exportWord') }}" method="POST"
+                                                <form action="{{ route('documents.exportWord') }}" method="POST"
                                                     enctype="multipart/form-data" id="exportFormWord">
                                                     @csrf
                                                     <input type="hidden" name="selectedRows" id="selectedRowsWord">
@@ -80,7 +81,7 @@
                                                     </button>
                                                 </form>
                                             </li>
-                                            {{-- <li>
+                                            <li>
                                                 <form action="{{ route('documents.exportContract') }}" method="POST"
                                                     enctype="multipart/form-data" id="exportFormContract">
                                                     @csrf
@@ -103,9 +104,9 @@
                                                         Phụ lục - Hợp đồng
                                                     </button>
                                                 </form>
-                                            </li> --}}
+                                            </li>
                                         </ul>
-                                    </div>
+                                    </div> --}}
                                 </div>
                             </div>
                         </div>
@@ -120,8 +121,7 @@
                                                 <span class="fw-mediumbold"> New</span>
                                                 <span class="fw-light"> Row </span>
                                             </h5>
-                                            <button type="button" class="close" data-dismiss="modal"
-                                                aria-label="Close">
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                 <span aria-hidden="true">&times;</span>
                                             </button>
                                         </div>
@@ -169,96 +169,75 @@
                             </div>
 
                             <div class="table-responsive">
-                                <table id="add-row" class="table table-bordered align-middle text-nowrap">
+                                <table class="table table-bordered align-middle">
                                     <thead class="table-light text-center">
                                         <tr>
-                                            <th style="min-width: 40px;">
-                                                <input type="checkbox" id="check-all" style="width:17px; height:17px">
-                                            </th>
-                                            <th style="min-width: 50px;">STT</th>
-                                            <th style="min-width: 150px;">Mã bệnh viện</th>
-                                            <th style="min-width: 150px;">Tên bệnh viện</th>
-                                            <th style="min-width: 120px;">Tổng thành tiền</th>
-                                            <th style="min-width: 120px;">Thời gian</th>
-                                            <th style="min-width: 120px;"></th>
+                                            <th width="5%">STT</th>
+                                            <th width="30%">Tên phiếu</th>
+                                            <th width="30%">Thời gian tạo</th>
+                                            <th width="15%"></th>
                                         </tr>
                                     </thead>
                                     <tbody class="text-center">
-                                        @if (isset($exchanges) && count($exchanges) > 0)
-                                            @foreach ($exchanges as $k => $v)
-                                                <tr class="clickable-row" data-url="{{ route('exchange.detail', ['date' => $v['date_slug']]) }}"
-                                                    style="cursor: pointer;" data-id="{{ $v['code_category_bidder'] }}" data-date="{{ $v['date_slug'] }}">
-                                                    <td>    
-                                                        <input type="checkbox" class="row-checkbox"
-                                                            style="width:17px; height:17px">
-                                                    </td>
-                                                    <td class="clickable">{{ $k + 1 }}</td>
-                                                    <td class="clickable">{{ $v['code_category_bidder'] }}</td>
-                                                    <td class="clickable">{{ $v['bidder_name'] ?? '' }}</td>
-                                                    <td class="clickable">{{ number_format($v['total_price']) ?? '' }} đ
-                                                    </td>
-                                                    <td class="clickable">{{ $v['created_at'] ?? '' }}</td>
-                                                    <td>
-                                                        {{-- @if (is_array($v['code_category_bidder']))
-                                                            <a
-                                                                href="{{ route('document.edit', ['code' => $v['code_category_bidder'][0]]) }}">Chi
-                                                                tiết <i class="fa pointer ms-2 fa-caret-right"></i></a>
-                                                        @else --}}
-                                                            <a href="{{route('exchange.detail', ['date' => $v['date_slug']])}}"
-                                                                class="text-dark">Chi tiết <i
-                                                                    class="fa pointer ms-2 fa-caret-right"></i></a>
-                                                        {{-- @endif --}}
-                                                    </td>
-                                                </tr>
-                                                {{-- <tr class="details-row" id="details-{{ $v['code_category_bidder'] }}"
-                                                    style="display:none;">
-                                                    <td colspan="10">
-                                                        <table class="table table-bordered align-middle text-nowrap bg-green">
-                                                            <thead>
-                                                                <tr>
-                                                                    <th>Mã phần</th>
-                                                                    <th>Tên phần</th>
-                                                                    <th>Đơn vị</th>
-                                                                    <th>Số lượng</th>
-                                                                    <th>Tên sản phẩm</th>
-                                                                    <th>Quy cách</th>
-                                                                    <th>Hãng</th>
-                                                                    <th>Quốc gia</th>
-                                                                    <th>Giá</th>
-                                                                    <th>Tổng giá</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                @foreach ($details as $detail)
-                                                                    @if ($detail['code_category_bidder'] == $v['code_category_bidder'])
-                                                                        <tr>
-                                                                            <td>{{ $detail['ma_phan'] }}</td>
-                                                                            <td>{{ $detail['ten_phan'] }}</td>
-                                                                            <td>{{ $detail['unit'] }}</td>
-                                                                            <td>{{ $detail['quantity'] }}</td>
-                                                                            <td>{{ $detail['product_name'] }}</td>
-                                                                            <td>{{ $detail['quy_cach'] }}</td>
-                                                                            <td>{{ $detail['brand'] }}</td>
-                                                                            <td>{{ $detail['country'] }}</td>
-                                                                            <td>{{ number_format($detail['price']) }} đ
-                                                                            </td>
-                                                                            <td>{{ number_format($detail['total_price']) }}
-                                                                                đ</td>
-                                                                        </tr>
-                                                                    @endif
-                                                                @endforeach
-                                                            </tbody>
-                                                        </table>
-                                                    </td>
-                                                </tr> --}}
+                                        @if (isset($logsByGroupId) && count($logsByGroupId) > 0)
+                                            @php $counter = 1; @endphp
+                                            @foreach ($logsByGroupId as $groupId => $logsByDate)
+                                                @foreach ($logsByDate as $date => $logs)
+                                                    <tr class="clickable-row" data-id="{{ $groupId }}-{{ $date }}" style="cursor: pointer;">
+                                                        <td class="clickable">{{ $counter++ }}</td>
+                                                        <td class="clickable">Phiếu ngày {{ \Carbon\Carbon::parse($date)->timezone('Asia/Ho_Chi_Minh')->format('d/m/Y') }}</td>
+                                                        <td class="clickable">{{ \Carbon\Carbon::parse($date)->timezone('Asia/Ho_Chi_Minh')->format('H:i d/m/Y') }}</td>
+                                                        <td>
+                                                            <a class="text-dark" data-bs-toggle="collapse" href="#collapse-{{ $groupId }}-{{ str_replace(' ', '-', $date) }}" role="button" aria-expanded="false" aria-controls="collapse-{{ $groupId }}-{{ str_replace(' ', '-', $date) }}">
+                                                                Chi tiết <i class="fa pointer ms-2 fa-caret-right"></i>
+                                                            </a>
+                                                        </td>
+                                                    </tr>
+                                                    <tr class="collapse" id="collapse-{{ $groupId }}-{{ str_replace(' ', '-', $date) }}">
+                                                        <td colspan="4" class="p-2 bg-light">
+                                                            <div class="border rounded p-2">
+                                                                <div class="table-responsive">
+                                                                    <table class="table table-bordered table-sm align-middle m-0">
+                                                                        <thead class="table-primary">
+                                                                            <tr>
+                                                                                <th width="5%">STT</th>
+                                                                                <th width="10%">Mã phần</th>
+                                                                                <th width="15%">Tên phần</th>
+                                                                                <th width="15%">Danh mục</th>
+                                                                                <th width="10%">SL</th>
+                                                                                <th width="10%">SL giao</th>
+                                                                                <th width="10%">SL còn</th>
+                                                                                <th width="15%">Thời gian</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            @php $innerCounter = 1; @endphp
+                                                                            @foreach ($logs as $log)
+                                                                                <tr>
+                                                                                    <td>{{ $innerCounter++ }}</td>
+                                                                                    <td>{{ $log->document->ma_phan ?? '-' }}</td>
+                                                                                    <td class="text-truncate" style="max-width: 150px;">{{ $log->document->ten_phan ?? '-' }}</td>
+                                                                                    <td class="text-truncate" style="max-width: 150px;">{{ $log->document->product_name ?? '-' }}</td>
+                                                                                    <td>{{ $log->document->quantity ?? '-' }}</td>
+                                                                                    <td>{{ $log->so_luong_da_giao ?? '-' }}</td>
+                                                                                    <td>{{ $log->so_luong_con_lai ?? '-' }}</td>
+                                                                                    <td>{{ \Carbon\Carbon::parse($log->created_at)->timezone('Asia/Ho_Chi_Minh')->format('H:i d/m/Y') }}</td>
+                                                                                </tr>
+                                                                            @endforeach
+                                                                        </tbody>
+                                                                    </table>
+                                                                </div>
+                                                            </div>
+                                                        </td>
+                                                    </tr>
+                                                @endforeach
                                             @endforeach
                                         @else
                                             <tr>
-                                                <td colspan="7" class="text-center">Không có dữ liệu</td>
+                                                <td colspan="4" class="text-center">Không có dữ liệu</td>
                                             </tr>
                                         @endif
                                     </tbody>
-
                                 </table>
                             </div>
 

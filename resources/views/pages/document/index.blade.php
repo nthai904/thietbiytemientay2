@@ -29,7 +29,7 @@
                                         <i class="fa fa-plus me-2"></i>
                                         Thêm mới
                                     </a>
-                                    <form action="{{ route('bidder.import') }}" method="POST" enctype="multipart/form-data"
+                                    {{-- <form action="{{ route('bidder.import') }}" method="POST" enctype="multipart/form-data"
                                         class="d-inline-block">
                                         @csrf
                                         <input type="file" name="file" accept=".xlsx,.xls,.csv"
@@ -39,7 +39,7 @@
                                             <i class="fa fa-file-import me-2"></i>
                                             Import
                                         </button>
-                                    </form>
+                                    </form> --}}
                                     {{-- <form action="{{ route('documents.exportExcel') }}" method="POST"
                                         enctype="multipart/form-data" id="exportForm">
                                         @csrf
@@ -187,27 +187,27 @@
                                         @if (isset($documents) && count($documents) > 0)
                                             @foreach ($documents as $k => $v)
                                                 <tr class="clickable-row" data-id="{{ $v['code_category_bidder'] }}"
-                                                    style="cursor: pointer;">
+                                                    style="cursor: pointer;" data-url="{{ route('document.edit', ['code' => $v['code_category_bidder'], 'group' => $v['group_id']]) }}">
                                                     <td>
                                                         <input type="checkbox" class="row-checkbox"
                                                             style="width:17px; height:17px">
                                                     </td>
                                                     <td class="clickable">{{ $k + 1 }}</td>
                                                     <td class="clickable">{{ $v['code_category_bidder'] }}</td>
-                                                    <td class="clickable">{{ $v['bidder_name'] ?? '' }}</td>
+                                                    <td class="clickable">{{ $v['bidder_name'] }}</td>
                                                     <td class="clickable">{{ $v['group'] ?? '' }}</td>
                                                     <td class="clickable">{{ number_format($v['total_price']) ?? '' }} đ
                                                     </td>
                                                     <td>
-                                                        @if (is_array($v['code_category_bidder']))
+                                                        {{-- @if (is_array($v['code_category_bidder']))
                                                             <a
                                                                 href="{{ route('document.edit', ['code' => $v['code_category_bidder'][0]]) }}">Chi
                                                                 tiết <i class="fa pointer ms-2 fa-caret-right"></i></a>
-                                                        @else
-                                                            <a href="{{ route('document.edit', ['code' => $v['code_category_bidder']]) }}"
-                                                                class="text-dark">Chi tiết <i
-                                                                    class="fa pointer ms-2 fa-caret-right"></i></a>
-                                                        @endif
+                                                        @else --}}
+                                                        <a href="{{ route('document.edit', ['code' => $v['code_category_bidder'], 'group' => $v['group_id']]) }}"
+                                                            class="text-dark">Chi tiết <i class="fa pointer ms-2 fa-caret-right"></i></a>
+                                                         
+                                                        {{-- @endif --}}
                                                     </td>
                                                 </tr>
                                                 {{-- <tr class="details-row" id="details-{{ $v['code_category_bidder'] }}"

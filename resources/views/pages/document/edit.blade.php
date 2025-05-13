@@ -24,7 +24,7 @@
                     </li>
                 </ul>
             </div>
-            <form action="{{ route('document.update', ['code' => $documents[0]['code_category_bidder']]) }}" method="post">
+            <form action="{{ route('document.update', ['code' => $documents[0]['code_category_bidder'], 'group' => $documents[0]['group_id']]) }}" method="post">
                 @csrf
                 @method('PUT')
                 <div class="row">
@@ -88,7 +88,7 @@
                                 <div class="row">
                                     <div class="col-md-12" id="thong-tin-nha-thau">
                                         <div class="table-responsive">
-                                            <table id="basic-datatables"
+                                            <table id="add-row-bid"
                                                 class="table table-bordered table-hover align-middle text-nowrap">
                                                 <thead class="table-light text-center">
                                                     <tr>
@@ -98,13 +98,13 @@
                                                                 <span class="status-label">Tất cả</span>
                                                             </label>
                                                         </th>
-                                                        <th style="min-width: 50px;">Mã nhà thầu</th>
-                                                        <th style="min-width: 150px;">Tên nhà thầu</th>
-                                                        <th style="min-width: 120px;">Mã phần (lô)</th>
+                                                        <th style="min-width: 150px;">Mã bệnh viện</th>
+                                                        <th style="min-width: 150px;">Tên bệnh viện</th>
+                                                        <th style="min-width: 140px;">Mã phần (lô)</th>
                                                         <th style="min-width: 120px;">Tên phần</th>
                                                         <th style="min-width: 120px;">Danh mục hàng hóa</th>
                                                         <th style="min-width: 80px;">Số lượng</th>
-                                                        <th style="min-width: 360px;">Tên thương mại</th>
+                                                        <th style="min-width: 400px;">Tên thương mại</th>
                                                         <th style="min-width: 120px;">Quy cách</th>
                                                         <th style="min-width: 120px;">Hãng sx</th>
                                                         <th style="min-width: 120px;">Nước sx</th>
@@ -129,7 +129,7 @@
                                                                             value="datrung"
                                                                             {{ $v->status == 'datrung' ? 'checked' : '' }}>
                                                                         <span
-                                                                            class="status-label">{{ $v->status == 'datrung' ? 'Trúng thầu' : 'Chưa trúng' }}</span>
+                                                                            class="status-label">Trúng thầu</span>
                                                                     </label>
                                                                 </td>
                                                                 <td id="nt-ma">{{ $v['code_category_bidder'] }}</td>

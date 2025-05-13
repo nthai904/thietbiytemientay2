@@ -198,7 +198,7 @@ $(document).ready(function () {
                                     <td class="product-country">${
                                         data.country || ""
                                     }</td>
-                                    <td><input type="number" class="form-control border-primary product-quantity" name="so_luong[]" value="1"></td>
+                                    <td><input type="number" id="nt-soluong" class="form-control border-primary product-quantity" name="so_luong[]" value="1"></td>
                                     <td class="product-price">${
                                         data.price
                                             ? Number(data.price).toLocaleString(
@@ -215,7 +215,7 @@ $(document).ready(function () {
                                         data.code
                                     }">
                                     <td>
-                                        <button class="btn btn-danger"><i class="fas fa-trash-alt"></i></button>
+                                        <button class="btn btn-danger btn-delete-sp"><i class="fas fa-trash-alt"></i></button>
                                     </td>
                                 </tr>
                             `;
@@ -314,7 +314,7 @@ $(document).ready(function () {
     });
 
     // Xóa dòng sản phẩm
-    $(document).on("click", ".btn-danger", function () {
+    $(document).on("click", ".btn-delete-sp", function () {
         $(this).closest("tr").remove();
 
         // Kiểm tra lại số dòng sau khi xóa
@@ -338,29 +338,697 @@ $(document).on("keydown", ".qty-input", function (e) {
             // Lấy hàng chứa ô kế tiếp
             const nextRow = nextInput.closest("tr");
 
+            // Đánh dấu màu nếu giá trị âm
             if (currentValue < 0) {
                 nextRow.addClass("bg-red");
             } else {
                 nextRow.removeClass("bg-red");
             }
+
+            // Lấy giá gốc từ product-price
+            var priceText = nextRow
+                .find(".product-price")
+                .text()
+                .replace(/[^0-9]/g, "");
+            var originalPrice = parseFloat(priceText);
+
+            if (!isNaN(originalPrice) && originalPrice > 0) {
+                var extraPrice = currentValue;
+                var bidPrice;
+
+                // 👉 Xử lý tăng/giảm theo phần trăm hoặc cộng/trừ trực tiếp
+                if (extraPrice >= 1 && extraPrice <= 100) {
+                    bidPrice = originalPrice * (1 + extraPrice / 100);
+                } else if (extraPrice >= -100 && extraPrice <= -1) {
+                    bidPrice = originalPrice * (1 + extraPrice / 100);
+                } else {
+                    bidPrice = originalPrice + extraPrice;
+                }
+
+                nextRow
+                    .find(".exchange-price")
+                    .text(bidPrice.toLocaleString("vi-VN") + " đ");
+                nextRow.find(".input-exchange-price").val(Math.round(bidPrice));
+
+                // Lấy số lượng
+                var quantity;
+
+                var quantityElement = nextRow.find("#nt-soluong");
+
+                // Kiểm tra xem là thẻ <td> hay <input>
+                if (quantityElement.is("td")) {
+                    quantity = parseInt(quantityElement.text()) || 1;
+                } else if (quantityElement.is("input")) {
+                    quantity = parseInt(quantityElement.val()) || 1;
+                }
+                var total = bidPrice * quantity;
+                // Cập nhật tổng giá từng dòng
+                nextRow
+                    .find(".total")
+                    .text(total.toLocaleString("vi-VN") + " đ");
+                nextRow.find(".input-total").val(Math.round(total));
+
+                // Cập nhật tổng tiền toàn bộ
+                updateTotals();
+            }
+        }
+    }
+});
+// document.getElementById('check-alls').addEventListener('change', function() {
+//     var checkboxes = document.querySelectorAll('.row-checkboxs');
+//     var isChecked = this.checked; // Lấy trạng thái checkbox "check-all"
+
+//     checkboxes.forEach(function(checkbox) {
+//         checkbox.checked = isChecked;
+//         toggleStatus(checkbox);
+//     });
+// });
+// // Lắng nghe sự kiện thay đổi của checkbox trong mỗi hàng
+// document.querySelectorAll('.row-checkboxs').forEach(function(checkbox) {
+//     checkbox.addEventListener('change', function() {
+//         toggleStatus(checkbox);
+//     });
+// });
+// function toggleStatus(checkbox) {
+//     const label = checkbox.nextElementSibling;
+//     if (!label) return;
+
+//     if (checkbox.checked) {
+//         label.textContent = "Trúng thầu";
+//         checkbox.value = "datrung";
+//     } else {
+//         label.textContent = "Chưa trúng";
+//         checkbox.value = "chuatrung";
+//     }
+// }
+$(document).on("keydown", ".qty-input-document", function (e) {
+    if (e.ctrlKey && (e.key === "d" || e.key === "c")) {
+        e.preventDefault();
+        const currentValue = parseFloat($(this).val());
+        const inputs = $(".qty-input-document");
+        const currentIndex = inputs.index(this);
+
+        if (currentIndex + 1 < inputs.length) {
+            const nextInput = inputs.eq(currentIndex + 1);
+            nextInput.val(currentValue).focus();
+
+            // Lấy hàng chứa ô kế tiếp
+            const nextRow = nextInput.closest("tr");
+
+            // Đánh dấu màu nếu giá trị âm
+            if (currentValue < 0) {
+                nextRow.addClass("bg-red");
+            } else {
+                nextRow.removeClass("bg-red");
+            }
+
+            // Lấy giá gốc từ product-price
+            var priceText = nextRow
+                .find(".product-price")
+                .text()
+                .replace(/[^0-9]/g, "");
+            var originalPrice = parseFloat(priceText);
+
+            if (!isNaN(originalPrice) && originalPrice > 0) {
+                var extraPrice = currentValue;
+                var bidPrice;
+
+                // 👉 Xử lý tăng/giảm theo phần trăm hoặc cộng/trừ trực tiếp
+                if (extraPrice >= 1 && extraPrice <= 100) {
+                    bidPrice = originalPrice * (1 + extraPrice / 100);
+                } else if (extraPrice >= -100 && extraPrice <= -1) {
+                    bidPrice = originalPrice * (1 + extraPrice / 100);
+                } else {
+                    bidPrice = originalPrice + extraPrice;
+                }
+
+                // Cập nhật giá đấu thầu
+                nextRow
+                    .find(".nt-giaduthau")
+                    .text(bidPrice.toLocaleString("vi-VN") + " đ");
+                nextRow.find(".input-giaduthau").val(Math.round(bidPrice));
+
+                // Lấy số lượng
+                var quantity =
+                    parseInt(nextRow.find("#nt-soluong").text()) || 1;
+                var total = bidPrice * quantity;
+
+                // Cập nhật tổng giá từng dòng
+                nextRow
+                    .find(".total")
+                    .text(total.toLocaleString("vi-VN") + " đ");
+                nextRow.find(".input-total").val(Math.round(total));
+
+                // Cập nhật tổng tiền toàn bộ
+                updateTotals();
+            }
         }
     }
 });
 
-function toggleStatus(checkbox) {
-    const label = checkbox.nextElementSibling;
-    if (!label) return; 
+// Script để xử lý checkbox và thêm sản phẩm vào modal
+$(document).ready(function () {
+    // Mảng lưu trữ các sản phẩm được chọn
+    var selectedProducts = [];
 
-    if (checkbox.checked) {
-        label.textContent = "Trúng thầu";
-        checkbox.value = "datrung"; 
-    } else {
-        label.textContent = "Chưa trúng";
-        checkbox.value = "chuatrung"; 
+    // Xử lý khi click vào checkbox đầu tiên (check all)
+    $("#check-all").on("change", function () {
+        var isChecked = $(this).prop("checked");
+
+        // Chỉ check những checkbox của sản phẩm còn số lượng để giao
+        $("#product-table tr, table tr").each(function () {
+            var row = $(this);
+            if (row.data("id")) {
+                // Tìm cột số lượng còn lại trực tiếp từ UI
+                var soLuongConLai = 0;
+
+                // Thử đọc từ cột "SỐ LƯỢNG CÒN LẠI" nếu có
+                if (row.find('td:contains("SỐ LƯỢNG CÒN LẠI")').length > 0) {
+                    var colIndex = row
+                        .find('td:contains("SỐ LƯỢNG CÒN LẠI")')
+                        .index();
+                    soLuongConLai =
+                        parseInt(row.find("td").eq(colIndex).text().trim()) ||
+                        0;
+                } else {
+                    // Tìm từ các cột có thể chứa số lượng còn lại
+                    row.find("td").each(function () {
+                        var cellText = $(this).text().trim();
+                        // Nếu là cột số lượng còn lại
+                        if (
+                            $(this).is(".so-luong-con-lai") ||
+                            $(this)
+                                .closest("table")
+                                .find("th, td")
+                                .eq($(this).index())
+                                .text()
+                                .trim()
+                                .toLowerCase()
+                                .includes("còn lại")
+                        ) {
+                            soLuongConLai = parseInt(cellText) || 0;
+                        }
+                    });
+
+                    // Nếu không tìm thấy, thử lấy từ data attribute
+                    if (soLuongConLai === 0) {
+                        soLuongConLai = parseInt(
+                            row.find("td[data-remaining]").data("remaining") ||
+                                row
+                                    .find("td[data-quantity]")
+                                    .data("remaining") ||
+                                0
+                        );
+                    }
+                }
+
+                // Chỉ cho phép check các sản phẩm còn số lượng để giao
+                if (soLuongConLai > 0) {
+                    row.find(".row-checkbox").prop("checked", isChecked);
+
+                    // Cập nhật danh sách sản phẩm được chọn
+                    if (isChecked) {
+                        var product = extractProductData(row);
+                        if (
+                            !isProductSelected(product.id) &&
+                            product.so_luong_con_lai > 0
+                        ) {
+                            selectedProducts.push(product);
+                        }
+                    }
+                } else {
+                    // Không check các sản phẩm đã giao hết
+                    row.find(".row-checkbox").prop("checked", false);
+                }
+            }
+        });
+
+        if (!isChecked) {
+            // Bỏ chọn tất cả
+            selectedProducts = [];
+        }
+
+        // Cập nhật danh sách sản phẩm trong modal
+        updateModalProductList();
+    });
+
+    // Xử lý khi click vào các checkbox riêng lẻ
+    $(document).on("change", ".row-checkbox", function () {
+        var isChecked = $(this).prop("checked");
+        var row = $(this).closest("tr");
+
+        // Tìm cột số lượng còn lại trực tiếp từ UI
+        var soLuongConLai = 0;
+
+        // Nếu là trong bảng chính, tìm từ các cột
+        row.find("td").each(function (index) {
+            // Tìm cột "SỐ LƯỢNG CÒN LẠI" bằng text của header
+            var headerText = $(this)
+                .closest("table")
+                .find("th, tr:first td")
+                .eq(index)
+                .text()
+                .trim()
+                .toLowerCase();
+            if (headerText.includes("còn lại") || headerText === "sl còn lại") {
+                soLuongConLai = parseInt($(this).text().trim()) || 0;
+            }
+        });
+
+        // Nếu không tìm thấy, có thể sản phẩm được hiển thị ở định dạng khác
+        if (soLuongConLai === 0) {
+            // Lấy từ HTML trực tiếp nếu có trên UI
+            var soLuongText = "";
+
+            // Thử từ cột đặc biệt
+            if (row.find(".so-luong-con-lai").length > 0) {
+                soLuongText = row.find(".so-luong-con-lai").text().trim();
+            }
+            // Thử các cột chứa thuộc tính data
+            else if (row.find("td[data-remaining]").length > 0) {
+                soLuongText = row.find("td[data-remaining]").data("remaining");
+            }
+            // Dựa vào cấu trúc bảng hiện tại trong hình, cột 5 hoặc 6 có thể là số lượng còn lại
+            else {
+                // Trong ảnh của bạn, SL còn lại ở cột 6 (index 5)
+                soLuongText = row.find("td:eq(5)").text().trim();
+            }
+
+            soLuongConLai = parseInt(soLuongText) || 0;
+        }
+
+        var product = extractProductData(row, soLuongConLai);
+
+        // Kiểm tra lại một lần nữa từ dữ liệu đã trích xuất
+        if (product.so_luong_con_lai <= 0 && isChecked) {
+            alert(
+                "Sản phẩm này đã giao hết số lượng, không thể thêm vào phiếu giao hàng"
+            );
+            $(this).prop("checked", false);
+            return;
+        }
+
+        if (isChecked) {
+            // Thêm sản phẩm vào danh sách đã chọn nếu chưa có và còn số lượng
+            if (
+                !isProductSelected(product.id) &&
+                product.so_luong_con_lai > 0
+            ) {
+                selectedProducts.push(product);
+            } else if (product.so_luong_con_lai <= 0) {
+                // Nếu không còn số lượng, không cho chọn
+                $(this).prop("checked", false);
+            }
+        } else {
+            // Xóa sản phẩm khỏi danh sách đã chọn
+            selectedProducts = selectedProducts.filter(function (item) {
+                return item.id !== product.id;
+            });
+
+            // Bỏ check ở checkbox tổng nếu có bất kỳ checkbox nào bị bỏ chọn
+            $("#check-all").prop("checked", false);
+        }
+
+        // Cập nhật danh sách sản phẩm trong modal
+        updateModalProductList();
+    });
+
+    // Hàm trích xuất thông tin sản phẩm từ một dòng
+    function extractProductData(row, forcedSoLuongConLai) {
+        var soLuong = 0;
+        var soLuongDaGiao = 0;
+        var soLuongConLai = 0;
+        var maPhan = "";
+        var tenPhan = "";
+        var dmhh = "";
+        var groupId = ""; // Thêm biến để lưu group_id
+
+        // Xác định vị trí của các cột dựa vào header
+        var headerCells = row.closest("table").find("th, tr:first-child td");
+        var colIndexes = {};
+
+        headerCells.each(function (index) {
+            var headerText = $(this).text().trim().toLowerCase();
+            if (headerText.includes("mã") && headerText.includes("phân")) {
+                colIndexes.maPhan = index;
+            } else if (
+                headerText.includes("tên") &&
+                headerText.includes("phân")
+            ) {
+                colIndexes.tenPhan = index;
+            } else if (
+                headerText.includes("danh mục") ||
+                headerText.includes("hàng hóa")
+            ) {
+                colIndexes.dmhh = index;
+            } else if (headerText === "số lượng" || headerText === "sl") {
+                colIndexes.soLuong = index;
+            } else if (headerText.includes("đã giao")) {
+                colIndexes.daGiao = index;
+            } else if (headerText.includes("còn lại")) {
+                colIndexes.conLai = index;
+            } else if (
+                headerText.includes("nhóm") ||
+                headerText.includes("group")
+            ) {
+                colIndexes.groupId = index; // Thêm index cho cột group_id nếu có
+            }
+        });
+
+        // Trích xuất dữ liệu từ các cột đã xác định
+        if (colIndexes.maPhan !== undefined) {
+            maPhan = row.find("td").eq(colIndexes.maPhan).text().trim();
+        } else {
+            maPhan =
+                row.find("td[data-ma_phan]").data("ma_phan") ||
+                row.find("td[data-ma_phan]").text().trim();
+        }
+
+        if (colIndexes.tenPhan !== undefined) {
+            tenPhan = row.find("td").eq(colIndexes.tenPhan).text().trim();
+        } else {
+            tenPhan =
+                row.find("td[data-ten_phan]").data("ten_phan") ||
+                row.find("td[data-ten_phan]").text().trim();
+        }
+
+        if (colIndexes.dmhh !== undefined) {
+            dmhh = row.find("td").eq(colIndexes.dmhh).text().trim();
+        } else {
+            dmhh =
+                row
+                    .find("td[data-product_name_bidder]")
+                    .data("product_name_bidder") ||
+                row.find("td[data-product_name_bidder]").text().trim();
+        }
+
+        if (colIndexes.soLuong !== undefined) {
+            soLuong =
+                parseInt(row.find("td").eq(colIndexes.soLuong).text().trim()) ||
+                0;
+        } else {
+            soLuong =
+                parseInt(
+                    row.find("td[data-quantity]").data("quantity") ||
+                        row.find("td[data-quantity]").text().trim()
+                ) || 0;
+        }
+
+        if (colIndexes.daGiao !== undefined) {
+            soLuongDaGiao =
+                parseInt(row.find("td").eq(colIndexes.daGiao).text().trim()) ||
+                0;
+        } else {
+            soLuongDaGiao =
+                parseInt(
+                    row.find("td[data-delivered]").data("delivered") ||
+                        row.find("td[data-delivered]").text().trim()
+                ) || 0;
+        }
+
+        // Thêm phần trích xuất group_id
+        if (colIndexes.groupId !== undefined) {
+            groupId = row.find("td").eq(colIndexes.groupId).text().trim();
+        } else {
+            groupId =
+                row.find("td[data-group_id]").data("group_id") ||
+                row.data("group_id") ||
+                "";
+        }
+
+        // Nếu có số lượng còn lại được cưỡng chế từ bên ngoài
+        if (forcedSoLuongConLai !== undefined) {
+            soLuongConLai = forcedSoLuongConLai;
+        } else if (colIndexes.conLai !== undefined) {
+            soLuongConLai =
+                parseInt(row.find("td").eq(colIndexes.conLai).text().trim()) ||
+                0;
+        } else {
+            soLuongConLai =
+                parseInt(
+                    row.find("td[data-remaining]").data("remaining") ||
+                        soLuong - soLuongDaGiao
+                ) || soLuong;
+        }
+
+        // Điều chỉnh trong trường hợp dữ liệu thiếu hoặc không nhất quán
+        if (soLuongDaGiao === 0 && soLuongConLai === 0 && soLuong > 0) {
+            soLuongConLai = soLuong;
+        }
+
+        // Nếu tổng số lượng bằng số lượng đã giao, thì số lượng còn lại là 0
+        if (soLuong > 0 && soLuong === soLuongDaGiao) {
+            soLuongConLai = 0;
+        }
+
+        // Trường hợp đặc biệt - nếu row có chứa UI hiển thị "SL CÒN LẠI" với giá trị là 0
+        var isZeroRemaining = false;
+        row.find("td").each(function () {
+            if (
+                $(this).text().trim() === "0" &&
+                $(this)
+                    .closest("table")
+                    .find("th, tr:first td")
+                    .eq($(this).index())
+                    .text()
+                    .trim()
+                    .toLowerCase()
+                    .includes("còn lại")
+            ) {
+                isZeroRemaining = true;
+            }
+        });
+
+        if (isZeroRemaining) {
+            soLuongConLai = 0;
+        }
+
+        return {
+            id: row.data("id") || maPhan, // Fallback nếu không có id
+            ma_phan: maPhan,
+            ten_phan: tenPhan,
+            dmhh: dmhh,
+            so_luong: soLuong,
+            so_luong_da_giao: soLuongDaGiao,
+            so_luong_giao: 0,
+            so_luong_con_lai: soLuongConLai,
+            group_id: groupId, // Thêm group_id vào đối tượng sản phẩm
+        };
     }
-}
 
+    // Kiểm tra xem sản phẩm đã tồn tại trong danh sách chọn chưa
+    function isProductSelected(id) {
+        return selectedProducts.some(function (product) {
+            return product.id === id;
+        });
+    }
 
+    // Cập nhật danh sách sản phẩm trong modal
+    function updateModalProductList() {
+        var modalBody = $("#addRowModal").find("#product-table");
+        modalBody.empty();
 
+        // Lọc bỏ các sản phẩm không còn số lượng để giao
+        selectedProducts = selectedProducts.filter(function (product) {
+            return product.so_luong_con_lai > 0;
+        });
 
+        if (selectedProducts.length === 0) {
+            modalBody.append(
+                '<tr><td colspan="8" class="text-center">Không có dữ liệu</td></tr>'
+            ); // Tăng colspan lên 8 vì thêm cột group_id
+        } else {
+            selectedProducts.forEach(function (product, index) {
+                // Đảm bảo số lượng còn lại không âm
+                if (product.so_luong_con_lai < 0) {
+                    product.so_luong_con_lai = 0;
+                }
 
+                // Chỉ thêm sản phẩm nếu còn số lượng
+                if (product.so_luong_con_lai > 0) {
+                    var row = `
+                        <tr data-id="${product.id}" data-group_id="${product.group_id}">
+                            <td>${product.ma_phan}</td>
+                            <td>${product.ten_phan}</td>
+                            <td>${product.dmhh}</td>
+                            <td>${product.so_luong}</td>
+                            <td>
+                                <input type="number" class="form-control so-luong-giao" 
+                                       min="0" max="${product.so_luong_con_lai}" value="${product.so_luong_giao}"
+                                       data-index="${index}" style="width:80px; margin:0 auto;">
+                            </td>
+                            <td class="so-luong-con-lai">${product.so_luong_con_lai}</td>
+                            
+                            <td>
+                                <button class="btn btn-danger btn-sm remove-product" data-index="${index}">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                    modalBody.append(row);
+                }
+            });
+
+            // Xử lý khi thay đổi số lượng giao
+            $(".so-luong-giao").on("input", function () {
+                var index = $(this).data("index");
+                var soLuongGiao = parseInt($(this).val()) || 0;
+                var maxSoLuong = selectedProducts[index].so_luong_con_lai;
+
+                // Đảm bảo số lượng giao không vượt quá số lượng còn lại
+                if (soLuongGiao > maxSoLuong) {
+                    soLuongGiao = maxSoLuong;
+                    $(this).val(maxSoLuong);
+                }
+
+                // Cập nhật số lượng giao và số lượng còn lại trong modal
+                selectedProducts[index].so_luong_giao = soLuongGiao;
+                selectedProducts[index].so_luong_con_lai_moi =
+                    maxSoLuong - soLuongGiao;
+
+                // Cập nhật hiển thị số lượng còn lại
+                $(this)
+                    .closest("tr")
+                    .find(".so-luong-con-lai")
+                    .text(maxSoLuong - soLuongGiao);
+            });
+
+            // Xử lý khi nhấn nút xóa sản phẩm khỏi danh sách
+            $(".remove-product").on("click", function () {
+                var index = $(this).data("index");
+                var productId = selectedProducts[index].id;
+                selectedProducts.splice(index, 1);
+                updateModalProductList();
+
+                // Bỏ check ở checkbox tương ứng trên bảng chính
+                $(`#product-table tr[data-id="${productId}"]`)
+                    .find(".row-checkbox")
+                    .prop("checked", false);
+            });
+        }
+    }
+
+    // Xử lý khi click vào nút "Tạo phiếu"
+    $("#addRowButton").on("click", function () {
+        if (selectedProducts.length === 0) {
+            alert("Vui lòng chọn ít nhất một sản phẩm để tạo phiếu giao hàng");
+            return;
+        }
+
+        // Kiểm tra xem đã nhập số lượng giao cho tất cả sản phẩm chưa
+        var allValid = true;
+        selectedProducts.forEach(function (product) {
+            if (product.so_luong_giao <= 0) {
+                allValid = false;
+            }
+        });
+
+        if (!allValid) {
+            alert("Vui lòng nhập số lượng giao hợp lệ cho tất cả sản phẩm");
+            return;
+        }
+
+        // Tạo form mới và thêm dữ liệu sản phẩm vào form
+        var form = $("<form></form>").attr({
+            method: "POST",
+            action: "/bid/update",
+        });
+
+        // Thêm các input ẩn chứa thông tin sản phẩm
+        selectedProducts.forEach(function (product, index) {
+            form.append(
+                $("<input>").attr({
+                    type: "hidden",
+                    name: `products[${index}][id]`,
+                    value: product.id,
+                })
+            );
+
+            form.append(
+                $("<input>").attr({
+                    type: "hidden",
+                    name: `products[${index}][ma_phan]`,
+                    value: product.ma_phan,
+                })
+            );
+
+            form.append(
+                $("<input>").attr({
+                    type: "hidden",
+                    name: `products[${index}][ten_phan]`,
+                    value: product.ten_phan,
+                })
+            );
+
+            form.append(
+                $("<input>").attr({
+                    type: "hidden",
+                    name: `products[${index}][dmhh]`,
+                    value: product.dmhh,
+                })
+            );
+
+            form.append(
+                $("<input>").attr({
+                    type: "hidden",
+                    name: `products[${index}][so_luong]`,
+                    value: product.so_luong,
+                })
+            );
+
+            form.append(
+                $("<input>").attr({
+                    type: "hidden",
+                    name: `products[${index}][so_luong_giao]`,
+                    value: product.so_luong_giao,
+                })
+            );
+
+            form.append(
+                $("<input>").attr({
+                    type: "hidden",
+                    name: `products[${index}][so_luong_con_lai]`,
+                    value: product.so_luong_con_lai_moi,
+                })
+            );
+
+            // Thêm input ẩn chứa group_id
+            form.append(
+                $("<input>").attr({
+                    type: "hidden",
+                    name: `products[${index}][group_id]`,
+                    value: product.group_id,
+                })
+            );
+        });
+
+        // Thêm CSRF token nếu cần
+        form.append(
+            $("<input>").attr({
+                type: "hidden",
+                name: "_token",
+                value: $('meta[name="csrf-token"]').attr("content"),
+            })
+        );
+
+        // Thêm form vào body và submit
+        $("body").append(form);
+        form.submit();
+    });
+
+    $("#addRowModal").on("hidden.bs.modal", function () {
+        selectedProducts = [];
+        $(".row-checkbox, #check-all").prop("checked", false);
+        updateModalProductList();
+    });
+});
+
+document.querySelectorAll(".clickable").forEach((td) => {
+    td.addEventListener("click", function () {
+        const url = this.closest("tr").getAttribute("data-url");
+        if (url) {
+            window.location.href = url;
+        }
+    });
+});

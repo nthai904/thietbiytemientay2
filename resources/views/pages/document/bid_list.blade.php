@@ -178,6 +178,7 @@
                                             <th style="min-width: 50px;">STT</th>
                                             <th style="min-width: 150px;">Mã bệnh viện</th>
                                             <th style="min-width: 150px;">Tên bệnh viện</th>
+                                            <th style="min-width: 150px;">Gói thầu</th>
                                             <th style="min-width: 120px;">Tổng thành tiền</th>
                                             <th style="min-width: 120px;"></th>
                                         </tr>
@@ -186,7 +187,7 @@
                                         @if (isset($documents) && count($documents) > 0)
                                             @foreach ($documents as $k => $v)
                                                 <tr class="clickable-row" data-id="{{ $v['code_category_bidder'] }}"
-                                                    style="cursor: pointer;">
+                                                    style="cursor: pointer;" data-url="{{ route('document.bidDetail', ['code' => $v['code_category_bidder'], 'group' => $v['group_id']]) }}">
                                                     <td>
                                                         <input type="checkbox" class="row-checkbox"
                                                             style="width:17px; height:17px">
@@ -194,18 +195,19 @@
                                                     <td class="clickable">{{ $k + 1 }}</td>
                                                     <td class="clickable">{{ $v['code_category_bidder'] }}</td>
                                                     <td class="clickable">{{ $v['bidder_name'] ?? '' }}</td>
+                                                    <td class="clickable">{{ $v['group'] ?? '' }}</td>
                                                     <td class="clickable">{{ number_format($v['total_price']) ?? '' }} đ
                                                     </td>
                                                     <td>
-                                                        @if (is_array($v['code_category_bidder']))
+                                                        {{-- @if (is_array($v['code_category_bidder'])) --}}
                                                             <a
-                                                                href="{{ route('document.bidDetail', ['code' => $v['code_category_bidder'][0]]) }}">Chi
+                                                                href="{{ route('document.bidDetail', ['code' => $v['code_category_bidder'], 'group' => $v['group_id']]) }}" class="text-dark">Chi
                                                                 tiết <i class="fa pointer ms-2 fa-caret-right"></i></a>
-                                                        @else
+                                                        {{-- @else
                                                             <a href="{{ route('document.bidDetail', ['code' => $v['code_category_bidder']]) }}"
                                                                 class="text-dark">Chi tiết <i
                                                                     class="fa pointer ms-2 fa-caret-right"></i></a>
-                                                        @endif
+                                                        @endif --}}
                                                     </td>
                                                 </tr>
                                                 {{-- <tr class="details-row" id="details-{{ $v['code_category_bidder'] }}"

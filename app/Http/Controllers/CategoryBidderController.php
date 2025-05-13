@@ -83,7 +83,6 @@ class CategoryBidderController extends Controller
             'position' => $request->position,
         ]);
 
-        return redirect()->route('category.index');
+        return redirect()->route('category.index')->with('success', 'Thêm mới thành công');
     }
-    //hello mọi người
 }

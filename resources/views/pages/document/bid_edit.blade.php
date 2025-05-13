@@ -24,9 +24,9 @@
                     </li>
                 </ul>
             </div>
-            <form action="{{ route('document.update', ['code' => $documents[0]['code_category_bidder']]) }}" method="post">
-                @csrf
-                @method('PUT')
+            <form action="" method="post">
+                {{-- @csrf
+                @method('PUT') --}}
                 <div class="row">
                     <div class="col-md-12">
                         <div class="card">
@@ -49,7 +49,7 @@
                                             <label for="total-bid">Tổng thành tiền:</label>
                                             <div id="display-total-amount"
                                                 class="form-control-plaintext border rounded p-2 bg-light">
-                                                {{ number_format($totalAmount, 0, '.', '.') ?? 0 }} đ
+                                                {{ number_format($totalTrung, 0, '.', '.') ?? 0 }} đ
                                             </div>
                                         </div>
                                     </div>
@@ -58,7 +58,7 @@
                                             <label for="total-profit">Lợi nhuận:</label>
                                             <div id="total-profit"
                                                 class="form-control-plaintext border rounded p-2 bg-light">
-                                                {{ number_format(($totalAmount - $total_orginal), 0, '.', '.') ?? 0 }} đ
+                                                {{ number_format($totalTrung - $total_orginal, 0, '.', '.') ?? 0 }} đ
                                             </div>
                                         </div>
                                     </div>
@@ -67,8 +67,8 @@
                                             <label for="total-profit">SL trúng thầu:</label>
                                             <div id="total-profit"
                                                 class="form-control-plaintext border rounded p-2 bg-light">
-                                                {{$rate ?? 0}}
-                                                ({{$percent ?? 0}} %)
+                                                {{ $rate ?? 0 }}
+                                                ({{ $percent ?? 0 }} %)
                                             </div>
                                         </div>
                                     </div>
@@ -77,33 +77,34 @@
                                             <label for="total-profit">Tổng tiền trúng thầu:</label>
                                             <div id="total-profit"
                                                 class="form-control-plaintext border rounded p-2 bg-light">
-                                                {{ number_format(($totalTrung), 0, '.', '.') ?? 0 }} đ/ {{ number_format($totalAmount, 0, '.', '.') ?? 0 }} đ
+                                                {{ number_format($totalTrung, 0, '.', '.') ?? 0 }} đ/
+                                                {{ number_format($totalAmount, 0, '.', '.') ?? 0 }} đ
                                             </div>
                                         </div>
                                     </div>
                                 </div>
-                                
+
                             </div>
                             <div class="card-body">
                                 <div class="row">
                                     <div class="col-md-12" id="thong-tin-nha-thau">
                                         <div class="table-responsive">
-                                            <table id="basic-datatables"
+                                            <table id="table-no-paging"
                                                 class="table table-bordered table-hover align-middle text-nowrap">
                                                 <thead class="table-light text-center">
                                                     <tr>
                                                         <th style="min-width: 40px;">
-                                                            <label class="status-wrapper">
-                                                                <input type="checkbox" class="checkbox-toggle" id="check-all">
-                                                                <span class="status-label">Tất cả</span>
-                                                            </label>
+                                                            <input type="checkbox" id="check-all"
+                                                                style="width:17px; height:17px">
                                                         </th>
-                                                        <th style="min-width: 50px;">Mã nhà thầu</th>
-                                                        <th style="min-width: 150px;">Tên nhà thầu</th>
+                                                        <th style="min-width: 50px;">Mã bệnh viện</th>
+                                                        <th style="min-width: 150px;">Tên bệnh viện</th>
                                                         <th style="min-width: 120px;">Mã phần (lô)</th>
                                                         <th style="min-width: 120px;">Tên phần</th>
                                                         <th style="min-width: 120px;">Danh mục hàng hóa</th>
                                                         <th style="min-width: 80px;">Số lượng</th>
+                                                        <th style="min-width: 80px;">Số lượng đã giao</th>
+                                                        <th style="min-width: 80px;">Số lượng còn lại</th>
                                                         <th style="min-width: 360px;">Tên thương mại</th>
                                                         <th style="min-width: 120px;">Quy cách</th>
                                                         <th style="min-width: 120px;">Hãng sx</th>
@@ -117,64 +118,36 @@
                                                 <tbody class="text-center" id="product-table">
                                                     @if (isset($documents) && count($documents) > 0)
                                                         @foreach ($documents as $k => $v)
-                                                            <tr style="cursor: pointer;">
+                                                            <tr style="cursor: pointer;" data-id="{{ $v['id'] }}">
                                                                 <td>
-                                                                    <label class="status-wrapper">
-                                                                        <input type="hidden"
-                                                                            name="status[{{ $k }}]"
-                                                                            value="chuatrung">
-                                                                        <input type="checkbox" class="checkbox-toggle row-checkbox"
-                                                                            onchange="toggleStatus(this)"
-                                                                            name="status[{{ $k }}]"
-                                                                            value="datrung"
-                                                                            {{ $v->status == 'datrung' ? 'checked' : '' }}>
-                                                                        <span
-                                                                            class="status-label">{{ $v->status == 'datrung' ? 'Trúng thầu' : 'Chưa trúng' }}</span>
-                                                                    </label>
+                                                                    <input type="checkbox" class="row-checkbox"
+                                                                        style="width:17px; height:17px">
                                                                 </td>
-                                                                <td id="nt-ma">{{ $v['code_category_bidder'] }}</td>
-                                                                <td id="nt-ten">{{ $v->bidder->category->name }}</td>
-                                                                <td id="nt-maphan">{{ $v['ma_phan'] }}</td>
-                                                                <td id="nt-tenphan">{{ $v['ten_phan'] }}</td>
-                                                                <td id="nt-dmhh">{{ $v['product_name_bidder'] }}</td>
-                                                                <td id="nt-soluong">{{ $v['quantity'] }}</td>
+                                                                <td data-group_id="{{$v['group_id']}}">{{ $v['code_category_bidder'] }}</td>
+                                                                <td>{{ $v->bidder->category->name }}</td>
+                                                                <td data-ma_phan="{{ $v['ma_phan'] }}">{{ $v['ma_phan'] }}</td>
+                                                                <td data-ten_phan="{{ $v['ten_phan'] }}">{{ $v['ten_phan'] }}</td>
+                                                                <td data-product_name_bidder="{{ $v['product_name_bidder'] }}">{{ $v['product_name_bidder'] }}</td>
+                                                                <td data-quantity="{{ $v['so_luong_con_lai'] ?? $v['quantity'] }}">{{ $v['quantity'] }}</td>
+                                                                <td data-so_luong_da_giao="{{ $v['so_luong_da_giao'] ?? 0 }}">{{ $v['so_luong_da_giao'] ?? 0 }}</td>
+                                                                <td>{{ $v['so_luong_con_lai'] ?? $v['quantity']}}</td>
                                                                 <td>
-                                                                    <select name="id_product[]"
-                                                                        id="select-product{{ $v['id_product'] }}"
-                                                                        class="select2">
-                                                                        <option value="" disabled
-                                                                            {{ empty($v['id_product']) ? 'selected' : '' }}>
-                                                                            -- Chọn mặt hàng --</option>
-                                                                        @if (isset($products))
-                                                                            @foreach ($products as $product)
-                                                                                <option value="{{ $product['code'] }}"
-                                                                                    {{ $product['code'] == $v['id_product'] ? 'selected' : '' }}>
-                                                                                    {{ $product['name'] }}
-                                                                                </option>
-                                                                            @endforeach
-                                                                        @endif
-                                                                    </select>
+                                                                    {{ $v->product->name }}
                                                                 </td>
-                                                                <td class="product-quycach">{{ $v['quy_cach'] }}</td>
-                                                                <td class="product-brand">{{ $v['brand'] }}</td>
-                                                                <td class="product-country">{{ $v['country'] }}</td>
+                                                                <td>{{ $v['quy_cach'] }}</td>
+                                                                <td>{{ $v['brand'] }}</td>
+                                                                <td>{{ $v['country'] }}</td>
                                                                 <td class="product-price">
                                                                     {{ number_format($v->product->price) }} đ</td>
-                                                                <td class="d-flex align-items-center">
-                                                                    <input type="number"
-                                                                        class="form-control border-primary extra-price"
-                                                                        title="Nhập giá chênh lệch" name="extra_price[]"
-                                                                        value="{{ $v['extra_price'] }}">
+                                                                <td class="text-center">
+                                                                    @if (($v['extra_price'] >= 1 && $v['extra_price'] <= 100) || ($v['extra_price'] <= -1 && $v['extra_price'] >= -100))
+                                                                        {{ $v['extra_price'] }}%
+                                                                    @else
+                                                                        {{ $v['extra_price'] }}đ
+                                                                    @endif
                                                                 </td>
-
-                                                                <td class="nt-giaduthau">{{ number_format($v['price']) }} đ
-                                                                </td>
-                                                                <input type="hidden" value="{{ $v['price'] }}"
-                                                                    class="input-giaduthau" name="giaduthau[]">
-                                                                <td class="total">{{ number_format($v['total_price']) }} đ
-                                                                </td>
-                                                                <input type="hidden" value="{{ $v['total_price'] }}"
-                                                                    class="input-total" name="thanhtien[]">
+                                                                <td>{{ number_format($v['price']) }} đ</td>
+                                                                <td class="total">{{ number_format($v['total_price']) }} đ</td>
                                                             </tr>
                                                         @endforeach
                                                     @endif
@@ -183,10 +156,66 @@
                                         </div>
                                     </div>
                                 </div>
-
+                            </div>
+                            <div class="modal fade" id="addRowModal" tabindex="-1" role="dialog" aria-hidden="true">
+                                <div class="modal-dialog" role="document">
+                                    <div class="modal-content">
+                                        <div class="modal-header border-0">
+                                            <h3 class="modal-title">
+                                                <span class="fw-mediumbold">Tạo phiếu giao hàng</span>
+                                            </h3>
+                                            <button type="button" class="close" data-bs-dismiss="modal"
+                                                aria-label="Close">
+                                                <span aria-hidden="true" style="font-size: 38px">&times;</span>
+                                            </button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <form>
+                                                <div class="row">
+                                                    <div class="col-md-12" id="thong-tin-san-pham" style="">
+                                                        <div class="table-responsive">
+                                                            <table
+                                                                class="table table-bordered table-hover align-middle text-nowrap">
+                                                                <thead class="table-light text-center">
+                                                                    <tr>
+                                                                        <th style="min-width: 100px;">Mã phần lô
+                                                                        </th>
+                                                                        <th style="min-width: 150px;">Tên phần lô
+                                                                        </th>
+                                                                        <th style="min-width: 120px;">Danh mục hàng hóa</th>
+                                                                        <th style="min-width: 120px;">Số lượng</th>
+                                                                        <th style="min-width: 120px;">SL giao</th>
+                                                                        <th style="min-width: 80px;">SL còn lại</th>
+                                                                        <th style="min-width: 120px;"></th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody class="text-center" id="product-table">
+                                                                    <tr>
+                                                                        <td colspan="7">Không có dữ liệu</td>
+                                                                    </tr>
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <div class="modal-footer border-0">
+                                            <button type="button" id="addRowButton" class="btn btn-success">
+                                                Tạo phiếu
+                                            </button>
+                                            <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
+                                                Hủy
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                             <div class="card-action">
-                                <button class="btn btn-success">Cập nhật</button>
+                                <button class="btn btn-success ms-auto" type="button" data-bs-toggle="modal"
+                                    data-bs-target="#addRowModal">
+                                    Tạo phiếu giao hàng
+                                </button>
                                 <a href="{{ route('document.bid') }}" class="btn btn-danger">Hủy</a>
                             </div>
                         </div>

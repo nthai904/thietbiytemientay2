@@ -3,7 +3,7 @@
     <div class="container">
         <div class="page-inner">
             <div class="page-header">
-                <h3 class="fw-bold mb-3">Bán lẻ</h3>
+                <h3 class="fw-bold mb-3">Hồ sơ đấu thầu</h3>
                 <ul class="breadcrumbs mb-3">
                     <li class="nav-home">
                         <a href="#">
@@ -14,7 +14,7 @@
                         <i class="icon-arrow-right"></i>
                     </li>
                     <li class="nav-item">
-                        <a href="#">Bán lẻ</a>
+                        <a href="#">Phiếu giao hàng</a>
                     </li>
                 </ul>
             </div>
@@ -23,12 +23,12 @@
                     <div class="card">
                         <div class="card-header">
                             <div class="d-flex align-items-center justify-content-between w-100">
-                                <h4 class="card-title">Danh sách bán lẻ</h4>
+                                <h4 class="card-title">Phiếu giao hàng</h4>
                                 <div class="d-flex">
-                                    <a href="{{ route('exchange.create') }}" class="btn btn-primary ms-2 btn-addnew">
+                                    {{-- <a href="{{ route('document.create') }}" class="btn btn-primary ms-2 btn-addnew">
                                         <i class="fa fa-plus me-2"></i>
                                         Thêm mới
-                                    </a>
+                                    </a> --}}
                                     {{-- <form action="{{ route('bidder.import') }}" method="POST" enctype="multipart/form-data"
                                         class="d-inline-block">
                                         @csrf
@@ -55,8 +55,9 @@
                                             <i class="fa fa-file-export me-2"></i>
                                             Xuất file
                                         </button>
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownButton" style="min-width: 200px;">
-                                            {{-- <li>
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownButton"
+                                            style="min-width: 200px;">
+                                            <li>
                                                 <form action="{{ route('documents.exportExcel') }}" method="POST"
                                                     enctype="multipart/form-data" id="exportFormExcel">
                                                     @csrf
@@ -67,9 +68,9 @@
                                                         Phụ lục
                                                     </button>
                                                 </form>
-                                            </li> --}}
+                                            </li>
                                             <li>
-                                                <form action="{{ route('exchange.exportWord') }}" method="POST"
+                                                <form action="{{ route('documents.exportWord') }}" method="POST"
                                                     enctype="multipart/form-data" id="exportFormWord">
                                                     @csrf
                                                     <input type="hidden" name="selectedRows" id="selectedRowsWord">
@@ -80,7 +81,7 @@
                                                     </button>
                                                 </form>
                                             </li>
-                                            {{-- <li>
+                                            <li>
                                                 <form action="{{ route('documents.exportContract') }}" method="POST"
                                                     enctype="multipart/form-data" id="exportFormContract">
                                                     @csrf
@@ -103,7 +104,7 @@
                                                         Phụ lục - Hợp đồng
                                                     </button>
                                                 </form>
-                                            </li> --}}
+                                            </li>
                                         </ul>
                                     </div>
                                 </div>
@@ -120,8 +121,7 @@
                                                 <span class="fw-mediumbold"> New</span>
                                                 <span class="fw-light"> Row </span>
                                             </h5>
-                                            <button type="button" class="close" data-dismiss="modal"
-                                                aria-label="Close">
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                 <span aria-hidden="true">&times;</span>
                                             </button>
                                         </div>
@@ -169,7 +169,7 @@
                             </div>
 
                             <div class="table-responsive">
-                                <table id="add-row" class="table table-bordered align-middle text-nowrap">
+                                <table id="basic-datatables" class="table table-bordered align-middle text-nowrap">
                                     <thead class="table-light text-center">
                                         <tr>
                                             <th style="min-width: 40px;">
@@ -178,87 +178,65 @@
                                             <th style="min-width: 50px;">STT</th>
                                             <th style="min-width: 150px;">Mã bệnh viện</th>
                                             <th style="min-width: 150px;">Tên bệnh viện</th>
-                                            <th style="min-width: 120px;">Tổng thành tiền</th>
-                                            <th style="min-width: 120px;">Thời gian</th>
+                                            <th style="min-width: 150px;">Gói thầu</th>
                                             <th style="min-width: 120px;"></th>
                                         </tr>
                                     </thead>
                                     <tbody class="text-center">
-                                        @if (isset($exchanges) && count($exchanges) > 0)
-                                            @foreach ($exchanges as $k => $v)
-                                                <tr class="clickable-row" data-url="{{ route('exchange.detail', ['date' => $v['date_slug']]) }}"
-                                                    style="cursor: pointer;" data-id="{{ $v['code_category_bidder'] }}" data-date="{{ $v['date_slug'] }}">
-                                                    <td>    
-                                                        <input type="checkbox" class="row-checkbox"
-                                                            style="width:17px; height:17px">
+                                        @if (isset($documents) && count($documents) > 0)
+                                            @foreach ($documents as $k => $v)
+                                                <tr class="clickable-row" data-id="{{ $v['code_category_bidder'] }}" style="cursor: pointer;">
+                                                    <td>
+                                                        <input type="checkbox" class="row-checkbox" style="width:17px; height:17px">
                                                     </td>
                                                     <td class="clickable">{{ $k + 1 }}</td>
                                                     <td class="clickable">{{ $v['code_category_bidder'] }}</td>
                                                     <td class="clickable">{{ $v['bidder_name'] ?? '' }}</td>
-                                                    <td class="clickable">{{ number_format($v['total_price']) ?? '' }} đ
-                                                    </td>
-                                                    <td class="clickable">{{ $v['created_at'] ?? '' }}</td>
+                                                    <td class="clickable">{{ $v['group'] ?? '' }}</td>
                                                     <td>
-                                                        {{-- @if (is_array($v['code_category_bidder']))
-                                                            <a
-                                                                href="{{ route('document.edit', ['code' => $v['code_category_bidder'][0]]) }}">Chi
-                                                                tiết <i class="fa pointer ms-2 fa-caret-right"></i></a>
-                                                        @else --}}
-                                                            <a href="{{route('exchange.detail', ['date' => $v['date_slug']])}}"
-                                                                class="text-dark">Chi tiết <i
-                                                                    class="fa pointer ms-2 fa-caret-right"></i></a>
-                                                        {{-- @endif --}}
+                                                        <a href="{{ route('document.docLogDetail', ['code' => $v['code_category_bidder'], 'group' => $v['group_id']]) }}"
+                                                            class="text-dark">Chi tiết <i class="fa pointer ms-2 fa-caret-right"></i></a>
                                                     </td>
                                                 </tr>
-                                                {{-- <tr class="details-row" id="details-{{ $v['code_category_bidder'] }}"
-                                                    style="display:none;">
-                                                    <td colspan="10">
-                                                        <table class="table table-bordered align-middle text-nowrap bg-green">
-                                                            <thead>
-                                                                <tr>
-                                                                    <th>Mã phần</th>
-                                                                    <th>Tên phần</th>
-                                                                    <th>Đơn vị</th>
-                                                                    <th>Số lượng</th>
-                                                                    <th>Tên sản phẩm</th>
-                                                                    <th>Quy cách</th>
-                                                                    <th>Hãng</th>
-                                                                    <th>Quốc gia</th>
-                                                                    <th>Giá</th>
-                                                                    <th>Tổng giá</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody>
-                                                                @foreach ($details as $detail)
-                                                                    @if ($detail['code_category_bidder'] == $v['code_category_bidder'])
+                                                {{-- <tr class="collapse" id="collapse-{{ $v['code_category_bidder'] }}{{$v['group_id']}}">
+                                                    <td colspan="6" class="p-3 bg-light">
+                                                        <div class="border rounded p-2">
+                                                            <table class="table table-bordered table-sm align-middle m-0">
+                                                                <thead class="table-primary">
+                                                                    <tr>
+                                                                        <th class="text-nowrap">Mã phần lô</th>
+                                                                        <th class="text-nowrap">Tên phần lô</th>
+                                                                        <th class="text-nowrap">Danh mục hàng hóa</th>
+                                                                        <th class="text-nowrap">Số lượng</th>
+                                                                        <th class="text-nowrap">Số lượng giao</th>
+                                                                        <th class="text-nowrap">Số lượng còn lại</th>
+                                                                        <th class="text-nowrap">Thời gian</th>
+                                                                    </tr>
+                                                                </thead>
+                                                                <tbody>
+                                                                    @foreach ($logsByGroupId[$v['group_id']] ?? [] as $detail)
                                                                         <tr>
-                                                                            <td>{{ $detail['ma_phan'] }}</td>
-                                                                            <td>{{ $detail['ten_phan'] }}</td>
-                                                                            <td>{{ $detail['unit'] }}</td>
-                                                                            <td>{{ $detail['quantity'] }}</td>
-                                                                            <td>{{ $detail['product_name'] }}</td>
-                                                                            <td>{{ $detail['quy_cach'] }}</td>
-                                                                            <td>{{ $detail['brand'] }}</td>
-                                                                            <td>{{ $detail['country'] }}</td>
-                                                                            <td>{{ number_format($detail['price']) }} đ
-                                                                            </td>
-                                                                            <td>{{ number_format($detail['total_price']) }}
-                                                                                đ</td>
+                                                                            <td>{{ $detail['document']['ma_phan'] ?? 'Không có mã phần' }}</td>
+                                                                            <td>{{ $detail['document']['ten_phan'] ?? '-' }}</td>
+                                                                            <td>{{ $detail['document']['product_name'] ?? '-' }}</td>
+                                                                            <td>{{ $detail['document']['quantity'] ?? '-' }}</td>
+                                                                            <td>{{ $detail['so_luong_da_giao'] ?? '-' }}</td>
+                                                                            <td>{{ $detail['so_luong_con_lai'] ?? '-' }}</td>
+                                                                            <td>{{ \Carbon\Carbon::parse($detail['created_at'])->timezone('Asia/Ho_Chi_Minh')->format('H:i d/m/Y ') }}</td>
                                                                         </tr>
-                                                                    @endif
-                                                                @endforeach
-                                                            </tbody>
-                                                        </table>
+                                                                    @endforeach
+                                                                </tbody>
+                                                            </table>
+                                                        </div>
                                                     </td>
                                                 </tr> --}}
                                             @endforeach
                                         @else
                                             <tr>
-                                                <td colspan="7" class="text-center">Không có dữ liệu</td>
+                                                <td colspan="6" class="text-center">Không có dữ liệu</td>
                                             </tr>
                                         @endif
                                     </tbody>
-
                                 </table>
                             </div>
 

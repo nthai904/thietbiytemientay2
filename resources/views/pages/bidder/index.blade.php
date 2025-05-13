@@ -37,10 +37,10 @@
                                         <input type="file" name="file" accept=".xlsx,.xls,.csv"
                                             class="form-control d-none" id="fileInput" />
 
-                                        <button type="button" class="btn btn-primary ms-2 btn-addnew" id="importButton">
+                                        {{-- <button type="button" class="btn btn-primary ms-2 btn-addnew" id="importButton">
                                             <i class="fa fa-file-import me-2"></i>
                                             Import
-                                        </button>
+                                        </button> --}}
                                     </form>
 
 
@@ -135,7 +135,7 @@
                                                     <td>{{ $group->sum('quantity') }}</td> 
                                                     <td>
                                                         <div class="d-flex justify-content-center gap-2">
-                                                            <a href="" type="button" class="btn btn-sm btn-primary"
+                                                            <a href="{{ route('bidder.edit', ['id' => $maDauThau]) }}" type="button" class="btn btn-sm btn-primary"
                                                                 title="Sửa">
                                                                 <i class="fa fa-edit"></i>
                                                             </a>

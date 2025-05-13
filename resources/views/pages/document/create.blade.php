@@ -119,7 +119,7 @@
                                                         <th style="min-width: 120px;">Tên phần</th>
                                                         <th style="min-width: 120px;">Danh mục hàng hóa</th>
                                                         <th style="min-width: 80px;">Số lượng</th>
-                                                        <th style="min-width: 350px;">Tên thương mại</th>
+                                                        <th style="min-width: 450px;">Tên thương mại</th>
                                                         <th style="min-width: 120px;">Quy cách</th>
                                                         <th style="min-width: 120px;">Hãng sx</th>
                                                         <th style="min-width: 120px;">Nước sx</th>
