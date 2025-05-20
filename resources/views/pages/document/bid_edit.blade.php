@@ -201,22 +201,24 @@
                                             </form>
                                         </div>
                                         <div class="modal-footer border-0">
-                                            <button type="button" id="addRowButton" class="btn btn-success">
+                                            {{-- <button type="button" id="addRowButton" class="btn btn-success">
                                                 Tạo phiếu
                                             </button>
                                             <button type="button" class="btn btn-danger" data-bs-dismiss="modal">
                                                 Hủy
-                                            </button>
+                                            </button> --}}
+                                            <a href="{{route('document.bid')}}" class="btn btn-secondary">Quay lại</a>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                             <div class="card-action">
-                                <button class="btn btn-success ms-auto" type="button" data-bs-toggle="modal"
+                                {{-- <button class="btn btn-success ms-auto" type="button" data-bs-toggle="modal"
                                     data-bs-target="#addRowModal">
                                     Tạo phiếu giao hàng
                                 </button>
-                                <a href="{{ route('document.bid') }}" class="btn btn-danger">Hủy</a>
+                                <a href="{{ route('document.bid') }}" class="btn btn-danger">Hủy</a> --}}
+                                <a href="{{route('document.bid')}}" class="btn btn-secondary">Quay lại</a>
                             </div>
                         </div>
                     </div>

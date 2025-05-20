@@ -14,15 +14,25 @@ return new class extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->id();
             $table->string('name', 255)->nullable();
-            $table->string('code', 100)->unique()->nullable(); 
-            $table->string('tag')->nullable();
-            $table->year('year')->nullable();
-            $table->string('country', 100)->nullable();
-            $table->string('brand', 150)->nullable();
-            $table->text('detail')->nullable();
-            $table->string('category', 255)->nullable();
-            $table->decimal('price', 15, 2)->default(0)->nullable();
-            $table->string('unit', 50)->default('cái')->nullable();
+            $table->string('ky_ma_hieu', 100)->unique()->nullable();
+            $table->string('nhan_hieu')->nullable();
+            $table->text('thong_so_ky_thuat_co_ban')->nullable();
+            $table->text('thong_so_ky_thuat_thau')->nullable();
+            $table->string('hang_sx', 150)->nullable();
+            $table->string('nuoc_sx', 100)->nullable();
+            $table->string('hang_nuoc_chu_so_huu')->nullable();
+            $table->string('quy_cach')->nullable();
+            $table->string('don_vi_tinh')->nullable();
+            $table->date('hsd')->nullable();
+            $table->double('gia_von', 15, 2)->nullable();
+            $table->double('gia_de_xuat', 15, 2)->nullable();
+            $table->string('ten_ncc')->nullable();
+            $table->string('ma_vtyt')->nullable();
+            $table->string('nhom_theo_tt')->nullable();
+            $table->string('phan_loai_ttbyt')->nullable();
+            $table->string('so_dang_ky_luu_hanh')->nullable();
+            $table->string('so_bang_phan_loai')->nullable();
+            $table->text('ghi_chu')->nullable();
             $table->timestamps();
         });
     }

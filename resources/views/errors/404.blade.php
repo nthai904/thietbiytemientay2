@@ -67,8 +67,11 @@
                             </h3>
 
                             <p>Trang bạn đang tìm kiếm không tồn tạ!</p>
-
+                            @if(auth()->user()->department === 'admin')
                             <a href="{{ route('dashboard.index') }}" class="link_404">Quay về trang chủ</a>
+                            @else
+                            <a href="{{ route('product.index') }}" class="link_404">Quay về trang chủ</a>
+                            @endif
                         </div>
                     </div>
                 </div>

@@ -120,6 +120,7 @@
                                                             <tr style="cursor: pointer;">
                                                                 <td>
                                                                     <label class="status-wrapper">
+                                                                        <span class="status-value" style="display:none">{{$v->status}}</span>
                                                                         <input type="hidden"
                                                                             name="status[{{ $k }}]"
                                                                             value="chuatrung">
@@ -155,23 +156,22 @@
                                                                         @endif
                                                                     </select>
                                                                 </td>
-                                                                <td class="product-quycach">{{ $v['quy_cach'] }}</td>
-                                                                <td class="product-brand">{{ $v['brand'] }}</td>
-                                                                <td class="product-country">{{ $v['country'] }}</td>
-                                                                <td class="product-price">
-                                                                    {{ number_format($v->product->price) }} đ</td>
+                                                                <td class="product-quycach" contenteditable="true">{{ $v['quy_cach'] }}</td>
+                                                                <td class="product-brand" contenteditable="true">{{ $v['brand'] }}</td>
+                                                                <td class="product-country" contenteditable="true">{{ $v['country'] }}</td>
+                                                                <td class="product-price" contenteditable="true">
+                                                                    {{ number_format($v->product->price, 0, ',', '.') }} đ
                                                                 <td class="d-flex align-items-center">
-                                                                    <input type="number"
+                                                                    <input type="number" step="any"
                                                                         class="form-control border-primary extra-price"
                                                                         title="Nhập giá chênh lệch" name="extra_price[]"
                                                                         value="{{ $v['extra_price'] }}">
                                                                 </td>
-
-                                                                <td class="nt-giaduthau">{{ number_format($v['price']) }} đ
+                                                                <td class="nt-giaduthau" contenteditable="true">{{ number_format($v['price'], 0, ',', '.') }} đ
                                                                 </td>
                                                                 <input type="hidden" value="{{ $v['price'] }}"
                                                                     class="input-giaduthau" name="giaduthau[]">
-                                                                <td class="total">{{ number_format($v['total_price']) }} đ
+                                                                <td class="total">{{ number_format($v['total_price'], 0, ',', '.') }} đ
                                                                 </td>
                                                                 <input type="hidden" value="{{ $v['total_price'] }}"
                                                                     class="input-total" name="thanhtien[]">

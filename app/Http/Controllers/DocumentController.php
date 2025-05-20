@@ -861,7 +861,7 @@ class DocumentController extends Controller
             $details[$document->id] = $logs;
 
             foreach ($logs as $log) {
-                $createdAt = Carbon::parse($log->created_at)->format('H:i Y/m/d'); // Chỉ lấy ngày (loại bỏ giờ)
+                $createdAt = Carbon::parse($log->created_at)->format('H:i Y/m/d'); 
 
                 if (!isset($logsByGroupId[$document->group_id][$createdAt])) {
                     $logsByGroupId[$document->group_id][$createdAt] = [];

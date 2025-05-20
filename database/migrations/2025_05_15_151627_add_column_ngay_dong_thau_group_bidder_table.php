@@ -11,8 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->string('quy_cach');
+        Schema::table('group_bidder', function (Blueprint $table) {
+            $table->timestamp('ngay_dong_thau')->nullable()->after('category_id');
+            $table->string('user_id')->nullable()->after('ngay_dong_thau');
         });
     }
 
@@ -21,8 +22,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('products', function (Blueprint $table) {
-            $table->dropColumn('quy_cach');
+        Schema::table('group_bidder', function (Blueprint $table) {
+            $table->dropColumn('ngay_dong_thau');
         });
     }
 };

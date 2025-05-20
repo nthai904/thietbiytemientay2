@@ -3344,8 +3344,6 @@ label {
     border-radius: 50% !important;
 }
 
-
-
 .card-stats .icon-big i.fa,
 .card-stats .icon-big i.fab,
 .card-stats .icon-big i.fal,
@@ -4986,7 +4984,7 @@ label.error {
     font-size: 0.95rem;
     text-transform: uppercase;
     letter-spacing: 1px;
-    padding: 12px 24px ;
+    padding: 12px 24px;
     border-bottom-width: 1px;
     font-weight: 600;
 }
@@ -5176,7 +5174,7 @@ label.error {
 }
 .navbar .navbar-nav .notification {
     position: absolute;
-    background-color: #31ce36;
+    background-color: red;
     text-align: center;
     border-radius: 10px;
     min-width: 17px;
@@ -10295,17 +10293,48 @@ body[data-background-color="dark"] .jvm-zoom-btn {
     max-width: 20%;
 }
 .no-click {
-    pointer-events: none;   /* Không cho click */
+    pointer-events: none; /* Không cho click */
     background-color: #fff; /* Nền trắng */
-    color: #000;            /* Chữ đen */
+    color: #000; /* Chữ đen */
     -webkit-appearance: none;
     appearance: none;
 }
 
 .success .swal2-timer-progress-bar {
-  background: #10b981 !important;
+    background: #10b981 !important;
 }
 
+td[contenteditable="true"] {
+    cursor: text;
+}
+
+.bg-new-notification {
+    background-color: #cce8ff !important;
+}
+.text-red{
+    color: red !important;
+}
+.error-message {
+    color: #dc3545;
+    font-size: 80%;
+    margin-top: 0.25rem;
+    display: none;
+}
+
+.is-invalid {
+    border-color: #dc3545;
+}
+textarea[name="thong_so_ky_thuat_co_ban"],
+textarea[name="thong_so_ky_thuat_thau"] {
+    white-space: pre-wrap !important;
+    word-wrap: break-word !important;
+    overflow-wrap: break-word !important;
+}
+.modal-custom{
+    max-width: 400px;
+    word-break: break-word;
+    white-space: normal;
+}
 @keyframes fadeIn {
     from {
         opacity: 0;

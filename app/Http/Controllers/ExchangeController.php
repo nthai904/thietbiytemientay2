@@ -10,6 +10,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use PhpOffice\PhpWord\TemplateProcessor;
+use PhpOffice\PhpSpreadsheet\IOFactory;
 
 class ExchangeController extends Controller
 {
@@ -52,39 +53,61 @@ class ExchangeController extends Controller
 
     public function store(Request $request)
     {
-        // $bidders = Bidder::where('category_id', $request->id_nhathau)->get()->values();
+        $file = $request->file('file');
+        if (isset($file)) {
+            $spreadsheet = IOFactory::load($file);
+            $sheet = $spreadsheet->getActiveSheet();
+            $data = $sheet->toArray(null, true, true, true);
+            $rows = 0;
 
-        $productIds = $request->id_products;
-        $giaduthau = $request->exchange_price;
-        $so_luong = $request->so_luong;
-        $thanhtien = $request->thanhtien;
-        $extra_price = $request->extra_price;
+            foreach ($data as $index => $row) {
+                if ($index === 1 || empty($row['B'])) {
+                    continue;
+                }
 
-        if (empty($productIds) || empty($giaduthau) || empty($thanhtien)) {
-            return back()->withErrors(['message' => 'Thông tin sản phẩm hoặc giá trị không hợp lệ!']);
-        }
-
-        foreach ($productIds as $index => $id) {
-            $product = Product::where('code', $id)->first();
-
-            if ($product) {
-                Document::create([
-                    'code_category_bidder' => $request->id_nhathau,
-                    'unit'                 => $product->unit,
-                    'quantity'             => $so_luong[$index] ?? 0,
-                    'product_name'         => $product->name,
-                    'quy_cach'             => $product->quy_cach,
-                    'brand'                => $product->brand,
-                    'country'              => $product->country,
-                    'price'                => $giaduthau[$index] ?? 0,
-                    'total_price'          => $thanhtien[$index] ?? 0,
-                    'id_product'           => $product->code,
-                    'extra_price'          => $extra_price[$index] ?? 0,
-                    'type'                 => 'banle',
+                Bidder::create([
+                    'category_id'   => $request->category_id ?? null,
+                    'ma_dau_thau'   => $request->group ?? null,
+                    'ma_phan'       => $row['A'] ?? null,
+                    'ten_phan'      => $row['B'] ?? null,
+                    'product_name'  => $row['C'] ?? null,
+                    'quantity'      => $row['D'] ?? null,
                 ]);
+
+                $rows++;
+            }
+        } else {
+            $productIds = $request->id_products;
+            $giaduthau = $request->exchange_price;
+            $so_luong = $request->so_luong;
+            $thanhtien = $request->thanhtien;
+            $extra_price = $request->extra_price;
+
+            if (empty($productIds) || empty($giaduthau) || empty($thanhtien)) {
+                return back()->withErrors(['message' => 'Thông tin sản phẩm hoặc giá trị không hợp lệ!']);
+            }
+
+            foreach ($productIds as $index => $id) {
+                $product = Product::where('code', $id)->first();
+
+                if ($product) {
+                    Document::create([
+                        'code_category_bidder' => $request->id_nhathau,
+                        'unit'                 => $product->unit,
+                        'quantity'             => $so_luong[$index] ?? 0,
+                        'product_name'         => $product->name,
+                        'quy_cach'             => $product->quy_cach,
+                        'brand'                => $product->brand,
+                        'country'              => $product->country,
+                        'price'                => $giaduthau[$index] ?? 0,
+                        'total_price'          => $thanhtien[$index] ?? 0,
+                        'id_product'           => $product->code,
+                        'extra_price'          => $extra_price[$index] ?? 0,
+                        'type'                 => 'banle',
+                    ]);
+                }
             }
         }
-
         return redirect()->route('exchange.index')->with('success', 'Thêm mới thành công!');
     }
 

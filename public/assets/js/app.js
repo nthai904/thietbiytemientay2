@@ -1032,3 +1032,107 @@ document.querySelectorAll(".clickable").forEach((td) => {
         }
     });
 });
+
+$("#select-benh-vien-filter").on("change", function () {
+    var selectedValue = $(this).val();
+    var table = $("#add-row").DataTable();
+
+    if (selectedValue) {
+        table.search(selectedValue).draw();
+
+        $(".dataTables_filter input").val("");
+    } else {
+        // Clear the filter
+        table.search("").draw();
+    }
+});
+
+var originalData = [];
+
+$(document).ready(function () {
+    var table = $("#add-row").DataTable();
+
+    // Lưu dữ liệu gốc khi trang load
+    table.rows().every(function () {
+        originalData.push(this.data());
+    });
+
+    $("#created-at-filter").on("change", function () {
+        var date = $(this).val();
+
+        if (date) {
+            $.ajax({
+                url: "/get-group-by-date/" + date,
+                type: "GET",
+                success: function (data) {
+                    table.clear();
+
+                    if (data.length) {
+                        data.forEach(function (group, index) {
+                            let ngayDongThauFormatted = "";
+                            if (group.ngay_dong_thau) {
+                                const date = new Date(group.ngay_dong_thau);
+                                ngayDongThauFormatted =
+                                    String(date.getDate()).padStart(2, "0") +
+                                    "/" +
+                                    String(date.getMonth() + 1).padStart(
+                                        2,
+                                        "0"
+                                    ) +
+                                    "/" +
+                                    date.getFullYear();
+                            }
+                            table.row.add([
+                                index + 1,
+                                group.name,
+                                group.category_id,
+                                group.category.name,
+                                ngayDongThauFormatted,
+                                group.user.name,
+                                `<div class="d-flex justify-content-center gap-2">
+                                    <button type="button" class="btn btn-sm btn-primary" title="Sửa">
+                                        <i class="fa fa-edit"></i>
+                                    </button>
+                                    <button type="button" class="btn btn-sm btn-danger" title="Xóa">
+                                        <i class="fa fa-trash"></i>
+                                    </button>
+                                </div>`,
+                            ]);
+                        });
+                    }
+
+                    table.draw();
+                },
+            });
+        } else {
+            table.clear();
+            originalData.forEach(function (row) {
+                table.row.add(row);
+            });
+            table.draw();
+        }
+    });
+});
+
+const avatarInput = document.getElementById("avatar");
+const previewContainer = document.getElementById("preview-container");
+const previewImage = document.getElementById("preview");
+
+avatarInput.addEventListener("change", function () {
+    const file = this.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            previewImage.src = e.target.result;
+            previewImage.style.maxWidth = "100%";
+            previewImage.style.maxHeight = "100%";
+            previewContainer.classList.remove("d-none");
+        };
+        reader.readAsDataURL(file);
+    } else {
+        previewImage.src = "";
+        previewContainer.classList.add("d-none");
+    }
+});
+//validate form
+

@@ -5,6 +5,9 @@
             <a href="index.html" class="logo">
                 <img src="{{ asset('assets/img/mita-1-3193.png') }}" alt="navbar brand" class="navbar-brand"
                     height="90" />
+                {{-- <img src="{{ asset('assets/img/logo_ytemientay.png') }}" alt="navbar brand" class="navbar-brand"
+                    height="50" />
+                <span class="text-uppercase text-white"> Thiết bị Y Tế Miền Tây</span> --}}
             </a>
             <div class="nav-toggle">
                 <button class="btn btn-toggle toggle-sidebar">
@@ -23,6 +26,7 @@
     <div class="sidebar-wrapper scrollbar scrollbar-inner">
         <div class="sidebar-content">
             <ul class="nav nav-secondary">
+                @if(auth()->user()->department === 'admin')
                 <li class="nav-item {{ request()->routeIs('dashboard.index') ? 'active' : '' }}">
                     <a href="{{ route('dashboard.index') }}">
                         <i class="fas fa-home"></i>
@@ -44,6 +48,7 @@
                         </ul>
                     </div> --}}
                 </li>
+                @endif
                 {{-- <li class="nav-section">
                     <span class="sidebar-mini-icon">
                         <i class="fa fa-ellipsis-h"></i>
@@ -120,11 +125,11 @@
                                     <span class="sub-item">Danh sách trúng thầu</span>
                                 </a>
                             </li>
-                            <li class="{{ request()->routeIs('document.docLog') ? 'active' : '' }}">
+                            {{-- <li class="{{ request()->routeIs('document.docLog') ? 'active' : '' }}">
                                 <a href="{{ route('document.docLog') }}">
                                     <span class="sub-item">Phiếu giao hàng</span>
                                 </a>
-                            </li>
+                            </li> --}}
                         </ul>
                     </div>
                 </li>
@@ -132,10 +137,18 @@
                 <li class="nav-item {{ request()->routeIs('exchange.index') ? 'active' : '' }}">
                     <a href="{{ route('exchange.index') }}">
                         <i class="fas fa-exchange-alt"></i>
-                        <p>Quản lý bán lẻ</p>
+                        <p>Quản lý báo giá</p>
                         {{-- <span class="caret"></span> --}}
                     </a>
                 </li>
+                @if(auth()->user()->department === 'admin')
+                <li class="nav-item {{ request()->routeIs('user.index') ? 'active' : '' }}">
+                    <a href="{{ route('user.index') }}">
+                        <i class="fas fa-user-alt"></i>
+                        <p>Quản lý người dùng</p>
+                    </a>
+                </li>
+                @endif
                 {{-- <li class="nav-item">
                     <a data-bs-toggle="collapse" href="#forms">
                         <i class="fas fa-pen-square"></i>

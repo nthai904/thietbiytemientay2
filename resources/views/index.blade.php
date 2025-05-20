@@ -246,7 +246,9 @@
     <script>
         $(document).ready(function() {
             $('.select2').select2({
-                width: '100%',
+                width: '100%'
+            }).on('select2:open', () => {
+                document.querySelector('.select2-search__field').focus();
             });
         });
         $('#group').on('change', function() {
@@ -413,7 +415,6 @@
                 // Lấy số lượng
                 var quantity = parseInt(currentRow.find('#nt-soluong').text()) || 1;
                 var total = bidPrice * quantity;
-                console.log(total);
                 // Cập nhật tổng giá từng dòng
                 currentRow.find('.total').text(total.toLocaleString('vi-VN') + ' đ');
                 currentRow.find('.input-total').val(Math.round(total));
@@ -422,6 +423,94 @@
                 updateTotals();
             }
         });
+
+        function removeCurrencyFormat(str) {
+            return str.replace(/[^0-9]/g, '');
+        }
+
+        function formatCurrency(num) {
+            num = Number(num);
+            if (isNaN(num)) return '';
+            return num.toLocaleString('vi-VN') + ' đ';
+        }
+
+        function setupEditableCurrencyFields() {
+            document.querySelectorAll('.nt-giaduthau').forEach(td => {
+                td.addEventListener('focus', function() {
+                    let raw = removeCurrencyFormat(this.textContent);
+                    this.dataset.oldValue = raw;
+                    this.textContent = raw;
+                });
+
+                td.addEventListener('blur', function() {
+                    let raw = removeCurrencyFormat(this.textContent);
+
+                    // So sánh giá trị mới với giá trị cũ
+                    if (raw === this.dataset.oldValue) {
+                        // Nếu không thay đổi, format lại và thoát luôn
+                        this.textContent = formatCurrency(raw);
+                        return;
+                    }
+
+                    // Nếu có thay đổi, xử lý cập nhật
+                    this.textContent = formatCurrency(raw);
+
+                    const currentRow = this.closest('tr');
+                    if (!currentRow) return;
+
+                    const price = Number(raw);
+                    const quantityText = currentRow.querySelector('#nt-soluong')?.textContent || '1';
+                    const quantity = parseInt(quantityText, 10) || 1;
+                    const total = price * quantity;
+                    var priceTextEl = currentRow.querySelector('.product-price');
+                    var priceText = priceTextEl ? priceTextEl.textContent.replace(/[^0-9]/g, '') : '0';
+                    var originalPrice = parseFloat(priceText);
+
+                    // Cập nhật hiển thị tổng tiền (class .total)
+                    const totalEl = currentRow.querySelector('.total');
+                    if (totalEl) {
+                        totalEl.textContent = formatCurrency(total);
+                    }
+
+                    // Cập nhật input ẩn tổng tiền
+                    const inputTotal = currentRow.querySelector('.input-total');
+                    if (inputTotal) {
+                        inputTotal.value = Math.round(total);
+                    }
+
+                    // Cập nhật input giá đấu thầu (.input-giaduthau) = giá mới (.nt-giaduthau)
+                    const inputGiaDauThau = currentRow.querySelector('.input-giaduthau');
+                    if (inputGiaDauThau) {
+                        inputGiaDauThau.value = Math.round(price);
+                    }
+
+                    // Reset giá trị extra-price input
+                    const extraPriceInput = currentRow.querySelector('.extra-price');
+                    if (extraPriceInput && originalPrice > 0) {
+                        const extra = (price / originalPrice - 1) * 100;
+                        extraPriceInput.value = Number.isInteger(extra) ?
+                            extra :
+                            parseFloat(extra.toFixed(2));
+                    }
+
+
+                    // Gọi hàm tổng toàn bộ (nếu có)
+                    if (typeof updateTotals === 'function') {
+                        updateTotals();
+                    }
+                });
+
+                td.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        this.blur();
+                    }
+                });
+            });
+        }
+
+        // Gọi khi trang load xong
+        document.addEventListener('DOMContentLoaded', setupEditableCurrencyFields);
 
         function updateTotals() {
             // Tổng tiền ban đầu
@@ -568,37 +657,49 @@
                 }
             });
 
-            $("#multi-filter-select").DataTable({
-                pageLength: 5,
-                initComplete: function() {
-                    this.api()
-                        .columns()
-                        .every(function() {
-                            var column = this;
-                            var select = $(
-                                    '<select class="form-select"><option value=""></option></select>'
-                                )
-                                .appendTo($(column.footer()).empty())
-                                .on("change", function() {
-                                    var val = $.fn.dataTable.util.escapeRegex($(this).val());
-
-                                    column
-                                        .search(val ? "^" + val + "$" : "", true, false)
-                                        .draw();
-                                });
-
-                            column
-                                .data()
-                                .unique()
-                                .sort()
-                                .each(function(d, j) {
-                                    select.append(
-                                        '<option value="' + d + '">' + d + "</option>"
-                                    );
-                                });
-                        });
+            $('#multi-filter-select').DataTable({
+                pageLength: 10,
+                language: {
+                    "lengthMenu": "Hiển thị _MENU_ kết quả",
+                    "zeroRecords": "Không tìm thấy kết quả nào",
+                    "info": "Hiển thị từ _START_ đến _END_ của _TOTAL_ kết quả",
+                    "infoEmpty": "Không có dữ liệu",
+                    "infoFiltered": "(lọc từ _MAX_ tổng kết quả)",
+                    "search": "Tìm kiếm:",
+                    "paginate": {
+                        "first": "Đầu",
+                        "last": "Cuối",
+                        "next": "Sau",
+                        "previous": "Trước"
+                    },
+                    "loadingRecords": "Đang tải...",
+                    "processing": "Đang xử lý...",
                 },
+                initComplete: function() {
+                    var api = this.api();
+
+                    // Fill select options từ dữ liệu thật
+                    function fillSelect(colIndex, selectId) {
+                        var column = api.column(colIndex);
+                        var select = $(selectId);
+                        column.data().unique().sort().each(function(d) {
+                            if (d) select.append(`<option value="${d}">${d}</option>`);
+                        });
+
+                        select.on('change', function() {
+                            var val = $.fn.dataTable.util.escapeRegex($(this).val());
+                            column
+                                .search(val ? '^' + val + '$' : '', true, false)
+                                .draw();
+                        });
+                    }
+
+                    fillSelect(1, '#filter-package');
+                    fillSelect(2, '#filter-hospital-code');
+                    fillSelect(3, '#filter-hospital-name');
+                }
             });
+
 
             // Add Row
             $("#add-row").DataTable({
@@ -710,7 +811,6 @@
     </script>
 
     <script>
-        // Bắt sự kiện trên cha chứa bảng
         document.addEventListener('change', function(e) {
             if (e.target && e.target.classList.contains('row-checkbox')) {
                 // Đây là checkbox trong dòng

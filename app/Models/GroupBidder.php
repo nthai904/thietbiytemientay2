@@ -10,10 +10,16 @@ class GroupBidder extends Model
 
     protected $fillable = [
         'name',
-        'category_id'
+        'category_id',
+        'user_id',
+        'ngay_dong_thau'
     ];
 
     public function category(){
         return $this->belongsTo(CategoryBidder::class, 'category_id', 'code');
+    }
+
+    public function user(){
+        return $this->belongsTo(User::class, 'user_id', 'id');
     }
 }

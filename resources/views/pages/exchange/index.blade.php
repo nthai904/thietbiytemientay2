@@ -3,7 +3,7 @@
     <div class="container">
         <div class="page-inner">
             <div class="page-header">
-                <h3 class="fw-bold mb-3">Bán lẻ</h3>
+                <h3 class="fw-bold mb-3">Báo giá</h3>
                 <ul class="breadcrumbs mb-3">
                     <li class="nav-home">
                         <a href="#">
@@ -14,7 +14,7 @@
                         <i class="icon-arrow-right"></i>
                     </li>
                     <li class="nav-item">
-                        <a href="#">Bán lẻ</a>
+                        <a href="#">Báo giá</a>
                     </li>
                 </ul>
             </div>
@@ -23,7 +23,7 @@
                     <div class="card">
                         <div class="card-header">
                             <div class="d-flex align-items-center justify-content-between w-100">
-                                <h4 class="card-title">Danh sách bán lẻ</h4>
+                                <h4 class="card-title">Danh sách báo giá</h4>
                                 <div class="d-flex">
                                     <a href="{{ route('exchange.create') }}" class="btn btn-primary ms-2 btn-addnew">
                                         <i class="fa fa-plus me-2"></i>

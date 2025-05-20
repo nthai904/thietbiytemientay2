@@ -3,7 +3,7 @@
     <div class="container">
         <div class="page-inner">
             <div class="page-header">
-                <h3 class="fw-bold mb-3">Thêm mới bán lẻ</h3>
+                <h3 class="fw-bold mb-3">Thêm mới báo giá</h3>
                 <ul class="breadcrumbs mb-3">
                     <li class="nav-home">
                         <a href="#">
@@ -14,13 +14,13 @@
                         <i class="icon-arrow-right"></i>
                     </li>
                     <li class="nav-item">
-                        <a href="#">Quản lý bán lẻ</a>
+                        <a href="#">Quản lý báo giá</a>
                     </li>
                     <li class="separator">
                         <i class="icon-arrow-right"></i>
                     </li>
                     <li class="nav-item">
-                        <a href="#">Thêm mới bán lẻ</a>
+                        <a href="#">Thêm mới báo giá</a>
                     </li>
                 </ul>
             </div>
@@ -29,8 +29,14 @@
                 <div class="row">
                     <div class="col-md-12">
                         <div class="card">
-                            <div class="card-header">
-                                <div class="card-title">Thêm mới bán lẻ</div>
+                            <div class="card-header d-flex justify-content-between">
+                                <div class="card-title">Thêm mới báo giá</div>
+                                <input type="file" name="file" accept=".xlsx,.xls,.csv" class="form-control d-none"
+                                    id="fileInput" />
+                                <button type="button" class="btn btn-primary ms-2 btn-addnew" id="importButton">
+                                    <i class="fa fa-file-import me-2"></i>
+                                    Import
+                                </button>
                             </div>
                             <div class="card-body">
                                 <div class="row">
@@ -85,7 +91,8 @@
                                         <div class="table-responsive">
 
                                             <div class="table-wrapper">
-                                                <table class="table table-bordered table-hover align-middle text-nowrap table-banle">
+                                                <table
+                                                    class="table table-bordered table-hover align-middle text-nowrap table-banle">
                                                     <thead class="table-light text-center">
                                                         <tr>
                                                             <th style="min-width: 50px;">STT</th>

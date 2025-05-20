@@ -26,10 +26,10 @@
                                 <h4 class="card-title">Danh mục hàng hóa</h4>
                                 <div class="d-flex">
                                     <!-- Nút Thêm mới -->
-                                    <button class="btn btn-primary ms-2 btn-addnew">
+                                    <a href="{{ route('product.create') }}" class="btn btn-primary ms-2 btn-addnew">
                                         <i class="fa fa-plus me-2"></i>
                                         Thêm mới
-                                    </button>
+                                    </a>
                                     <!-- Form Import -->
                                     <form action="{{ route('product.import') }}" method="POST"
                                         enctype="multipart/form-data" class="d-inline-block">
@@ -42,13 +42,7 @@
                                             Import
                                         </button>
                                     </form>
-
-
-                                    <!-- Nút Xuất file -->
-                                    <button class="btn btn-primary ms-2 btn-addnew">
-                                        <i class="fa fa-file-export me-2"></i>
-                                        Xuất file
-                                    </button>
+                                    
                                 </div>
                             </div>
                         </div>
@@ -117,7 +111,7 @@
                                             <th style="min-width: 50px;">STT</th>
                                             <th style="min-width: 150px;">Tên</th>
                                             <th style="min-width: 120px;">Mã ký hiệu</th>
-                                            <th style="min-width: 120px;">Năm sản xuất</th>
+                                            <th style="min-width: 120px;">Hạn sử dụng</th>
                                             <th style="min-width: 120px;">Xuất xứ</th>
                                             <th style="min-width: 120px;">Thao tác</th>
                                         </tr>
@@ -128,19 +122,53 @@
                                                 <tr>
                                                     <td>{{ $k + 1 }}</td>
                                                     <td>{{ $v['name'] }}</td>
-                                                    <td>{{ $v['code'] }}</td>
-                                                    <td>{{ $v['year'] }}</td>
-                                                    <td>{{ $v['country'] }}</td>
+                                                    <td>{{ $v['ky_ma_hieu'] }}</td>
+                                                    <td>{{ $v['hsd'] }}</td>
+                                                    <td>{{ $v['nuoc_sx'] }}</td>
                                                     <td>
                                                         <div class="d-flex justify-content-center gap-2">
-                                                            <button type="button" class="btn btn-sm btn-primary"
-                                                                title="Sửa">
+                                                            <a href="{{ route('product.edit', ['id' => $v['ky_ma_hieu']]) }}"
+                                                                class="btn btn-sm btn-primary" title="Sửa">
                                                                 <i class="fa fa-edit"></i>
-                                                            </button>
+                                                            </a>
                                                             <button type="button" class="btn btn-sm btn-danger"
-                                                                title="Xóa">
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#deleteModal-{{ $v['ky_ma_hieu'] }}">
                                                                 <i class="fa fa-trash"></i>
                                                             </button>
+                                                            <div class="modal fade"
+                                                                id="deleteModal-{{ $v['ky_ma_hieu'] }}" tabindex="-1"
+                                                                aria-labelledby="deleteModalLabel{{ $v['ky_ma_hieu'] }}"
+                                                                aria-hidden="true">
+                                                                <div class="modal-dialog modal-custom">
+                                                                    <div class="modal-content">
+                                                                        <div class="modal-header">
+                                                                            <h5 class="modal-title"
+                                                                                id="deleteModalLabel{{ $v['ky_ma_hieu'] }}">
+                                                                                Xác nhận xóa</h5>
+                                                                            <button type="button" class="btn-close"
+                                                                                data-bs-dismiss="modal"></button>
+                                                                        </div>
+                                                                        <div class="modal-body">
+                                                                            Bạn có chắc chắn muốn xóa sản phẩm
+                                                                            <strong>{{ $v['name'] }}</strong>
+                                                                            không?
+                                                                        </div>
+                                                                        <div class="modal-footer">
+                                                                            <form method="POST"
+                                                                                action="{{ route('product.destroy', $v['ky_ma_hieu']) }}">
+                                                                                @csrf
+                                                                                @method('DELETE')
+                                                                                <button type="button"
+                                                                                    class="btn btn-secondary"
+                                                                                    data-bs-dismiss="modal">Hủy</button>
+                                                                                <button type="submit"
+                                                                                    class="btn btn-danger">Xóa</button>
+                                                                            </form>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </td>
                                                 </tr>
