@@ -41,7 +41,7 @@ class UserController extends Controller
         if ($request->hasFile('avatar')) {
             $avatar = $request->file('avatar');
             $avatarName = time() . '_' . uniqid() . '.' . $avatar->getClientOriginalExtension();
-            $avatarPath = $avatar->storeAs('avatars', $avatarName, 'public'); 
+            $avatarPath = $avatar->storeAs('avatars', $avatarName, 'public');
         }
 
         User::create([
@@ -73,7 +73,8 @@ class UserController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $user = User::where('id', $id)->where('is_admin', 0)->first();
+        return view('pages.user.edit', compact('user'));
     }
 
     /**
@@ -81,7 +82,37 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+        $user = User::find($id);
+        if (!$user) {
+            return redirect()->route('user.index')->with('error', 'Không tìm thấy người dùng');
+        }
+
+        // Xử lý avatar mới nếu có
+        $avatarPath = $user->avatar;
+        if ($request->hasFile('avatar')) {
+            $avatar = $request->file('avatar');
+            $avatarName = time() . '_' . uniqid() . '.' . $avatar->getClientOriginalExtension();
+            $avatarPath = $avatar->storeAs('avatars', $avatarName, 'public');
+        }
+
+        $data = [
+            'name' => $request->name,
+            'email' => $request->email,
+            'user_name' => $request->user_name,
+            'phone' => $request->phone ?? null,
+            'address' => $request->address ?? null,
+            'department' => $request->department ?? null,
+            'active' => $request->active ?? 'active',
+            'avatar' => $avatarPath,
+        ];
+
+        if ($request->filled('password')) {
+            $data['password'] = bcrypt($request->password);
+        }
+
+        $user->update($data);
+
+        return redirect()->route('user.index')->with('success', 'Cập nhật người dùng thành công');
     }
 
     /**

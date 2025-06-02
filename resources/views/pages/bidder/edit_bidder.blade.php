@@ -24,7 +24,7 @@
                     </li>
                 </ul>
             </div>
-            <form action="" method="post" enctype="multipart/form-data">
+            <form action="{{ route('document.storeBanNhap') }}" method="post" enctype="multipart/form-data">
                 @csrf
                 <div class="row">
                     <div class="col-md-12">
@@ -40,6 +40,7 @@
                                             @php
                                                 $first = $group->first();
                                             @endphp
+                                            
                                             <div class="col-12">
                                                 <div class="card shadow-sm mb-4">
                                                     <div class="card-header bg-den text-white d-flex justify-content-between align-items-center"
@@ -57,7 +58,7 @@
                                                                     <select name="city" id="city"
                                                                         class="select2 form-control no-click"
                                                                         tabindex="-1">
-                                                                        <option value="" selected>
+                                                                        <option value="{{$first->category->city}}" selected>
                                                                             @if ($cities->count())
                                                                                 @foreach ($cities as $city)
                                                                                     @if ($first->category->city == $city->id)
@@ -71,10 +72,10 @@
                                                                 <div class="col-md-4">
                                                                     <label for="category_id" class="form-label">Bệnh
                                                                         viện</label>
-                                                                    <select name="category_id" id="category_id"
+                                                                    <select name="id_nhathau" id="category_id"
                                                                         class="select2 form-control no-click"
                                                                         tabindex="-1">
-                                                                        <option value="" selected>
+                                                                        <option value="{{ $first->category->code ?? '' }}" selected>
                                                                             {{ $first->category->name ?? '' }}
                                                                         </option>
                                                                     </select>
@@ -85,7 +86,7 @@
                                                                     <select name="group" id="group"
                                                                         class="select2 form-control no-click"
                                                                         tabindex="-1">
-                                                                        <option value="" selected>
+                                                                        <option value="{{ $first->group->id ?? '' }}" selected>
                                                                             {{ $first->group->name ?? '' }}
                                                                         </option>
                                                                     </select>
@@ -101,20 +102,10 @@
                                             <div class="col-12">
                                                 <div class="card shadow-sm mb-4">
                                                     <div class="card-header bg-den text-white d-flex justify-content-between align-items-center"
-                                                        style="cursor: pointer;" data-bs-toggle="collapse"
-                                                        data-bs-target="#chi-tiet-card" aria-expanded="true"
-                                                        aria-controls="chi-tiet-card">
+                                                        style="cursor: pointer;">
                                                         <strong>Chi tiết</strong>
                                                         {{-- <i class="fa fa-chevron-down"></i> --}}
-
-                                                        <input type="file" name="file" accept=".xlsx,.xls,.csv"
-                                                            class="form-control d-none" id="fileInput" />
-                                                        <button type="button" class="btn btn-primary ms-2 btn-addnew"
-                                                            id="importButton">
-                                                            <i class="fa fa-file-import me-2"></i>
-                                                            Import
-                                                        </button>
-
+                                                        <button class="btn btn-primary">Thêm mới phụ lục</button>
                                                     </div>
 
                                                     <div class="table-responsive">
@@ -128,8 +119,12 @@
                                                                         <th style="min-width: 100px;">Mã phần (lô)</th>
                                                                         <th style="min-width: 150px;">Tên phần (lô)</th>
                                                                         <th style="min-width: 120px;">Danh mục hàng hóa</th>
-                                                                        <th style="min-width: 120px;">Số lượng</th>
-                                                                        <th style="min-width: 120px;"></th>
+                                                                        <th style="min-width: 120px;">Thông số mời thầu</th>
+                                                                        <th style="min-width: 80px;">Đơn vị tính</th>
+                                                                        <th style="min-width: 120px;">Khối lượng</th>
+                                                                        <th style="min-width: 120px;">Ước tính phần lô</th>
+                                                                        <th style="min-width: 120px;">Giá KH</th>
+                                                                        <th style="min-width: 120px;">Yêu cầu về xuất xứ hàng hóa (nếu có)</th>
                                                                     </tr>
                                                                 </thead>
                                                                 <tbody class="text-center">
@@ -139,12 +134,13 @@
                                                                             <td>{{ $item->ma_phan }}</td>
                                                                             <td>{{ $item->ten_phan }}</td>
                                                                             <td>{{ $item->product_name ?? '' }}</td>
-                                                                            <td>{{ $item->quantity }}</td>
-                                                                            <td>
-                                                                                <button type="button"
-                                                                                    class="btn btn-danger"><i
-                                                                                        class="fas fa-trash"></i></button>
-                                                                            </td>
+                                                                            <td>{{ $item->thong_so_moi_thau ?? '' }}</td>
+                                                                            <td>{{ $item->unit ?? '' }}</td>
+                                                                            <td>{{ $item->quantity ?? '' }}</td>
+                                                                            <td>{{ $item->uoc_tinh_phan_lo ?? ''}}</td>
+                                                                            <td>{{ $item->gia_kh ?? ''}}</td>
+                                                                            <td>{{ $item->yeu_cau_ve_xuat_xu ?? ''}}</td>
+                                                                            
                                                                         </tr>
                                                                     @endforeach
                                                                 </tbody>
@@ -159,8 +155,7 @@
 
                             </div>
                             <div class="card-action">
-                                <button class="btn btn-success">Cập nhật</button>
-                                <a href="{{ route('bidder.index') }}" class="btn btn-danger">Hủy</a>
+                                <a href="{{ route('bidder.index') }}" class="btn btn-secondary">Quay lại</a>
                             </div>
                         </div>
                     </div>

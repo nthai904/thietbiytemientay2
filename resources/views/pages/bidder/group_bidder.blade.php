@@ -128,8 +128,11 @@
                                             <th style="min-width: 50px;">Tên gói thầu</th>
                                             <th style="min-width: 150px;">Mã bệnh viện</th>
                                             <th style="min-width: 120px;">Tên bệnh viện</th>
-                                            <th style="min-width: 120px;">Ngày đóng thầu</th>
-                                            <th style="min-width: 120px;">Người tạo</th>
+                                            <th style="min-width: 50px;">Ngày đóng thầu</th>
+                                            @if (auth()->user()->department === 'admin')
+                                                <th style="min-width: 120px;">Người tạo</th>
+                                            @endif
+                                            <th style="min-width: 120px;">Trạng thái</th>
                                             <th style="min-width: 120px;">Thao tác</th>
                                         </tr>
                                     </thead>
@@ -144,7 +147,26 @@
                                                     <td>
                                                         {{ $v['ngay_dong_thau'] ? \Carbon\Carbon::parse($v['ngay_dong_thau'])->format('d/m/Y') : '' }}
                                                     </td>
-                                                    <td>{{ $v->user->name }}</td>
+                                                    @if (auth()->user()->department === 'admin')
+                                                        <td>{{ $v->user->name }}</td>
+                                                    @endif
+                                                    <td>
+                                                        @switch($v->status)
+                                                            @case('new')
+                                                                <span class="badge badge-primary">Mới tạo</span>
+                                                            @break
+
+                                                            @case('dauthau')
+                                                                <span class="badge badge-success">Đã đấu thầu</span>
+                                                            @break
+
+                                                            @case('dongthau')
+                                                                <span class="badge badge-danger">Đã đóng thầu</span>
+                                                            @break
+
+                                                        @endswitch
+                                                    </td>
+
                                                     <td>
                                                         <div class="d-flex justify-content-center gap-2">
                                                             <a href="{{ route('bidder.editGroup', ['id' => $v->id]) }}"
@@ -156,8 +178,8 @@
                                                                 data-bs-target="#deleteModal-{{ $v->id }}">
                                                                 <i class="fa fa-trash"></i>
                                                             </button>
-                                                            <div class="modal fade"
-                                                                id="deleteModal-{{ $v->id }}" tabindex="-1"
+                                                            <div class="modal fade" id="deleteModal-{{ $v->id }}"
+                                                                tabindex="-1"
                                                                 aria-labelledby="deleteModalLabel{{ $v->id }}"
                                                                 aria-hidden="true">
                                                                 <div class="modal-dialog modal-custom">
@@ -195,10 +217,10 @@
                                             @endforeach
                                         @else
                                             <tr>
-                                                <td colspan="6">Không có dữ liệu</td>
+                                                <td colspan="8">Không có dữ liệu</td>
                                             </tr>
                                         @endif
-                                    </tbody>
+                                        </tbody>
                                 </table>
                             </div>
 

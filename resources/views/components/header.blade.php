@@ -131,7 +131,7 @@
                                 {{-- <a href="#" class="small">Mark all as read</a> --}}
                             </div>
                         </li>
-                        @foreach ($notifications as $note)
+                        @forelse ($notifications as $note)
                             <li class="{{ $note['status'] === 'new' ? 'bg-new-notification' : '' }}">
                                 <div class="message-notif-scroll scrollbar-outer">
                                     <div class="notif-center">
@@ -142,17 +142,18 @@
                                             </div>
                                             <div class="notif-content">
                                                 <span class="subject">{{ $note['title'] }}</span>
-                                                <span class="block"> {{ $note['content'] }} </span>
+                                                <span class="block">{{ $note['content'] }}</span>
                                                 <span class="time">{{ $note->created_at->diffForHumans() }}</span>
                                             </div>
                                         </a>
                                     </div>
                                 </div>
                             </li>
-                        @endforeach
-                        {{-- <li style="text-align: center; padding: 10px; color: #666;">
-                            Không có thông báo nào
-                        </li> --}}
+                        @empty
+                            <li style="text-align: center; padding: 10px; color: #666;">
+                                Không có thông báo nào
+                            </li>
+                        @endforelse
                     </ul>
                 </li>
                 {{-- <li class="nav-item topbar-icon dropdown hidden-caret">
@@ -226,8 +227,12 @@
                         aria-expanded="false">
                         <div class="avatar-sm">
                             @auth
-                                <img src="{{ asset('storage/' . Auth::user()->avatar) }}" alt="Avatar"
-                                    class="avatar-img rounded-circle" />
+                                @php
+                                    $avatar = Auth::user()->avatar
+                                        ? asset('storage/' . Auth::user()->avatar)
+                                        : asset('assets/img/avatar.png');
+                                @endphp
+                                <img src="{{ $avatar }}" alt="Avatar" class="avatar-img rounded-circle" />
                             @endauth
                         </div>
                         <span class="profile-username">
@@ -245,7 +250,12 @@
                                 <div class="user-box">
                                     <div class="avatar-lg">
                                         @auth
-                                            <img src="{{ asset('storage/' . Auth::user()->avatar) }}" alt="Avatar"
+                                            @php
+                                                $avatar = Auth::user()->avatar
+                                                    ? asset('storage/' . Auth::user()->avatar)
+                                                    : asset('assets/img/avatar.png');
+                                            @endphp
+                                            <img src="{{ $avatar }}" alt="Avatar"
                                                 class="avatar-img rounded-circle" />
                                         @endauth
                                     </div>

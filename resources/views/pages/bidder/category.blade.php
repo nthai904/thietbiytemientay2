@@ -29,6 +29,17 @@
                                         <i class="fa fa-plus me-2"></i>
                                         Thêm mới
                                     </a>
+                                    <form action="{{ route('categorybidder.import') }}" method="POST"
+                                        enctype="multipart/form-data" class="d-inline-block">
+                                        @csrf <!-- Token CSRF để bảo mật -->
+                                        <input type="file" name="file" accept=".xlsx,.xls,.csv"
+                                            class="form-control d-none" id="fileInput" />
+
+                                        <button type="button" class="btn btn-primary ms-2 btn-addnew" id="importButton">
+                                            <i class="fa fa-file-import me-2"></i>
+                                            Import
+                                        </button>
+                                    </form>
                                     {{-- <form action="{{ route('bidder.import') }}" method="POST" enctype="multipart/form-data"
                                         class="d-inline-block">
                                         @csrf 
@@ -44,6 +55,7 @@
                                         <i class="fa fa-file-export me-2"></i>
                                         Xuất file
                                     </button>
+
                                 </div>
                             </div>
                         </div>
@@ -124,14 +136,48 @@
                                                     <td>{{ $v['name'] }}</td>
                                                     <td>
                                                         <div class="d-flex justify-content-center gap-2">
-                                                            <button type="button" class="btn btn-sm btn-primary"
-                                                                title="Sửa">
+                                                            <a href="{{ route('category.edit', ['code' => $v['code']]) }}"
+                                                                class="btn btn-sm btn-primary" title="Sửa">
                                                                 <i class="fa fa-edit"></i>
-                                                            </button>
+                                                            </a>
                                                             <button type="button" class="btn btn-sm btn-danger"
-                                                                title="Xóa">
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#deleteModal-{{ $v->id }}">
                                                                 <i class="fa fa-trash"></i>
                                                             </button>
+                                                            <div class="modal fade" id="deleteModal-{{ $v->id }}"
+                                                                tabindex="-1"
+                                                                aria-labelledby="deleteModalLabel{{ $v->id }}"
+                                                                aria-hidden="true">
+                                                                <div class="modal-dialog modal-custom">
+                                                                    <div class="modal-content">
+                                                                        <div class="modal-header">
+                                                                            <h5 class="modal-title"
+                                                                                id="deleteModalLabel{{ $v->id }}">
+                                                                                Xác nhận xóa</h5>
+                                                                            <button type="button" class="btn-close"
+                                                                                data-bs-dismiss="modal"></button>
+                                                                        </div>
+                                                                        <div class="modal-body">
+                                                                            Bạn có chắc chắn muốn xóa
+                                                                            <strong>{{ $v['name'] }}</strong>
+                                                                            không?
+                                                                        </div>
+                                                                        <div class="modal-footer">
+                                                                            <form method="POST"
+                                                                                action="{{ route('categorybidder.destroy', $v->id) }}">
+                                                                                @csrf
+                                                                                @method('DELETE')
+                                                                                <button type="button"
+                                                                                    class="btn btn-secondary"
+                                                                                    data-bs-dismiss="modal">Hủy</button>
+                                                                                <button type="submit"
+                                                                                    class="btn btn-danger">Xóa</button>
+                                                                            </form>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </td>
                                                 </tr>

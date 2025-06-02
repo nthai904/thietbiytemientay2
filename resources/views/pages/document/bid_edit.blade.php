@@ -103,13 +103,14 @@
                                                         <th style="min-width: 120px;">Tên phần</th>
                                                         <th style="min-width: 120px;">Danh mục hàng hóa</th>
                                                         <th style="min-width: 80px;">Số lượng</th>
-                                                        <th style="min-width: 80px;">Số lượng đã giao</th>
-                                                        <th style="min-width: 80px;">Số lượng còn lại</th>
+                                                        {{-- <th style="min-width: 80px;">Số lượng đã giao</th>
+                                                        <th style="min-width: 80px;">Số lượng còn lại</th> --}}
                                                         <th style="min-width: 360px;">Tên thương mại</th>
                                                         <th style="min-width: 120px;">Quy cách</th>
                                                         <th style="min-width: 120px;">Hãng sx</th>
                                                         <th style="min-width: 120px;">Nước sx</th>
                                                         <th style="min-width: 120px;">Giá</th>
+                                                        <th style="min-width: 120px;">Giá đề xuất</th>
                                                         <th style="min-width: 120px;">Tăng trưởng giá</th>
                                                         <th style="min-width: 120px;">Giá dự thầu</th>
                                                         <th style="min-width: 120px;">Thành tiền</th>
@@ -129,8 +130,8 @@
                                                                 <td data-ten_phan="{{ $v['ten_phan'] }}">{{ $v['ten_phan'] }}</td>
                                                                 <td data-product_name_bidder="{{ $v['product_name_bidder'] }}">{{ $v['product_name_bidder'] }}</td>
                                                                 <td data-quantity="{{ $v['so_luong_con_lai'] ?? $v['quantity'] }}">{{ $v['quantity'] }}</td>
-                                                                <td data-so_luong_da_giao="{{ $v['so_luong_da_giao'] ?? 0 }}">{{ $v['so_luong_da_giao'] ?? 0 }}</td>
-                                                                <td>{{ $v['so_luong_con_lai'] ?? $v['quantity']}}</td>
+                                                                {{-- <td data-so_luong_da_giao="{{ $v['so_luong_da_giao'] ?? 0 }}">{{ $v['so_luong_da_giao'] ?? 0 }}</td>
+                                                                <td>{{ $v['so_luong_con_lai'] ?? $v['quantity']}}</td> --}}
                                                                 <td>
                                                                     {{ $v->product->name }}
                                                                 </td>
@@ -138,7 +139,9 @@
                                                                 <td>{{ $v['brand'] }}</td>
                                                                 <td>{{ $v['country'] }}</td>
                                                                 <td class="product-price">
-                                                                    {{ number_format($v->product->price) }} đ</td>
+                                                                    {{ number_format($v->product->gia_von) }} đ</td>
+                                                                    <td class="product-giadexuat">
+                                                                    {{ number_format($v->product->gia_de_xuat) }} đ</td>
                                                                 <td class="text-center">
                                                                     @if (($v['extra_price'] >= 1 && $v['extra_price'] <= 100) || ($v['extra_price'] <= -1 && $v['extra_price'] >= -100))
                                                                         {{ $v['extra_price'] }}%

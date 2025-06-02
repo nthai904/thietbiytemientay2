@@ -16,8 +16,18 @@ class BidderController extends Controller
 {
     public function index()
     {
-        $bidders = Bidder::with('category', 'group')->orderBy('created_at', 'desc')->get()->groupBy('ma_dau_thau');
+        $user = Auth::user();
 
+        $biddersQuery = Bidder::with('category', 'group')
+            ->orderBy('created_at', 'desc');
+
+        if (!$user->is_admin) {
+            $biddersQuery->whereHas('group', function ($query) use ($user) {
+                $query->where('user_id', $user->id);
+            });
+        }
+
+        $bidders = $biddersQuery->get()->groupBy('ma_dau_thau');
         return view('pages.bidder.index', compact('bidders'));
     }
 
@@ -72,17 +82,22 @@ class BidderController extends Controller
             $rows = 0;
 
             foreach ($data as $index => $row) {
-                if ($index === 1 || empty($row['B'])) {
+                if ($index < 4 || empty($row['B'])) {
                     continue;
                 }
 
                 Bidder::create([
-                    'category_id'   => $request->category_id ?? null,
-                    'ma_dau_thau'   => $request->group ?? null,
-                    'ma_phan'       => $row['A'] ?? null,
-                    'ten_phan'      => $row['B'] ?? null,
-                    'product_name'  => $row['C'] ?? null,
-                    'quantity'      => $row['D'] ?? null,
+                    'category_id'            => $request->category_id ?? null,
+                    'ma_dau_thau'            => $request->group ?? null,
+                    'ma_phan'                => $row['B'] ?? null,
+                    'ten_phan'               => $row['C'] ?? null,
+                    'product_name'           => $row['D'] ?? null,
+                    'thong_so_moi_thau'      => $row['E'] ?? null,
+                    'unit'                   => $row['F'] ?? null,
+                    'quantity'               => $row['G'] ?? null,
+                    'uoc_tinh_phan_lo'       => $row['H'] ?? null,
+                    'gia_kh'                 => $row['I'] ?? null,
+                    'yeu_cau_ve_xuat_xu'     => $row['J'] ?? null,
                 ]);
 
                 $rows++;
@@ -97,7 +112,19 @@ class BidderController extends Controller
                 'quantity'      => $request->quantity ?? null,
             ]);
         }
+        GroupBidder::where('id', $request->group)->update([
+            'status' => 'dauthau'
+        ]);
         return redirect()->route('bidder.edit', ['id' => $request->group])->with('success', 'Thêm mới thành công');
+    }
+
+    public function destroy($ma_dau_thau)
+    {
+        Bidder::where('ma_dau_thau', $ma_dau_thau)->delete();
+        GroupBidder::where('id', $ma_dau_thau)->update([
+            'status' => 'new'
+        ]);
+        return redirect()->back()->with('success', 'Xóa thành công thông tin đấu thầu');
     }
 
     public function getCategory($cityId)
@@ -110,11 +137,21 @@ class BidderController extends Controller
     public function getGroup($categoryId)
     {
 
-        $groups = GroupBidder::where('category_id', $categoryId)->get();
+        $user_id = Auth::user()->id;
+
+        $groups = GroupBidder::where('category_id', $categoryId)->where('user_id', $user_id)->where('status', 'new')->get();
 
         return response()->json($groups);
     }
+    public function getGroupDaDauThau($categoryId)
+    {
 
+        $user_id = Auth::user()->id;
+
+        $groups = GroupBidder::where('category_id', $categoryId)->where('user_id', $user_id)->where('status', 'dauthau')->whereNull('bided')->get();
+
+        return response()->json($groups);
+    }
     public function getGroupByDate($date)
     {
         $year = substr($date, 0, 4);
@@ -133,7 +170,6 @@ class BidderController extends Controller
         } else {
             $groups = GroupBidder::with('category')->where('user_id', Auth::user()->id)->orderBy('created_at', 'desc')->get();
         }
-        // $groups = GroupBidder::with('category')->orderBy('created_at', 'desc')->get();
         $categories = CategoryBidder::all();
         $cities = City::all();
         return view('pages.bidder.group_bidder', compact('groups', 'categories', 'cities'));
@@ -148,13 +184,15 @@ class BidderController extends Controller
     public function storeGroup(Request $request)
     {
         $user_id = Auth::user()->id;
-        GroupBidder::create([
+        $group = GroupBidder::create([
             'category_id'   => $request->category_id ?? null,
             'name'   => $request->name ?? null,
             'user_id'   => $user_id ?? null,
             'ngay_dong_thau'   => $request->ngay_dong_thau ?? null,
+            'status'   => "new",
         ]);
-        return redirect()->route('bidder.group')->with('success', 'Thêm mới thành công');
+        $newId = $group->id;
+        return redirect()->route('bidder.editGroup', ['id' => $newId])->with('success', 'Thêm mới thành công');
     }
 
     public function edit_group($id)
@@ -171,11 +209,45 @@ class BidderController extends Controller
 
     public function update_group(Request $request, $id)
     {
-        GroupBidder::where('id', $id)->update([
-            'name'   => $request->name ?? null,
-            'ngay_dong_thau'   => $request->ngay_dong_thau ?? null,
-        ]);
-        return redirect()->route('bidder.group')->with('success', 'Cập nhật thành công');
+        $file = $request->file('file');
+        if (isset($file)) {
+            $spreadsheet = IOFactory::load($file);
+            $sheet = $spreadsheet->getActiveSheet();
+            $data = $sheet->toArray(null, true, true, true);
+            $rows = 0;
+
+            foreach ($data as $index => $row) {
+                if ($index < 4 || empty($row['B'])) {
+                    continue;
+                }
+                Bidder::create([
+                    'category_id'            => $request->category_id ?? null,
+                    'ma_dau_thau'            => $id,
+                    'ma_phan'                => $row['B'] ?? null,
+                    'ten_phan'               => $row['C'] ?? null,
+                    'product_name'           => $row['D'] ?? null,
+                    'thong_so_moi_thau'      => $row['E'] ?? null,
+                    'unit'                   => $row['F'] ?? null,
+                    'quantity'               => $row['G'] ?? null,
+                    'uoc_tinh_phan_lo'       => $row['H'] ?? null,
+                    'gia_kh'                 => $row['I'] ?? null,
+                    'yeu_cau_ve_xuat_xu'     => $row['J'] ?? null,
+                ]);
+
+                $rows++;
+            }
+            GroupBidder::where('id', $id)->update([
+                'status' => 'dauthau'
+            ]);
+            return redirect()->route('bidder.edit', ['id' => $id])->with('success', 'Thêm mới đấu thầu thành công');
+        } else {
+            GroupBidder::where('id', $id)->update([
+                'name'   => $request->name ?? null,
+                'ngay_dong_thau'   => $request->ngay_dong_thau ?? null,
+                'status'   => $request->status ?? null,
+            ]);
+            return redirect()->back()->with('success', 'Cập nhật thành công');
+        }
     }
 
     public function destroy_group($id)

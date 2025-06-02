@@ -17,15 +17,26 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 use PhpOffice\PhpSpreadsheet\Style\Border;
 use PhpOffice\PhpSpreadsheet\Style\Alignment;
 use PhpOffice\PhpWord\TemplateProcessor;
+use PhpOffice\PhpSpreadsheet\RichText\RichText;
+use PhpOffice\PhpSpreadsheet\RichText\Run;
+use Illuminate\Support\Facades\Auth;
 
 class DocumentController extends Controller
 {
     public function index()
     {
-        $documents = Document::with('bidder')
-            ->orderBy('created_at', 'desc')
+        $user = Auth::user();
+
+        $documents = Document::with(['bidder.category', 'group'])
             ->where('type', 'dauthau')
+            ->when(!$user->is_admin, function ($query) use ($user) {
+                $query->whereHas('group', function ($q) use ($user) {
+                    $q->where('user_id', $user->id);
+                });
+            })
+            ->orderBy('created_at', 'desc')
             ->get();
+
         $totals = $documents->groupBy('group_id')->map(function ($group) {
             return [
                 'code_category_bidder' => $group->first()->code_category_bidder,
@@ -34,12 +45,17 @@ class DocumentController extends Controller
                 'bidder_name' => $group->first()->bidder->category->name ?? 'Không xác định',
                 'group' => $group->first()->group->name ?? 'Không xác định',
                 'group_id' => $group->first()->group->id ?? 'Không xác định',
+                'status' => $group->first()->status
             ];
         });
+
         $documents = $totals->values();
-        $details = Document::all();
+
+        $details = Document::all(); 
+
         return view('pages.document.index', compact('documents', 'details'));
     }
+
 
     public function create()
     {
@@ -53,49 +69,98 @@ class DocumentController extends Controller
     {
         $bidders = Bidder::where('category_id', $request->id_nhathau)->get()->values();
 
-
         if ($bidders->isEmpty()) {
-            return back()->withErrors(['message' => 'Không tìm thấy nhà thầu!']);
+            return back()->with(['error' => 'Không tìm thấy bệnh viện!']);
         }
 
         $productIds = $request->id_product;
         $giaduthau = $request->giaduthau;
         $thanhtien = $request->thanhtien;
         $extra_price = $request->extra_price;
+        $don_vi_tinh = $request->don_vi_tinh;
+        $quy_cach = $request->quy_cach;
+        $hang_sx = $request->hang_sx;
+        $nuoc_sx = $request->nuoc_sx;
+        $thong_so_ky_thuat_co_ban = $request->thong_so_ky_thuat_co_ban;
+        $thong_so_ky_thuat_thau = $request->thong_so_ky_thuat_thau;
+        $hang_nuoc_chu_so_huu = $request->hang_nuoc_chu_so_huu;
+        $hsd = $request->hsd;
+        $ten_ncc = $request->ten_ncc;
+        $ma_vtyt = $request->ma_vtyt;
+        $nhom_theo_tt = $request->nhom_theo_tt;
+        $phan_loai_ttbyt = $request->phan_loai_ttbyt;
+        $so_dang_ky_luu_hanh = $request->so_dang_ky_luu_hanh;
+        $so_bang_phan_loai = $request->so_bang_phan_loai;
+        $ghi_chu = $request->ghi_chu;
+
         $group = $request->group;
         if (empty($productIds) || empty($giaduthau) || empty($thanhtien)) {
-            return back()->withErrors(['message' => 'Thông tin sản phẩm hoặc giá trị không hợp lệ!']);
+            return back()->with(['error' => 'Thông tin sản phẩm không hợp lệ!']);
         }
 
         foreach ($productIds as $index => $id) {
-            $product = Product::where('code', $id)->first();
+            $product = Product::where('ky_ma_hieu', $id)->first();
             $bidder = $bidders->get($index);
 
             if ($product && $bidder) {
                 Document::create([
-                    'ma_phan'              => $bidder->ma_phan,
-                    'ten_phan'             => $bidder->ten_phan,
-                    'code_category_bidder' => $request->id_nhathau,
-                    'unit'                 => $product->unit,
-                    'quantity'             => $bidder->quantity,
-                    'product_name'         => $product->name,
-                    'quy_cach'             => $product->quy_cach,
-                    'brand'                => $product->brand,
-                    'country'              => $product->country,
-                    'price'                => $giaduthau[$index] ?? 0,
-                    'total_price'          => $thanhtien[$index] ?? 0,
-                    'id_product'           => $product->code,
-                    'extra_price'          => $extra_price[$index] ?? 0,
-                    'product_name_bidder'  => $bidder->product_name,
-                    'type'                 => 'dauthau',
-                    'group_id'             => $group,
+                    'ma_phan'                  => $bidder->ma_phan,
+                    'ten_phan'                 => $bidder->ten_phan,
+                    'code_category_bidder'     => $request->id_nhathau,
+                    'unit'                     => $don_vi_tinh[$index],
+                    'quantity'                 => $bidder->quantity,
+                    'product_name'             => $product->name,
+                    'quy_cach'                 => $quy_cach[$index],
+                    'brand'                    => $hang_sx[$index],
+                    'country'                  => $nuoc_sx[$index],
+                    'thong_so_ky_thuat_co_ban' => $thong_so_ky_thuat_co_ban[$index],
+                    'thong_so_ky_thuat_thau'   => $thong_so_ky_thuat_thau[$index],
+                    'hang_nuoc_chu_so_huu'     => $hang_nuoc_chu_so_huu[$index],
+                    'hsd'                      => $hsd[$index],
+                    'ten_ncc'                  => $ten_ncc[$index],
+                    'ma_vtyt'                  => $ma_vtyt[$index],
+                    'nhom_theo_tt'             => $nhom_theo_tt[$index],
+                    'phan_loai_ttbyt'          => $phan_loai_ttbyt[$index],
+                    'so_dang_ky_luu_hanh'      => $so_dang_ky_luu_hanh[$index],
+                    'so_bang_phan_loai'        => $so_bang_phan_loai[$index],
+                    'ghi_chu'                  => $ghi_chu[$index],
+                    'price'                    => $giaduthau[$index] ?? 0,
+                    'total_price'              => $thanhtien[$index] ?? 0,
+                    'id_product'               => $product->ky_ma_hieu,
+                    'extra_price'              => $extra_price[$index] ?? 0,
+                    'product_name_bidder'      => $bidder->product_name,
+                    'type'                     => 'dauthau',
+                    'group_id'                 => $group,
+                ]);
+                GroupBidder::where('id', $group)->update([
+                    'bided' => true
                 ]);
             }
         }
 
-        return redirect()->route('document.index')->with('success', 'Thêm mới thành công'); 
+        return redirect()->route('document.index')->with('success', 'Thêm mới thành công');
     }
-
+    public function storeBanNhap(Request $request)
+    {
+        $code_category_bidder = $request->id_nhathau;
+        $group = $request->group;
+        $bidders = Bidder::where('category_id', $request->id_nhathau)->where('ma_dau_thau', $request->group)->get()->values();
+        foreach ($bidders as $bidder) {
+            Document::create(
+                [
+                    'ma_phan'                  => $bidder->ma_phan,
+                    'ten_phan'                 => $bidder->ten_phan,
+                    'code_category_bidder'     => $code_category_bidder,
+                    'quantity'                 => $bidder->quantity,
+                    'product_name_bidder'      => $bidder->product_name,
+                    'type'                     => 'dauthau',
+                    'group_id'                 => $group,
+                    'status'                   => 'bannhap'
+                ]
+            );
+        }
+        return redirect()->route('document.edit', ['code' => $code_category_bidder, 'group' => $group])->with('success', 'Thêm mới thành công');
+    }
     public function edit($code, $group)
     {
         $categories = CategoryBidder::all();
@@ -104,11 +169,13 @@ class DocumentController extends Controller
         $documents = Document::with(['bidder', 'product'])
             ->where('code_category_bidder', $code)
             ->where('group_id', $group)
+            ->where('type', 'dauthau')
             ->get();
-
+        // dd($documents);
         $total_orginal = $documents->sum(function ($doc) {
-            return ($doc->product->price ?? 0) * ($doc->quantity ?? 0);
+            return ($doc->product->gia_von ?? 0) * ($doc->quantity ?? 0);
         });
+        // dd($total_orginal);
         $totalAmount = $documents->sum('total_price');
 
         $totalDocuments = $documents->count();
@@ -124,10 +191,26 @@ class DocumentController extends Controller
 
     public function update(Request $request, $code, $group)
     {
-        $productIds  = $request->id_product;
-        $giaduthau   = $request->giaduthau;
-        $thanhtien   = $request->thanhtien;
+
+        $productIds = $request->id_product;
+        $giaduthau = $request->giaduthau;
+        $thanhtien = $request->thanhtien;
         $extra_price = $request->extra_price;
+        $don_vi_tinh = $request->unit;
+        $quy_cach = $request->quy_cach;
+        $hang_sx = $request->hang_sx;
+        $nuoc_sx = $request->nuoc_sx;
+        // $thong_so_ky_thuat_co_ban = $request->thong_so_ky_thuat_co_ban;
+        // $thong_so_ky_thuat_thau = $request->thong_so_ky_thuat_thau;
+        // $hang_nuoc_chu_so_huu = $request->hang_nuoc_chu_so_huu;
+        // $hsd = $request->hsd;
+        // $ten_ncc = $request->ten_ncc;
+        // $ma_vtyt = $request->ma_vtyt;
+        // $nhom_theo_tt = $request->nhom_theo_tt;
+        // $phan_loai_ttbyt = $request->phan_loai_ttbyt;
+        // $so_dang_ky_luu_hanh = $request->so_dang_ky_luu_hanh;
+        // $so_bang_phan_loai = $request->so_bang_phan_loai;
+        // $ghi_chu = $request->ghi_chu;
         $status    = $request->status;
 
         if (empty($productIds) || empty($giaduthau) || empty($thanhtien)) {
@@ -136,38 +219,34 @@ class DocumentController extends Controller
 
         $documents = Document::where('code_category_bidder', $code)->where('group_id', $group)->get();
         foreach ($documents as $index => $doc) {
-            if (
-                isset($productIds[$index], $giaduthau[$index], $thanhtien[$index], $extra_price[$index], $status[$index])
-            ) {
-                $product = Product::where('code', $productIds[$index])->first();
 
-                if ($product) {
-                    $doc->update([
-                        'id_product'    => $product->code,
-                        'product_name'  => $product->name,
-                        'unit'          => $product->unit,
-                        'quy_cach'      => $product->quy_cach,
-                        'brand'         => $product->brand,
-                        'country'       => $product->country,
-                        'price'         => $giaduthau[$index],
-                        'total_price'   => $thanhtien[$index],
-                        'extra_price'   => $extra_price[$index],
-                        'status'        => $status[$index],
-                    ]);
-                }
+            $product = Product::where('ky_ma_hieu', $productIds[$index])->first();
+            if ($product) {
+                $doc->update([
+                    'id_product'    => $product->ky_ma_hieu,
+                    'product_name'  => $product->name,
+                    'unit'          => $don_vi_tinh[$index],
+                    'quy_cach'      => $quy_cach[$index],
+                    'brand'         => $hang_sx[$index],
+                    'country'       => $nuoc_sx[$index],
+                    'price'         => $giaduthau[$index],
+                    'total_price'   => $thanhtien[$index],
+                    'extra_price'   => $extra_price[$index],
+                    'status'        => $status[$index],
+                ]);
             }
         }
 
 
-        return redirect()->route('document.index')->with('success', 'Cập nhật thành công!');
+        return redirect()->back()->with('success', 'Cập nhật thành công');
     }
 
     public function exportExcel(Request $request)
     {
         $selectedRows = json_decode($request->selectedRows, true);
-
-        $documents = Document::whereIn('code_category_bidder', $selectedRows)->get();
-
+        foreach ($selectedRows as $row) {
+            $documents = Document::where('code_category_bidder', $row['id'])->where('group_id', $row['group'])->where('type', 'dauthau')->get();
+        }
         if ($documents->isEmpty()) {
             return back()->with('error', 'Không có dữ liệu để xuất.');
         }
@@ -191,9 +270,9 @@ class DocumentController extends Controller
             $sheet->setCellValue("H{$rowIndex}", $document->id_product);
             $sheet->setCellValue("I{$rowIndex}", $document->product->tag);
             $sheet->setCellValue("J{$rowIndex}", $document->product->year);
-            $sheet->setCellValue("K{$rowIndex}", $document->product->country);
-            $sheet->setCellValue("L{$rowIndex}", $document->product->brand);
-            $sheet->setCellValue("M{$rowIndex}", $document->product->detail);
+            $sheet->setCellValue("K{$rowIndex}", $document->country);
+            $sheet->setCellValue("L{$rowIndex}", $document->brand);
+            $sheet->setCellValue("M{$rowIndex}", $document->thong_so_ky_thuat_thau);
             $sheet->setCellValue("N{$rowIndex}", $document->unit);
             $sheet->setCellValue("O{$rowIndex}", $document->quantity);
             $sheet->setCellValue("P{$rowIndex}", '');
@@ -226,7 +305,9 @@ class DocumentController extends Controller
     public function exportWord(Request $request)
     {
         $selectedRows = json_decode($request->selectedRows, true);
-        $documents = Document::whereIn('code_category_bidder', $selectedRows)->where('type', 'dauthau')->get();
+        foreach ($selectedRows as $row) {
+            $documents = Document::where('code_category_bidder', $row['id'])->where('group_id', $row['group'])->where('type', 'dauthau')->get();
+        }
 
         if ($documents->isEmpty()) {
             return back()->with('error', 'Không có dữ liệu để xuất.');
@@ -253,10 +334,10 @@ class DocumentController extends Controller
 
             $templateProcessor->setValue("stt#{$rowIndex}", $rowIndex);
             $templateProcessor->setValue("product_name#{$rowIndex}", $document->product_name_bidder);
-            $templateProcessor->setValue("product_name_bidder#{$rowIndex}", $document->product_name_bidder);
-            $templateProcessor->setValue("detail#{$rowIndex}", $document->product->detail);
-            $templateProcessor->setValue("country#{$rowIndex}", $document->product->country);
-            $templateProcessor->setValue("quy_cach#{$rowIndex}", $document->product->quy_cach);
+            $templateProcessor->setValue("product_name_bidder#{$rowIndex}", $document->product_name);
+            $templateProcessor->setValue("detail#{$rowIndex}", $document->thong_so_ky_thuat_thau);
+            $templateProcessor->setValue("country#{$rowIndex}", $document->country);
+            $templateProcessor->setValue("quy_cach#{$rowIndex}", $document->quy_cach);
             $templateProcessor->setValue("unit#{$rowIndex}", $document->unit);
             $templateProcessor->setValue("quantity#{$rowIndex}", $document->quantity);
             $templateProcessor->setValue("price#{$rowIndex}", number_format($document->price));
@@ -275,10 +356,9 @@ class DocumentController extends Controller
     {
         $selectedRows = json_decode($request->selectedRows, true);
 
-        // Lấy các document có trong danh sách được chọn
-        $documents = Document::with('bidder.category')
-            ->whereIn('code_category_bidder', $selectedRows)
-            ->get();
+        foreach ($selectedRows as $row) {
+            $documents = Document::where('code_category_bidder', $row['id'])->where('group_id', $row['group'])->where('type', 'dauthau')->get();
+        }
 
         if ($documents->isEmpty()) {
             return back()->with('error', 'Không có dữ liệu để xuất.');
@@ -338,21 +418,24 @@ class DocumentController extends Controller
 
     public function exportContractPhuluc(Request $request)
     {
-        $selectedRows = json_decode($request->selectedRows, true);
 
+        $selectedRows = json_decode($request->selectedRows, true);
         $documents = Document::select([
             'ma_phan',
             'ten_phan',
             'id_product',
             'country',
             'brand',
+            'thong_so_ky_thuat_co_ban',
             'unit',
             'quantity',
             'price',
             'total_price',
             'code_category_bidder'
         ])
-            ->whereIn('code_category_bidder', $selectedRows)
+            ->where('code_category_bidder', $selectedRows[0]['id'])
+            ->where('group_id', $selectedRows[0]['group'])
+            ->where('type', 'dauthau')
             ->get()
             ->toArray();
         $position = CategoryBidder::where('code', $documents[0]['code_category_bidder'])->first();
@@ -399,7 +482,7 @@ class DocumentController extends Controller
                 $document['id_product'],
                 $document['country'],
                 $document['brand'],
-                '',
+                $document['thong_so_ky_thuat_co_ban'],
                 '',
                 $document['unit'],
                 $document['quantity'],
@@ -602,6 +685,194 @@ class DocumentController extends Controller
             ->header('Cache-Control', 'max-age=0');
     }
 
+    public function exportBaoGiaKH(Request $request)
+    {
+        $selectedRows = json_decode($request->selectedRows, true);
+        $templatePath = public_path('template/bg_kehoach.xlsx');
+
+        $documents = Document::select([
+            'ma_phan',
+            'ten_phan',
+            'id_product',
+            'country',
+            'brand',
+            'thong_so_ky_thuat_co_ban',
+            'unit',
+            'quantity',
+            'price',
+            'total_price',
+            'code_category_bidder',
+            'quy_cach'
+        ])
+            ->where('code_category_bidder', $selectedRows[0]['id'])
+            ->where('group_id', $selectedRows[0]['group'])
+            ->where('type', 'dauthau')
+            ->get();
+
+        $position = CategoryBidder::where('code', $selectedRows[0]['id'])->first();
+        $spreadsheet = IOFactory::load($templatePath);
+        $sheet = $spreadsheet->getActiveSheet();
+
+        $sheet->setCellValue('B7', str_replace('{{category}}', $position->name, $sheet->getCell('B7')->getValue()));
+        $sheet->setCellValue('C8', str_replace('{{category}}', $position->name, $sheet->getCell('C8')->getValue()));
+
+        $today = now();
+
+        $dataCount = count($documents);
+        $startRow = 13;
+        $originalFooterRow = 15;
+        $endDataRow = $startRow + $dataCount - 1;
+
+        // Lưu style của footer trước khi chèn dòng mới
+        $footerStyles = [];
+        if ($endDataRow >= $originalFooterRow) {
+            // Lưu style của các dòng footer
+            for ($footerRow = $originalFooterRow; $footerRow <= $originalFooterRow + 5; $footerRow++) {
+                for ($col = 'A'; $col <= 'P'; $col++) {
+                    $footerStyles[$footerRow][$col] = $sheet->getStyle("{$col}{$footerRow}")->exportArray();
+                }
+                // Lưu row height
+                $footerStyles[$footerRow]['row_height'] = $sheet->getRowDimension($footerRow)->getRowHeight();
+            }
+
+            // Lưu merged cells của footer
+            $footerMergedCells = [];
+            foreach ($sheet->getMergeCells() as $mergedCell) {
+                if (preg_match("/([A-Z]+)(\d+):([A-Z]+)(\d+)/", $mergedCell, $matches)) {
+                    $startCol = $matches[1];
+                    $startRowNum = (int)$matches[2];
+                    $endCol = $matches[3];
+                    $endRowNum = (int)$matches[4];
+
+                    if ($startRowNum >= $originalFooterRow && $endRowNum <= $originalFooterRow + 5) {
+                        $footerMergedCells[] = [
+                            'range' => $mergedCell,
+                            'start_col' => $startCol,
+                            'start_row' => $startRowNum,
+                            'end_col' => $endCol,
+                            'end_row' => $endRowNum
+                        ];
+                    }
+                }
+            }
+
+            $rowsToInsert = $endDataRow - $originalFooterRow + 1;
+            $sheet->insertNewRowBefore($originalFooterRow, $rowsToInsert);
+            $newFooterRow = $originalFooterRow + $rowsToInsert;
+
+            // Áp dụng lại style cho footer sau khi chèn dòng
+            foreach ($footerStyles as $originalRow => $rowStyles) {
+                $newRow = $originalRow + $rowsToInsert;
+
+                // Áp dụng style cho từng cell
+                foreach ($rowStyles as $col => $style) {
+                    if ($col !== 'row_height') {
+                        $sheet->getStyle("{$col}{$newRow}")->applyFromArray($style);
+                    }
+                }
+
+                // Áp dụng row height
+                if (isset($rowStyles['row_height'])) {
+                    $sheet->getRowDimension($newRow)->setRowHeight($rowStyles['row_height']);
+                }
+            }
+
+            // Áp dụng lại merged cells cho footer
+            foreach ($footerMergedCells as $mergedCell) {
+                $newStartRow = $mergedCell['start_row'] + $rowsToInsert;
+                $newEndRow = $mergedCell['end_row'] + $rowsToInsert;
+                $newRange = "{$mergedCell['start_col']}{$newStartRow}:{$mergedCell['end_col']}{$newEndRow}";
+                $sheet->mergeCells($newRange);
+            }
+        } else {
+            $newFooterRow = $originalFooterRow;
+        }
+
+        foreach ($documents as $index => $doc) {
+            $row = $startRow + $index;
+
+            if ($index > 0) {
+                for ($col = 'A'; $col <= 'P'; $col++) {
+                    $sheet->duplicateStyle(
+                        $sheet->getStyle("{$col}{$startRow}"),
+                        "{$col}{$row}"
+                    );
+                }
+
+                $sheet->getRowDimension($row)->setRowHeight(
+                    $sheet->getRowDimension($startRow)->getRowHeight()
+                );
+
+                foreach ($sheet->getMergeCells() as $mergedCell) {
+                    if (preg_match("/([A-Z]+){$startRow}:([A-Z]+){$startRow}/", $mergedCell, $matches)) {
+                        $startCol = $matches[1];
+                        $endCol = $matches[2];
+                        $sheet->mergeCells("{$startCol}{$row}:{$endCol}{$row}");
+                    }
+                }
+            }
+
+            $sheet->setCellValue("A{$row}", $index + 1);
+            $sheet->setCellValue("B{$row}", $doc->ma_phan);
+            $sheet->setCellValue("C{$row}", $doc->ten_phan);
+            $sheet->setCellValue("D{$row}", $doc->id_product);
+            $sheet->setCellValue("E{$row}", '3808');
+            $sheet->setCellValue("F{$row}", '2024 trở về sau');
+            $sheet->setCellValue("G{$row}", $doc->brand);
+            $sheet->setCellValue("H{$row}", $doc->country);
+            $sheet->setCellValue("I{$row}", $doc->quantity);
+            $sheet->setCellValue("J{$row}", $doc->unit);
+            $sheet->setCellValue("K{$row}", $doc->price);
+            $sheet->setCellValue("L{$row}", 'Đã bao gồm');
+            $sheet->setCellValue("M{$row}", '');
+            $sheet->setCellValue("N{$row}", $doc->price * $doc->quantity);
+            $sheet->setCellValue("O{$row}", $doc->thong_so_ky_thuat_co_ban);
+            $sheet->setCellValue("P{$row}", $doc->quy_cach);
+        }
+
+        $sheet->setCellValue("C" . ($newFooterRow), str_replace('{{day}}', $today->day, $sheet->getCell("C" . ($newFooterRow))->getValue()));
+        $sheet->setCellValue("C" . ($newFooterRow), str_replace('{{month}}', $today->month, $sheet->getCell("C" . ($newFooterRow))->getValue()));
+        $sheet->setCellValue("C" . ($newFooterRow), str_replace('{{year}}', $today->year, $sheet->getCell("C" . ($newFooterRow))->getValue()));
+        $cell = "N" . ($newFooterRow + 1);
+        $text = $sheet->getCell($cell)->getValue();
+
+        $text = str_replace('{{day}}', $today->day, $text);
+        $text = str_replace('{{month}}', $today->month, $text);
+        $text = str_replace('{{year}}', $today->year, $text);
+
+        $richText = new RichText();
+
+        $parts = explode('{{daidien}}', $text);
+        $normalText = $richText->createTextRun($parts[0]);
+        $normalText->getFont()->setName('Times New Roman');
+
+        $boldRun1 = $richText->createTextRun("Đại diện hợp pháp của hãng sản xuất, nhà cung cấp");
+        $boldRun1->getFont()->setBold(true)->setName('Times New Roman');
+
+        if (isset($parts[1])) {
+            $subParts = explode('{{position}}', $parts[1]);
+            if (isset($subParts[0])) {
+                $middleText = $richText->createTextRun($subParts[0]);
+                $middleText->getFont()->setName('Times New Roman');
+            }
+
+            if (isset($subParts[1])) {
+                $boldRun2 = $richText->createTextRun("Giám đốc");
+                $boldRun2->getFont()->setBold(true)->setName('Times New Roman');
+
+                $remainingText = $richText->createTextRun($subParts[1]);
+                $remainingText->getFont()->setName('Times New Roman');
+            }
+        }
+
+        $sheet->getCell($cell)->setValue($richText);
+        $filename = 'bao_gia_' . now()->format('Ymd_His') . '.xlsx';
+        $writer = IOFactory::createWriter($spreadsheet, 'Xlsx');
+        $temp_file = storage_path($filename);
+        $writer->save($temp_file);
+
+        return response()->download($temp_file)->deleteFileAfterSend(true);
+    }
     public function convertNumberToWords($number)
     {
         // Mảng chữ số đơn vị
@@ -697,11 +968,19 @@ class DocumentController extends Controller
 
     public function bid()
     {
-        $documents = Document::with('bidder')
-            ->orderBy('updated_at', 'desc')
+        $user = Auth::user();
+
+        $documents = Document::with(['bidder.category', 'group'])
             ->where('type', 'dauthau')
             ->where('status', 'datrung')
+            ->when(!$user->is_admin, function ($query) use ($user) {
+                $query->whereHas('group', function ($q) use ($user) {
+                    $q->where('user_id', $user->id);
+                });
+            })
+            ->orderBy('updated_at', 'desc')
             ->get();
+
         $totals = $documents->groupBy('group_id')->map(function ($group) {
             return [
                 'code_category_bidder' => $group->first()->code_category_bidder,
@@ -712,11 +991,14 @@ class DocumentController extends Controller
                 'group_id' => $group->first()->group->id ?? 'Không xác định',
             ];
         });
+
         $documents = $totals->values();
+
         $details = Document::all();
 
         return view('pages.document.bid_list', compact('documents', 'details'));
     }
+
 
     public function bidDetail($code, $group)
     {
@@ -733,13 +1015,13 @@ class DocumentController extends Controller
             ->where('group_id', $group)
             ->get();
         $total_orginal = $documents->sum(function ($doc) {
-            return ($doc->product->price ?? 0) * ($doc->quantity ?? 0);
+            return ($doc->product->gia_von ?? 0) * ($doc->quantity ?? 0);
         });
         $totalAmount = $allDocument->sum('total_price');
 
         $totalDocuments = $allDocument->count();
 
-        $trungDocuments = $documents ->count();
+        $trungDocuments = $documents->count();
 
         $rate = $trungDocuments . '/' . $totalDocuments;
         $percent = $totalDocuments > 0 ? round($trungDocuments / $totalDocuments * 100, 2) : 0;
@@ -861,7 +1143,7 @@ class DocumentController extends Controller
             $details[$document->id] = $logs;
 
             foreach ($logs as $log) {
-                $createdAt = Carbon::parse($log->created_at)->format('H:i Y/m/d'); 
+                $createdAt = Carbon::parse($log->created_at)->format('H:i Y/m/d');
 
                 if (!isset($logsByGroupId[$document->group_id][$createdAt])) {
                     $logsByGroupId[$document->group_id][$createdAt] = [];

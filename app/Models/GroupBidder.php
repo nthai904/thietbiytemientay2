@@ -12,7 +12,9 @@ class GroupBidder extends Model
         'name',
         'category_id',
         'user_id',
-        'ngay_dong_thau'
+        'ngay_dong_thau',
+        'status',
+        'bided'
     ];
 
     public function category(){

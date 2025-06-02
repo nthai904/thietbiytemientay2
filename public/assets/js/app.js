@@ -61,7 +61,9 @@ $(document).ready(function () {
 $(document).ready(function () {
     $("#city-document").on("change", function () {
         var cityId = $(this).val();
-        $("#select-nha-thau").html('<option value="">Đang tải...</option>');
+        $("#select-nha-thau-da-dau-thau").html(
+            '<option value="">Đang tải...</option>'
+        );
 
         if (cityId) {
             $.ajax({
@@ -72,17 +74,17 @@ $(document).ready(function () {
                     data.forEach(function (item) {
                         options += `<option value="${item.code}">${item.name}</option>`;
                     });
-                    $("#select-nha-thau").html(options);
-                    $("#select-nha-thau").trigger("change");
+                    $("#select-nha-thau-da-dau-thau").html(options);
+                    $("#select-nha-thau-da-dau-thau").trigger("change");
                 },
                 error: function () {
-                    $("#select-nha-thau").html(
+                    $("#select-nha-thau-da-dau-thau").html(
                         '<option value="">Không tìm thấy</option>'
                     );
                 },
             });
         } else {
-            $("#select-nha-thau").html(
+            $("#select-nha-thau-da-dau-thau").html(
                 '<option value="">Chọn bệnh viện</option>'
             );
         }
@@ -118,7 +120,37 @@ $(document).ready(function () {
         }
     });
 });
+$(document).ready(function () {
+    $("#select-nha-thau-da-dau-thau").on("change", function () {
+        var categoryId = $(this).val();
 
+        $("#group-da-dau-thau").html('<option value="">Đang tải...</option>');
+
+        if (categoryId) {
+            $.ajax({
+                url: "/get-group-dau-thau/" + categoryId,
+                type: "GET",
+                success: function (data) {
+                    let options = '<option value="">Chọn gói thầu</option>';
+                    data.forEach(function (item) {
+                        options += `<option value="${item.id}">${item.name}</option>`;
+                    });
+                    $("#group-da-dau-thau").html(options);
+                    $("#group-da-dau-thau").trigger("change");
+                },
+                error: function () {
+                    $("#group-da-dau-thau").html(
+                        '<option value="">Không tìm thấy</option>'
+                    );
+                },
+            });
+        } else {
+            $("#group-da-dau-thau").html(
+                '<option value="">Chọn gói thầu</option>'
+            );
+        }
+    });
+});
 $(document).ready(function () {
     $("#city-exchange").on("change", function () {
         var cityId = $(this).val();
@@ -151,10 +183,30 @@ $(document).ready(function () {
 });
 
 $(document).ready(function () {
+    // Hàm tính tổng số lượng và tổng thành tiền
+    function updateTotals() {
+        var totalQuantity = 0;
+        var totalAmount = 0;
+
+        $("#product-table tr").each(function () {
+            var quantity = parseInt($(this).find('input[name="so_luong[]"]').val()) || 0;
+            var totalText = $(this).find(".input-total").val();
+            var total = parseFloat(totalText) || 0;
+
+            totalQuantity += quantity;
+            totalAmount += total;
+        });
+
+        // Cập nhật tổng số lượng
+        $("#total-quantity").text(totalQuantity);
+        
+        // Cập nhật tổng thành tiền (định dạng tiền tệ VN)
+        $("#total-amount").text(totalAmount.toLocaleString("vi-VN") + " đ");
+    }
+
     $("#select-exchange-product").on("change", function () {
         var code = $(this).val();
         if (code) {
-            // Kiểm tra sản phẩm đã tồn tại chưa
             var existingRow = null;
             $("#product-table tr").each(function () {
                 if ($(this).find(".product-code").text().trim() === code) {
@@ -164,14 +216,12 @@ $(document).ready(function () {
             });
 
             if (existingRow) {
-                // Nếu đã tồn tại thì cộng số lượng lên 1
                 var quantityInput = existingRow.find(
                     'input[name="so_luong[]"]'
                 );
                 var currentQty = parseInt(quantityInput.val()) || 0;
                 quantityInput.val(currentQty + 1).trigger("input"); // Gọi trigger để cập nhật lại giá
             } else {
-                // Nếu chưa có thì gọi Ajax để thêm dòng mới
                 $.ajax({
                     url: "/product/" + code,
                     type: "GET",
@@ -184,37 +234,47 @@ $(document).ready(function () {
                                 <tr>
                                     <td>${rowCount}</td>
                                     <td class="product-code">${
-                                        data.code || ""
+                                        data.ky_ma_hieu || ""
                                     }</td>
-                                    <td class="product-name">${
-                                        data.name || ""
-                                    }</td>
-                                    <td class="product-quycach">${
-                                        data.quy_cach || ""
-                                    }</td>
-                                    <td class="product-brand">${
-                                        data.brand || ""
-                                    }</td>
-                                    <td class="product-country">${
-                                        data.country || ""
-                                    }</td>
+                                    <td>
+                                        <input type="text" name="danh_muc_hang_hoa[]" class="input-full-td" title="Nhập danh mục hàng hóa">
+                                    </td>
+                                    <td class="product-name">
+                                    ${data.name || ""}</td>
+                                    <td>
+                                        <textarea name="thong_so_ky_thuat_co_ban[]" rows="3" class="form-control">${
+                                            data.thong_so_ky_thuat_co_ban || ""
+                                        }</textarea>
+                                    </td>
+                                    <td class="product-quycach">
+                                        <input type="text" name="quy_cach[]" value="${
+                                            data.quy_cach || ""
+                                        }" class="input-full-td" title="Nhập quy cách đóng gói" required>
+                                    </td>
+                                    
+                                    <td class="product-brand"><input type="text" name="hang_sx[]" value="${
+                                        data.hang_sx || ""
+                                    }" class="input-full-td" title="Nhập hãng sản xuất" required></td>
+                                    <td class="product-brand"><input type="text" name="nuoc_sx[]" value="${
+                                        data.nuoc_sx || ""
+                                    }" class="input-full-td" title="Nhập nước sản xuất" required></td>
                                     <td><input type="number" id="nt-soluong" class="form-control border-primary product-quantity" name="so_luong[]" value="1"></td>
-                                    <td class="product-price">${
-                                        data.price
-                                            ? Number(data.price).toLocaleString(
-                                                  "vi-VN"
-                                              ) + " đ"
+                                    <td class="product-price" >${
+                                        data.gia_von
+                                            ? Number(
+                                                  data.gia_von
+                                              ).toLocaleString("vi-VN") + " đ"
                                             : ""
                                     }</td>
                                     <td><input type="number" class="form-control border-primary extra-price-exchange qty-input" name="extra_price[]" value="" data-bs-toggle="tooltip" title="Nhấn Ctrl + D để coppy công thức"></td>
-                                    <td class="exchange-price"></td>
+                                    <td class="exchange-price nt-giaduthau" contenteditable="true"></td>
                                     <input type="hidden" name="exchange_price[]" class="input-exchange-price" value="">
                                     <td class="total"></td>
                                     <input type="hidden" name="thanhtien[]" class="input-total" value="">
                                     <input type="hidden" name="id_products[]" value="${
-                                        data.code
+                                        data.ky_ma_hieu
                                     }">
-                                    <td>
+                                    <td style="position: sticky; right: 0; background: white; z-index: 10;">
                                         <button class="btn btn-danger btn-delete-sp"><i class="fas fa-trash-alt"></i></button>
                                     </td>
                                 </tr>
@@ -224,7 +284,7 @@ $(document).ready(function () {
                             $("#thong-tin-san-pham").show();
 
                             // Tính exchange-price và total ban đầu
-                            var productPrice = parseFloat(data.price) || 0;
+                            var productPrice = parseFloat(data.gia_von) || 0;
                             var quantity = 1;
                             var exchangePrice = productPrice;
                             var total = exchangePrice * quantity;
@@ -242,6 +302,9 @@ $(document).ready(function () {
                                 .find(".total")
                                 .text(total.toLocaleString("vi-VN") + " đ");
                             lastRow.find(".input-total").val(Math.round(total));
+
+                            // Cập nhật tổng sau khi thêm sản phẩm mới
+                            updateTotals();
                         }
                     },
                 });
@@ -272,17 +335,20 @@ $(document).ready(function () {
         } else {
             exchangePrice = originalPrice + extraPrice;
         }
-
+        let exchangePriceTron = Math.round(exchangePrice)
         row.find(".exchange-price").text(
-            exchangePrice.toLocaleString("vi-VN") + " đ"
+            exchangePriceTron.toLocaleString("vi-VN") + " đ"
         );
-        row.find(".input-exchange-price").val(Math.round(exchangePrice));
+        row.find(".input-exchange-price").val(Math.round(exchangePriceTron));
 
         var quantity =
             parseInt(row.find('input[name="so_luong[]"]').val()) || 0;
-        var total = quantity * exchangePrice;
+        var total = quantity * exchangePriceTron;
         row.find(".total").text(total.toLocaleString("vi-VN") + " đ");
         row.find(".input-total").val(Math.round(total));
+
+        // Cập nhật tổng sau khi thay đổi phụ phí
+        updateTotals();
     });
 
     // Cập nhật exchange-price và total khi thay đổi số lượng
@@ -290,27 +356,49 @@ $(document).ready(function () {
         var quantity = parseInt($(this).val()) || 0;
         var row = $(this).closest("tr");
 
-        var priceText = row.find(".product-price").text().replace(/\D/g, "");
-        var originalPrice = parseFloat(priceText) || 0;
+        var exchangePriceElement = row.find(".exchange-price");
+        var exchangePrice;
 
-        var extraPrice =
-            parseFloat(row.find(".extra-price-exchange").val()) || 0;
-        var exchangePrice = originalPrice;
-
-        if (extraPrice >= 1 && extraPrice <= 100) {
-            exchangePrice = originalPrice * (1 + extraPrice / 100);
+        // Kiểm tra xem exchange-price có được chỉnh sửa thủ công không
+        if (
+            exchangePriceElement.data("manually-edited") ||
+            exchangePriceElement.attr("contenteditable")
+        ) {
+            // Lấy giá từ exchange-price hiện tại (đã được chỉnh sửa thủ công)
+            var exchangePriceText = exchangePriceElement
+                .text()
+                .replace(/\D/g, "");
+            exchangePrice = parseFloat(exchangePriceText) || 0;
         } else {
-            exchangePrice = originalPrice + extraPrice;
+            // Tính toán exchange-price như bình thường
+            var priceText = row
+                .find(".product-price")
+                .text()
+                .replace(/\D/g, "");
+            var originalPrice = parseFloat(priceText) || 0;
+            var extraPrice =
+                parseFloat(row.find(".extra-price-exchange").val()) || 0;
+
+            if (extraPrice >= 1 && extraPrice <= 100) {
+                exchangePrice = originalPrice * (1 + extraPrice / 100);
+            } else {
+                exchangePrice = originalPrice + extraPrice;
+            }
+
+            // Cập nhật exchange-price chỉ khi chưa được chỉnh sửa thủ công
+            exchangePriceElement.text(
+                exchangePrice.toLocaleString("vi-VN") + " đ"
+            );
+            row.find(".input-exchange-price").val(Math.round(exchangePrice));
         }
 
-        row.find(".exchange-price").text(
-            exchangePrice.toLocaleString("vi-VN") + " đ"
-        );
-        row.find(".input-exchange-price").val(Math.round(exchangePrice));
-
+        // Luôn tính lại total dựa trên quantity và exchange-price hiện tại
         var total = quantity * exchangePrice;
         row.find(".total").text(total.toLocaleString("vi-VN") + " đ");
         row.find(".input-total").val(Math.round(total));
+
+        // Cập nhật tổng sau khi thay đổi số lượng
+        updateTotals();
     });
 
     // Xóa dòng sản phẩm
@@ -321,7 +409,33 @@ $(document).ready(function () {
         if ($("#product-table tr").length === 0) {
             $("#thong-tin-san-pham").hide();
         }
+
+        // Cập nhật tổng sau khi xóa sản phẩm
+        updateTotals();
     });
+
+    // Cập nhật tổng khi chỉnh sửa thủ công exchange-price
+    $(document).on("input", ".exchange-price", function () {
+        var row = $(this).closest("tr");
+        var exchangePriceText = $(this).text().replace(/\D/g, "");
+        var exchangePrice = parseFloat(exchangePriceText) || 0;
+        
+        // Đánh dấu là đã chỉnh sửa thủ công
+        $(this).data("manually-edited", true);
+        
+        // Cập nhật input ẩn
+        row.find(".input-exchange-price").val(Math.round(exchangePrice));
+        
+        // Tính lại total
+        var quantity = parseInt(row.find('input[name="so_luong[]"]').val()) || 0;
+        var total = quantity * exchangePrice;
+        row.find(".total").text(total.toLocaleString("vi-VN") + " đ");
+        row.find(".input-total").val(Math.round(total));
+
+        // Cập nhật tổng
+        updateTotals();
+    });
+
     // Bản gốc
 });
 $(document).on("keydown", ".qty-input", function (e) {
@@ -1134,5 +1248,16 @@ avatarInput.addEventListener("change", function () {
         previewContainer.classList.add("d-none");
     }
 });
-//validate form
+// Script để tự động submit form khi thay đổi radio (tùy chọn)
+const radioButtons = document.querySelectorAll(".status-radio");
+
+radioButtons.forEach((radio) => {
+    radio.addEventListener("change", function () {
+        // Chỉ để demo - Bỏ comment dòng dưới nếu bạn muốn form tự submit
+        // document.getElementById('statusForm').submit();
+
+        console.log("Selected status:", this.value);
+    });
+});
+
 

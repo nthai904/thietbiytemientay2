@@ -12,6 +12,11 @@ class Bidder extends Model
         'ma_phan',
         'ten_phan',
         'product_name',
+        'thong_so_moi_thau',
+        'unit',
+        'uoc_tinh_phan_lo',
+        'gia_kh',
+        'yeu_cau_ve_xuat_xu',
         'quantity',
     ];
 

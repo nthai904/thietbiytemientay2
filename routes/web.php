@@ -8,6 +8,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DocumentController;
 use App\Http\Controllers\ExchangeController;
 use App\Http\Controllers\LoginController;
+use App\Http\Controllers\ProviderController;
 use App\Http\Controllers\UserController;
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');
@@ -38,6 +39,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/bidder/create', 'create')->name('bidder.create');
         Route::get('/bidder/edit/{id}', 'edit')->name('bidder.edit');   
         Route::post('/bidder/store', 'store')->name('bidder.store');
+        Route::delete('/bidder/destroy/{ma_dau_thau}', 'destroy')->name('bidder.destroy');
         Route::post('/bidder', 'import')->name('bidder.import');
         Route::get('/bidder/group', 'group')->name('bidder.group');
         Route::get('/bidder/create-group', 'create_group')->name('bidder.createGroup');
@@ -48,15 +50,20 @@ Route::middleware('auth')->group(function () {
         Route::get('/get-categories-by-city/{cityId}', 'getCategory')->name('categories.byCity');
         Route::get('/get-group-by-categories/{categoryId}', 'getGroup')->name('categories.byCategory');
         Route::get('/get-group-by-date/{date}', 'getGroupByDate');
+        Route::get('/get-group-dau-thau/{categoryId}', 'getGroupDaDauThau');
     });
 });
 // Danh sách bệnh viện
 Route::middleware('auth')->group(function () {
     Route::controller(CategoryBidderController::class)->group(function () {
         Route::get('/category-bidder', 'index')->name('category.index');
+        Route::get('/edit-bidder/{code}', 'edit')->name('category.edit');
         Route::get('/category-bidder/{code}/{group}', 'detail')->name('category.detail');
         Route::get('/create-bidder', 'create')->name('categorybidder.create');
         Route::post('/create-bidder', 'store')->name('categorybidder.store');
+        Route::post('/import-bidder', 'import')->name('categorybidder.import');
+        Route::post('/update-bidder/{code}', 'update')->name('categorybidder.update');
+        Route::delete('/destroy/{id}', 'destroy')->name('categorybidder.destroy');
     });
 });
 // Hồ sơ thầu
@@ -67,10 +74,12 @@ Route::middleware('auth')->group(function () {
         Route::put('/update-document/{code}/{group}', 'update')->name('document.update');
         Route::get('/create-document', 'create')->name('document.create');
         Route::post('/create-document', 'store')->name('document.store');
+        Route::post('/create-document-ban-nhap', 'storeBanNhap')->name('document.storeBanNhap');
         Route::post('/documents/export', 'exportExcel')->name('documents.exportExcel');
         Route::post('/documents/export-word', 'exportWord')->name('documents.exportWord');
         Route::post('/documents/export-contract', 'exportContract')->name('documents.exportContract');
         Route::post('/documents/export-contract-phuluc', 'exportContractPhuluc')->name('documents.exportContractPhuluc');
+        Route::post('/documents/export-bao-gia-ke-hoach', 'exportBaoGiaKH')->name('documents.exportBaoGiaKH');
         Route::get('/bid', 'bid')->name('document.bid');
         Route::get('/bid/detail/{code}/{group}', 'bidDetail')->name('document.bidDetail');
         Route::post('/bid/update', 'bidUpdate')->name('document.bidUpdate');
@@ -88,6 +97,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/exchange/update/{date}', 'update')->name('exchange.update');
         Route::post('/exchange/exportWord', 'exportWord')->name('exchange.exportWord');
         Route::post('/exchange/import', 'import')->name('exchange.import');
+        Route::delete('/exchange/destroy/{date}', 'destroy')->name('exchange.destroy');
     });
 });
 // Quản lý người dùng
@@ -96,6 +106,21 @@ Route::middleware('auth', 'check.role:admin')->group(function () {
         Route::get('/user', 'index')->name('user.index');
         Route::get('/user/create', 'create')->name('user.create');
         Route::post('/user/store', 'store')->name('user.store');
-        Route::get('/user/{id}', 'detail')->name('user.detail');
+        Route::put('/user/update/{id}', 'update')->name('user.update');
+        Route::get('/user/{id}', 'edit')->name('user.edit');
+        Route::delete('/user/destroy/{id}', 'destroy')->name('user.destroy');
+    });
+});
+// Quản lý nhà cung cấp
+Route::middleware('auth')->group(function () {
+    Route::controller(ProviderController::class)->group(function () {
+        Route::get('/provider', 'index')->name('provider.index');
+        Route::get('/provider/edit/{id}', 'edit')->name('provider.edit');
+        Route::get('/provider/create', 'create')->name('provider.create');
+        Route::post('/provider/store', 'store')->name('provider.store');
+        Route::post('/provider/update/{id}', 'update')->name('provider.update');
+        // Route::post('/provider/exportWord', 'exportWord')->name('provider.exportWord');
+        Route::post('/provider/import', 'import')->name('provider.import');
+        Route::delete('/provider/destroy/{id}', 'destroy')->name('provider.destroy');
     });
 });

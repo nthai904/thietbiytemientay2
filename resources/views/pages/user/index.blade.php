@@ -26,7 +26,7 @@
                                 <h4 class="card-title">Danh mục người dùng</h4>
                                 <div class="d-flex">
                                     <!-- Nút Thêm mới -->
-                                    <a href="{{route('user.create')}}" class="btn btn-primary ms-2 btn-addnew">
+                                    <a href="{{ route('user.create') }}" class="btn btn-primary ms-2 btn-addnew">
                                         <i class="fa fa-plus me-2"></i>
                                         Thêm mới
                                     </a>
@@ -129,24 +129,58 @@
                                                     <td>{{ $v['name'] }}</td>
                                                     <td>{{ $v['phone'] }}</td>
                                                     <td>
-                                                        @if ($v['department'] === "duan")
-                                                            {{ "Phòng dự án" }}
-                                                        @elseif ($v['department'] === "ketoan")
-                                                            {{ "Phòng kế toán" }}
+                                                        @if ($v['department'] === 'duan')
+                                                            {{ 'Phòng dự án' }}
+                                                        @elseif ($v['department'] === 'ketoan')
+                                                            {{ 'Phòng kế toán' }}
                                                         @else
-                                                            {{ "Phòng Sale" }}
+                                                            {{ 'Phòng Sale' }}
                                                         @endif
                                                     </td>
                                                     <td>
                                                         <div class="d-flex justify-content-center gap-2">
-                                                            <button type="button" class="btn btn-sm btn-primary"
-                                                                title="Sửa">
+                                                            <a href="{{ route('user.edit', ['id' => $v['id']]) }}"
+                                                                class="btn btn-sm btn-primary" title="Sửa">
                                                                 <i class="fa fa-edit"></i>
-                                                            </button>
+                                                            </a>
                                                             <button type="button" class="btn btn-sm btn-danger"
-                                                                title="Xóa">
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#deleteModal-{{ $v['id'] }}">
                                                                 <i class="fa fa-trash"></i>
                                                             </button>
+                                                            <div class="modal fade" id="deleteModal-{{ $v['id'] }}"
+                                                                tabindex="-1"
+                                                                aria-labelledby="deleteModalLabel{{ $v['id'] }}"
+                                                                aria-hidden="true">
+                                                                <div class="modal-dialog modal-custom">
+                                                                    <div class="modal-content">
+                                                                        <div class="modal-header">
+                                                                            <h5 class="modal-title"
+                                                                                id="deleteModalLabel{{ $v['id'] }}">
+                                                                                Xác nhận xóa</h5>
+                                                                            <button type="button" class="btn-close"
+                                                                                data-bs-dismiss="modal"></button>
+                                                                        </div>
+                                                                        <div class="modal-body">
+                                                                            Bạn có chắc chắn muốn xóa
+                                                                            <strong class="text-danger">{{ $v['name'] }}</strong>
+                                                                            không?
+                                                                        </div>
+                                                                        <div class="modal-footer">
+                                                                            <form method="POST"
+                                                                                action="{{ route('user.destroy', $v['id']) }}">
+                                                                                @csrf
+                                                                                @method('DELETE')
+                                                                                <button type="button"
+                                                                                    class="btn btn-secondary"
+                                                                                    data-bs-dismiss="modal">Hủy</button>
+                                                                                <button type="submit"
+                                                                                    class="btn btn-danger">Xóa</button>
+                                                                            </form>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </td>
                                                 </tr>

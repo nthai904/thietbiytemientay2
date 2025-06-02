@@ -55,7 +55,8 @@
                                             <i class="fa fa-file-export me-2"></i>
                                             Xuất file
                                         </button>
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownButton" style="min-width: 200px;">
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownButton"
+                                            style="min-width: 200px;">
                                             {{-- <li>
                                                 <form action="{{ route('documents.exportExcel') }}" method="POST"
                                                     enctype="multipart/form-data" id="exportFormExcel">
@@ -77,6 +78,18 @@
                                                         data-action="word">
                                                         <i class="fa fa-file-word me-2"></i>
                                                         Báo giá
+                                                    </button>
+                                                </form>
+                                            </li>
+                                            <li>
+                                                <form action="{{ route('exchange.exportWord') }}" method="POST"
+                                                    enctype="multipart/form-data" id="exportFormWord">
+                                                    @csrf
+                                                    <input type="hidden" name="selectedRows" id="selectedRowsWord">
+                                                    <button type="submit" class="btn ms-2 btn-addnew exportButton"
+                                                        data-action="word">
+                                                        <i class="fa fa-file-word me-2"></i>
+                                                        Báo giá chi tiết
                                                     </button>
                                                 </form>
                                             </li>
@@ -120,8 +133,7 @@
                                                 <span class="fw-mediumbold"> New</span>
                                                 <span class="fw-light"> Row </span>
                                             </h5>
-                                            <button type="button" class="close" data-dismiss="modal"
-                                                aria-label="Close">
+                                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                                 <span aria-hidden="true">&times;</span>
                                             </button>
                                         </div>
@@ -167,50 +179,110 @@
                                     </div>
                                 </div>
                             </div>
-
+                            <div class="row d-flex mb-3">
+                                <div class="col-md-3">
+                                    <select name="category" class="select2" id="select-benh-vien-filter">
+                                        <option value="">Lọc theo bệnh viện</option>
+                                        @if (isset($categories) && $categories->count())
+                                            @foreach ($categories as $category)
+                                                <option value="{{ $category['code'] }}">{{ $category['name'] }}</option>
+                                            @endforeach
+                                        @endif
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <input type="month" class="form-control" name="" id="created-at-filter"
+                                        title="Lọc theo thời gian tạo">
+                                </div>
+                            </div>
                             <div class="table-responsive">
-                                <table id="add-row" class="table table-bordered align-middle text-nowrap">
-                                    <thead class="table-light text-center">
-                                        <tr>
-                                            <th style="min-width: 40px;">
-                                                <input type="checkbox" id="check-all" style="width:17px; height:17px">
-                                            </th>
-                                            <th style="min-width: 50px;">STT</th>
-                                            <th style="min-width: 150px;">Mã bệnh viện</th>
-                                            <th style="min-width: 150px;">Tên bệnh viện</th>
-                                            <th style="min-width: 120px;">Tổng thành tiền</th>
-                                            <th style="min-width: 120px;">Thời gian</th>
-                                            <th style="min-width: 120px;"></th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="text-center">
-                                        @if (isset($exchanges) && count($exchanges) > 0)
-                                            @foreach ($exchanges as $k => $v)
-                                                <tr class="clickable-row" data-url="{{ route('exchange.detail', ['date' => $v['date_slug']]) }}"
-                                                    style="cursor: pointer;" data-id="{{ $v['code_category_bidder'] }}" data-date="{{ $v['date_slug'] }}">
-                                                    <td>    
-                                                        <input type="checkbox" class="row-checkbox"
-                                                            style="width:17px; height:17px">
-                                                    </td>
-                                                    <td class="clickable">{{ $k + 1 }}</td>
-                                                    <td class="clickable">{{ $v['code_category_bidder'] }}</td>
-                                                    <td class="clickable">{{ $v['bidder_name'] ?? '' }}</td>
-                                                    <td class="clickable">{{ number_format($v['total_price']) ?? '' }} đ
-                                                    </td>
-                                                    <td class="clickable">{{ $v['created_at'] ?? '' }}</td>
-                                                    <td>
-                                                        {{-- @if (is_array($v['code_category_bidder']))
+                                @if ($user->department !== 'admin')
+                                    <table id="add-row" class="table table-bordered align-middle text-nowrap">
+                                        <thead class="table-light text-center">
+                                            <tr>
+                                                <th style="min-width: 40px;">
+                                                    <input type="checkbox" id="check-all"
+                                                        style="width:17px; height:17px">
+                                                </th>
+                                                <th style="min-width: 50px;">STT</th>
+                                                <th style="min-width: 150px;">Mã bệnh viện</th>
+                                                <th style="min-width: 150px;">Tên bệnh viện</th>
+                                                <th style="min-width: 120px;">Tổng thành tiền</th>
+                                                <th style="min-width: 120px;">Thời gian</th>
+                                                <th style="min-width: 120px;"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="text-center">
+                                            @if (isset($exchanges) && count($exchanges) > 0)
+                                                @foreach ($exchanges as $k => $v)
+                                                    <tr class="clickable-row"
+                                                        data-url="{{ route('exchange.detail', ['date' => $v['date_slug']]) }}"
+                                                        style="cursor: pointer;"
+                                                        data-id="{{ $v['code_category_bidder'] }}"
+                                                        data-date="{{ $v['date_slug'] }}">
+                                                        <td>
+                                                            <input type="checkbox" class="row-checkbox"
+                                                                style="width:17px; height:17px">
+                                                        </td>
+                                                        <td class="clickable">{{ $k + 1 }}</td>
+                                                        <td class="clickable">{{ $v['code_category_bidder'] }}</td>
+                                                        <td class="clickable">{{ $v['bidder_name'] ?? '' }}</td>
+                                                        <td class="clickable">{{ number_format($v['total_price']) ?? '' }}
+                                                            đ
+                                                        </td>
+                                                        <td class="clickable">{{ $v['created_at'] ?? '' }}</td>
+                                                        <td>
+
+                                                            {{-- @if (is_array($v['code_category_bidder']))
                                                             <a
                                                                 href="{{ route('document.edit', ['code' => $v['code_category_bidder'][0]]) }}">Chi
                                                                 tiết <i class="fa pointer ms-2 fa-caret-right"></i></a>
                                                         @else --}}
-                                                            <a href="{{route('exchange.detail', ['date' => $v['date_slug']])}}"
-                                                                class="text-dark">Chi tiết <i
-                                                                    class="fa pointer ms-2 fa-caret-right"></i></a>
-                                                        {{-- @endif --}}
-                                                    </td>
-                                                </tr>
-                                                {{-- <tr class="details-row" id="details-{{ $v['code_category_bidder'] }}"
+                                                            <a href="{{ route('exchange.detail', ['date' => $v['date_slug']]) }}"
+                                                                class="btn btn-primary btn-sm text-white text-center"><i
+                                                                    class="fa pointer fa-eye"></i></a>
+                                                            <button type="button" class="btn btn-sm btn-danger"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#deleteModal-{{ $v['date_slug'] }}">
+                                                                <i class="fa fa-trash"></i>
+                                                            </button>
+                                                            <div class="modal fade"
+                                                                id="deleteModal-{{ $v['date_slug'] }}" tabindex="-1"
+                                                                aria-labelledby="deleteModalLabel{{ $v['date_slug'] }}"
+                                                                aria-hidden="true">
+                                                                <div class="modal-dialog modal-custom">
+                                                                    <div class="modal-content">
+                                                                        <div class="modal-header">
+                                                                            <h5 class="modal-title"
+                                                                                id="deleteModalLabel{{ $v['date_slug'] }}">
+                                                                                Xác nhận xóa</h5>
+                                                                            <button type="button" class="btn-close"
+                                                                                data-bs-dismiss="modal"></button>
+                                                                        </div>
+                                                                        <div class="modal-body">
+                                                                            Bạn có chắc chắn muốn xóa thông tin bán lẻ này
+                                                                            không?
+                                                                        </div>
+                                                                        <div class="modal-footer">
+                                                                            <form method="POST"
+                                                                                action="{{ route('exchange.destroy', $v['date_slug']) }}">
+                                                                                @csrf
+                                                                                @method('DELETE')
+                                                                                <button type="button"
+                                                                                    class="btn btn-secondary"
+                                                                                    data-bs-dismiss="modal">Hủy</button>
+                                                                                <button type="submit"
+                                                                                    class="btn btn-danger">Xóa</button>
+                                                                            </form>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            {{-- @endif --}}
+                                                        </td>
+
+                                                    </tr>
+                                                    {{-- <tr class="details-row" id="details-{{ $v['code_category_bidder'] }}"
                                                     style="display:none;">
                                                     <td colspan="10">
                                                         <table class="table table-bordered align-middle text-nowrap bg-green">
@@ -251,15 +323,154 @@
                                                         </table>
                                                     </td>
                                                 </tr> --}}
-                                            @endforeach
-                                        @else
-                                            <tr>
-                                                <td colspan="7" class="text-center">Không có dữ liệu</td>
-                                            </tr>
-                                        @endif
-                                    </tbody>
+                                                @endforeach
+                                            @else
+                                                <tr>
+                                                    <td colspan="7" class="text-center">Không có dữ liệu</td>
+                                                </tr>
+                                            @endif
+                                        </tbody>
 
-                                </table>
+                                    </table>
+                                @else
+                                    <table id="add-row" class="table table-bordered align-middle text-nowrap">
+                                        <thead class="table-light text-center">
+                                            <tr>
+                                                <th style="min-width: 40px;">
+                                                    <input type="checkbox" id="check-all"
+                                                        style="width:17px; height:17px">
+                                                </th>
+                                                <th style="min-width: 50px;">STT</th>
+                                                <th style="min-width: 150px;">Mã bệnh viện</th>
+                                                <th style="min-width: 150px;">Tên bệnh viện</th>
+                                                <th style="min-width: 120px;">Tổng thành tiền</th>
+                                                <th style="min-width: 120px;">Thời gian</th>
+                                                <th style="min-width: 120px;">Người tạo</th>
+                                                <th style="min-width: 120px;"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="text-center">
+                                            @if (isset($exchanges) && count($exchanges) > 0)
+                                                @foreach ($exchanges as $k => $v)
+                                                    <tr class="clickable-row"
+                                                        data-url="{{ route('exchange.detail', ['date' => $v['date_slug']]) }}"
+                                                        style="cursor: pointer;"
+                                                        data-id="{{ $v['code_category_bidder'] }}"
+                                                        data-date="{{ $v['date_slug'] }}">
+                                                        <td>
+                                                            <input type="checkbox" class="row-checkbox"
+                                                                style="width:17px; height:17px">
+                                                        </td>
+                                                        <td class="clickable">{{ $k + 1 }}</td>
+                                                        <td class="clickable">{{ $v['code_category_bidder'] }}</td>
+                                                        <td class="clickable">{{ $v['bidder_name'] ?? '' }}</td>
+                                                        <td class="clickable">{{ number_format($v['total_price']) ?? '' }}
+                                                            đ
+                                                        </td>
+                                                        <td class="clickable">{{ $v['created_at'] ?? '' }}</td>
+                                                        <td class="clickable">{{ $v['user_name'] ?? '' }}</td>
+                                                        <td>
+
+                                                            {{-- @if (is_array($v['code_category_bidder']))
+                                                            <a
+                                                                href="{{ route('document.edit', ['code' => $v['code_category_bidder'][0]]) }}">Chi
+                                                                tiết <i class="fa pointer ms-2 fa-caret-right"></i></a>
+                                                        @else --}}
+                                                            <a href="{{ route('exchange.detail', ['date' => $v['date_slug']]) }}"
+                                                                class="btn btn-primary btn-sm text-white text-center"><i
+                                                                    class="fa pointer fa-eye"></i></a>
+                                                            <button type="button" class="btn btn-sm btn-danger"
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#deleteModal-{{ $v['date_slug'] }}">
+                                                                <i class="fa fa-trash"></i>
+                                                            </button>
+                                                            <div class="modal fade"
+                                                                id="deleteModal-{{ $v['date_slug'] }}" tabindex="-1"
+                                                                aria-labelledby="deleteModalLabel{{ $v['date_slug'] }}"
+                                                                aria-hidden="true">
+                                                                <div class="modal-dialog modal-custom">
+                                                                    <div class="modal-content">
+                                                                        <div class="modal-header">
+                                                                            <h5 class="modal-title"
+                                                                                id="deleteModalLabel{{ $v['date_slug'] }}">
+                                                                                Xác nhận xóa</h5>
+                                                                            <button type="button" class="btn-close"
+                                                                                data-bs-dismiss="modal"></button>
+                                                                        </div>
+                                                                        <div class="modal-body">
+                                                                            Bạn có chắc chắn muốn xóa thông tin bán lẻ này
+                                                                            không?
+                                                                        </div>
+                                                                        <div class="modal-footer">
+                                                                            <form method="POST"
+                                                                                action="{{ route('exchange.destroy', $v['date_slug']) }}">
+                                                                                @csrf
+                                                                                @method('DELETE')
+                                                                                <button type="button"
+                                                                                    class="btn btn-secondary"
+                                                                                    data-bs-dismiss="modal">Hủy</button>
+                                                                                <button type="submit"
+                                                                                    class="btn btn-danger">Xóa</button>
+                                                                            </form>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            {{-- @endif --}}
+                                                        </td>
+
+                                                    </tr>
+                                                    {{-- <tr class="details-row" id="details-{{ $v['code_category_bidder'] }}"
+                                                    style="display:none;">
+                                                    <td colspan="10">
+                                                        <table class="table table-bordered align-middle text-nowrap bg-green">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th>Mã phần</th>
+                                                                    <th>Tên phần</th>
+                                                                    <th>Đơn vị</th>
+                                                                    <th>Số lượng</th>
+                                                                    <th>Tên sản phẩm</th>
+                                                                    <th>Quy cách</th>
+                                                                    <th>Hãng</th>
+                                                                    <th>Quốc gia</th>
+                                                                    <th>Giá</th>
+                                                                    <th>Tổng giá</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                @foreach ($details as $detail)
+                                                                    @if ($detail['code_category_bidder'] == $v['code_category_bidder'])
+                                                                        <tr>
+                                                                            <td>{{ $detail['ma_phan'] }}</td>
+                                                                            <td>{{ $detail['ten_phan'] }}</td>
+                                                                            <td>{{ $detail['unit'] }}</td>
+                                                                            <td>{{ $detail['quantity'] }}</td>
+                                                                            <td>{{ $detail['product_name'] }}</td>
+                                                                            <td>{{ $detail['quy_cach'] }}</td>
+                                                                            <td>{{ $detail['brand'] }}</td>
+                                                                            <td>{{ $detail['country'] }}</td>
+                                                                            <td>{{ number_format($detail['price']) }} đ
+                                                                            </td>
+                                                                            <td>{{ number_format($detail['total_price']) }}
+                                                                                đ</td>
+                                                                        </tr>
+                                                                    @endif
+                                                                @endforeach
+                                                            </tbody>
+                                                        </table>
+                                                    </td>
+                                                </tr> --}}
+                                                @endforeach
+                                            @else
+                                                <tr>
+                                                    <td colspan="8" class="text-center">Không có dữ liệu</td>
+                                                </tr>
+                                            @endif
+                                        </tbody>
+
+                                    </table>
+                                @endif
                             </div>
 
                         </div>

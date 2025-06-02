@@ -3,7 +3,7 @@
     <div class="container">
         <div class="page-inner">
             <div class="page-header">
-                <h3 class="fw-bold mb-3">Quản lý nhà thầu</h3>
+                <h3 class="fw-bold mb-3">Quản lý bệnh viện</h3>
                 <ul class="breadcrumbs mb-3">
                     <li class="nav-home">
                         <a href="#">
@@ -132,17 +132,50 @@
                                                     <td>{{ $loop->iteration }}</td>
                                                     <td>{{ $first->category->name ?? '' }}</td>
                                                     <td>{{ $first->group->name ?? '' }}</td>
-                                                    <td>{{ $group->sum('quantity') }}</td> 
+                                                    <td>{{ $group->sum('quantity') }}</td>
                                                     <td>
                                                         <div class="d-flex justify-content-center gap-2">
-                                                            <a href="{{ route('bidder.edit', ['id' => $maDauThau]) }}" type="button" class="btn btn-sm btn-primary"
+                                                            <a href="{{ route('bidder.edit', ['id' => $maDauThau]) }}"
+                                                                type="button" class="btn btn-sm btn-primary"
                                                                 title="Sửa">
-                                                                <i class="fa fa-edit"></i>
+                                                                <i class="fa fa-eye"></i>
                                                             </a>
                                                             <button type="button" class="btn btn-sm btn-danger"
-                                                                title="Xóa">
+                                                                data-bs-toggle="modal"
+                                                                data-bs-target="#deleteModal-{{ $maDauThau }}">
                                                                 <i class="fa fa-trash"></i>
                                                             </button>
+                                                            <div class="modal fade" id="deleteModal-{{ $maDauThau }}"
+                                                                tabindex="-1"
+                                                                aria-labelledby="deleteModalLabel{{ $maDauThau }}"
+                                                                aria-hidden="true">
+                                                                <div class="modal-dialog modal-custom">
+                                                                    <div class="modal-content">
+                                                                        <div class="modal-header">
+                                                                            <h5 class="modal-title"
+                                                                                id="deleteModalLabel{{ $maDauThau }}">
+                                                                                Xác nhận xóa</h5>
+                                                                            <button type="button" class="btn-close"
+                                                                                data-bs-dismiss="modal"></button>
+                                                                        </div>
+                                                                        <div class="modal-body">
+                                                                            Bạn có chắc chắn muốn xóa đấu thầu này không?
+                                                                        </div>
+                                                                        <div class="modal-footer">
+                                                                            <form method="POST"
+                                                                                action="{{ route('bidder.destroy', $maDauThau) }}">
+                                                                                @csrf
+                                                                                @method('DELETE')
+                                                                                <button type="button"
+                                                                                    class="btn btn-secondary"
+                                                                                    data-bs-dismiss="modal">Hủy</button>
+                                                                                <button type="submit"
+                                                                                    class="btn btn-danger">Xóa</button>
+                                                                            </form>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
                                                         </div>
                                                     </td>
                                                 </tr>

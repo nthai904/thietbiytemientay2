@@ -50,7 +50,8 @@
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label for="select-nha-thau">Bệnh viện</label>
-                                            <select name="id_nhathau" id="select-nha-thau" class="select2 form-control">
+                                            <select name="id_nhathau" id="select-nha-thau-da-dau-thau"
+                                                class="select2 form-control">
                                                 <option value="" selected>-- Chọn Bệnh viện --</option>
                                                 {{-- @if (isset($categories))
                                                     @foreach ($categories as $k => $v)
@@ -67,7 +68,7 @@
                                     <div class="col-md-4">
                                         <div class="form-group">
                                             <label for="group">Gói thầu</label>
-                                            <select name="group" id="group" class="select2 form-control">
+                                            <select name="group" id="group-da-dau-thau" class="select2 form-control">
                                                 <option value="" selected>-- Chọn Gói thầu --</option>
                                                 {{-- @if (isset($categories))
                                                     @foreach ($categories as $k => $v)
@@ -109,64 +110,88 @@
 
                                     <div class="col-md-12" id="thong-tin-nha-thau" style="display: none;">
                                         <div class="table-responsive">
-                                            <table
-                                                class="table table-bordered table-hover align-middle text-nowrap table-banle">
-                                                <thead class="table-light text-center">
-                                                    <tr>
-                                                        <th style="min-width: 50px;">Mã nhà thầu</th>
-                                                        <th style="min-width: 150px;">Tên nhà thầu</th>
-                                                        <th style="min-width: 50px;">Mã phần (lô)</th>
-                                                        <th style="min-width: 120px;">Tên phần</th>
-                                                        <th style="min-width: 120px;">Danh mục hàng hóa</th>
-                                                        <th style="min-width: 80px;">Số lượng</th>
-                                                        <th style="min-width: 450px;">Tên thương mại</th>
-                                                        <th style="min-width: 120px;">Quy cách</th>
-                                                        <th style="min-width: 120px;">Hãng sx</th>
-                                                        <th style="min-width: 120px;">Nước sx</th>
-                                                        <th style="min-width: 120px;">Giá</th>
-                                                        <th style="min-width: 120px;">Tăng trưởng giá</th>
-                                                        <th style="min-width: 120px;">Giá dự thầu</th>
-                                                        <th style="min-width: 120px;">Thành tiền</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody class="text-center" id="product-table">
-                                                    <tr>
-                                                        <td id="nt-ma"></td>
-                                                        <td id="nt-ten"></td>
-                                                        <td id="nt-maphan"></td>
-                                                        <td id="nt-tenphan"></td>
-                                                        <td id="nt-dmhh"></td>
-                                                        <td id="nt-soluong"></td>
-                                                        <td style="min-width: 160px;">
-                                                            <select name="id_product" id="select-product" class="select2">
-                                                                <option value="" selected disabled>Chọn mặt hàng
-                                                                </option>
-                                                                @if (isset($products))
-                                                                    @foreach ($products as $k => $v)
-                                                                        <option value="{{ $v['code'] }}">
-                                                                            {{ $v['name'] }}</option>
-                                                                    @endforeach
-                                                                @endif
-                                                            </select>
-                                                        </td>
-                                                        <td id="product-quycach"></td>
-                                                        <td id="product-brand"></td>
-                                                        <td id="product-country"></td>
-                                                        <td id="product-price"></td>
-                                                        <td>
-                                                            <input type="number" class="form-control border-primary qty-input"
-                                                                title="Nhập giá chênh lệch" value=""
-                                                                id="extra-price" name="extra_price">
-                                                        </td>
-                                                        <td id="nt-giaduthau"></td>
-                                                        <input type="hidden" value="" id="input-giaduthau"
-                                                            name="giaduthau">
-                                                        <td id="total"></td>
-                                                        <input type="hidden" value="" id="input-total"
-                                                            name="thanhtien">
-                                                    </tr>
-                                                </tbody>
-                                            </table>
+                                            <div class="table-wrapper">
+                                                <table
+                                                    class="table table-bordered table-hover align-middle text-nowrap table-banle table-striped">
+                                                    <thead class="table-light text-center">
+                                                        <tr>
+                                                            <th style="min-width: 50px;">Mã bệnh viện</th>
+                                                            <th style="min-width: 150px;">Tên bệnh viện</th>
+                                                            <th style="min-width: 50px;">Mã phần (lô)</th>
+                                                            <th style="min-width: 120px;">Tên phần</th>
+                                                            <th style="min-width: 120px;">Danh mục hàng hóa</th>
+                                                            <th style="min-width: 80px;">Số lượng</th>
+                                                            <th style="min-width: 450px;">Tên thương mại</th>
+                                                            <th style="min-width: 200px;">Ký mã hiệu</th>
+                                                            <th style="min-width: 500px;">Đặc tính thông số kỹ thuật cơ bản
+                                                            </th>
+                                                            <th style="min-width: 500px;">Đặc tính thông số kỹ thuật thầu
+                                                            </th>
+                                                            <th style="min-width: 120px;">Hãng sản xuất</th>
+                                                            <th style="min-width: 120px;">Nước sản xuất</th>
+                                                            <th style="min-width: 120px;">Hãng/ Nước chủ sở hữu</th>
+                                                            <th style="min-width: 120px;">Quy cách đóng gói</th>
+                                                            <th style="min-width: 120px;">Đơn vị tính</th>
+                                                            <th style="min-width: 120px;">Hạn sử dụng</th>
+                                                            <th style="min-width: 300px;">Tên NCC</th>
+                                                            <th style="min-width: 120px;">Mã VTYT dùng chung Quyết định 5086
+                                                            </th>
+                                                            <th style="min-width: 120px;">Nhóm theo TT
+                                                                04/2017/TT-BYT</th>
+                                                            <th style="min-width: 120px;">Phân loại TTBYT theo
+                                                                TT39/2016/TT-BYT
+                                                            </th>
+                                                            <th style="min-width: 120px;">Số đăng ký lưu hành/Số GPNK</th>
+                                                            <th style="min-width: 120px;">Số bảng phân loại</th>
+                                                            <th style="min-width: 500px;">Ghi chú</th>
+                                                            <th style="min-width: 120px;">Giá vốn</th>
+                                                            <th style="min-width: 120px;">Giá đề xuất</th>
+                                                            <th style="min-width: 120px;">Tăng trưởng giá</th>
+                                                            <th style="min-width: 120px;">Giá dự thầu</th>
+                                                            <th style="min-width: 120px;">Thành tiền</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody class="text-center" id="product-table">
+                                                        <tr>
+                                                            <td id="nt-ma"></td>
+                                                            <td id="nt-ten"></td>
+                                                            <td id="nt-maphan"></td>
+                                                            <td id="nt-tenphan"></td>
+                                                            <td id="nt-dmhh"></td>
+                                                            <td id="nt-soluong"></td>
+                                                            <td style="min-width: 160px;">
+                                                                <select name="id_product" id="select-product"
+                                                                    class="select2">
+                                                                    <option value="" selected disabled>Chọn mặt hàng
+                                                                    </option>
+                                                                    @if (isset($products))
+                                                                        @foreach ($products as $k => $v)
+                                                                            <option value="{{ $v['ky_ma_hieu'] }}">
+                                                                                {{ $v['name'] }}</option>
+                                                                        @endforeach
+                                                                    @endif
+                                                                </select>
+                                                            </td>
+                                                            <td id="product-quycach"></td>
+                                                            <td id="product-brand"></td>
+                                                            <td id="product-country"></td>
+                                                            <td id="product-price"></td>
+                                                            <td>
+                                                                <input type="number"
+                                                                    class="form-control border-primary qty-input"
+                                                                    title="Nhập giá chênh lệch" value=""
+                                                                    id="extra-price" name="extra_price">
+                                                            </td>
+                                                            <td id="nt-giaduthau"></td>
+                                                            <input type="hidden" value="" id="input-giaduthau"
+                                                                name="giaduthau">
+                                                            <td id="total"></td>
+                                                            <input type="hidden" value="" id="input-total"
+                                                                name="thanhtien">
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

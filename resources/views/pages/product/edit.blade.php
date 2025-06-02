@@ -37,8 +37,8 @@
                                     <div class="col-md-3">
                                         <div class="form-group">
                                             <label for="name">Tên thương mại</label>
-                                            <input type="text" class="form-control" id="name"
-                                                name="name" placeholder="Nhập tên hàng hóa" value="{{ $product->name }}">
+                                            <input type="text" class="form-control" id="name" name="name"
+                                                placeholder="Nhập tên hàng hóa" value="{{ $product->name }}">
                                         </div>
                                     </div>
                                     <div class="col-md-3">
@@ -80,12 +80,13 @@
                                             </div>
                                         </div>
                                     </div> --}}
-                                    
+
                                     <div class="col-md-3">
                                         <div class="form-group">
                                             <label for="hang_nuoc_chu_so_huu">Hãng/nước chủ sở hữu</label>
                                             <input type="text" class="form-control" id="hang_nuoc_chu_so_huu"
-                                                name="hang_nuoc_chu_so_huu" placeholder="Nhập hãng/nước chủ sở hữu" value="{{ $product->hang_nuoc_chu_so_huu }}">
+                                                name="hang_nuoc_chu_so_huu" placeholder="Nhập hãng/nước chủ sở hữu"
+                                                value="{{ $product->hang_nuoc_chu_so_huu }}">
                                         </div>
                                     </div>
                                     <div class="col-md-3">
@@ -105,7 +106,7 @@
                                     <div class="col-md-3">
                                         <div class="form-group">
                                             <label>Hạn sử dụng</label><br>
-                                            <input type="date" class="form-control" id="hsd" name="hsd" 
+                                            <input type="date" class="form-control" id="hsd" name="hsd"
                                                 placeholder="Nhập hạn sử dụng" value="{{ $product->hsd }}">
                                         </div>
                                     </div>
@@ -120,7 +121,8 @@
                                         <div class="form-group">
                                             <label>Giá đề xuất</label><br>
                                             <input type="number" class="form-control" id="gia_de_xuat"
-                                                name="gia_de_xuat" placeholder="Nhập giá đề xuất" value="{{ $product->gia_de_xuat }}">
+                                                name="gia_de_xuat" placeholder="Nhập giá đề xuất"
+                                                value="{{ $product->gia_de_xuat }}">
                                         </div>
                                     </div>
                                     <div class="col-md-3">
@@ -140,53 +142,54 @@
                                     <div class="col-md-3">
                                         <div class="form-group">
                                             <label>Nhóm theo TT04/2017/TT-BYT</label><br>
-                                            <input type="text" class="form-control" id="nhom_theo_tt" name="nhom_theo_tt"
-                                                placeholder="Nhập nhóm theo TT04/2017/TT-BYT" value="{{ $product->nhom_theo_tt }}">
+                                            <input type="text" class="form-control" id="nhom_theo_tt"
+                                                name="nhom_theo_tt" placeholder="Nhập nhóm theo TT04/2017/TT-BYT"
+                                                value="{{ $product->nhom_theo_tt }}">
                                         </div>
                                     </div>
                                     <div class="col-md-3">
                                         <div class="form-group">
                                             <label>Phân loại TTBYT theo TT39/2016/TT-BYT</label><br>
-                                            <input type="text" class="form-control" id="phan_loai_ttbyt" name="phan_loai_ttbyt"
-                                                placeholder="Nhập phân loại TTBYT theo TT39/2016/TT-BYT" value="{{ $product->phan_loai_ttbyt }}">
+                                            <input type="text" class="form-control" id="phan_loai_ttbyt"
+                                                name="phan_loai_ttbyt"
+                                                placeholder="Nhập phân loại TTBYT theo TT39/2016/TT-BYT"
+                                                value="{{ $product->phan_loai_ttbyt }}">
                                         </div>
                                     </div>
                                     <div class="col-md-3">
                                         <div class="form-group">
                                             <label>Số đăng ký lưu hành/Số GPNK</label><br>
-                                            <input type="text" class="form-control" id="so_dang_ky_luu_hanh" name="so_dang_ky_luu_hanh"
-                                                placeholder="Nhập số đăng ký lưu hành/Số GPNK" value="{{ $product->so_dang_ky_luu_hanh }}">
+                                            <input type="text" class="form-control" id="so_dang_ky_luu_hanh"
+                                                name="so_dang_ky_luu_hanh" placeholder="Nhập số đăng ký lưu hành/Số GPNK"
+                                                value="{{ $product->so_dang_ky_luu_hanh }}">
                                         </div>
                                     </div>
                                     <div class="col-md-3">
                                         <div class="form-group">
                                             <label>Số bảng phân loại</label><br>
-                                            <input type="text" class="form-control" id="so_bang_phan_loai" name="so_bang_phan_loai"
-                                                placeholder="Nhập số bảng phân loại" value="{{ $product->so_bang_phan_loai }}">
+                                            <input type="text" class="form-control" id="so_bang_phan_loai"
+                                                name="so_bang_phan_loai" placeholder="Nhập số bảng phân loại"
+                                                value="{{ $product->so_bang_phan_loai }}">
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="thong_so_ky_thuat_co_ban">Đặc tính thông số kỹ thuật cơ bản</label>
-                                            <textarea name="thong_so_ky_thuat_co_ban" id="thong_so_ky_thuat_co_ban" cols="30" rows="10" class="form-control product-description">
-                                                {{ $product->thong_so_ky_thuat_co_ban }}
-                                            </textarea>
+                                            <textarea name="thong_so_ky_thuat_co_ban" id="thong_so_ky_thuat_co_ban" cols="30" rows="10"
+                                                class="form-control product-description">{{ $product->thong_so_ky_thuat_co_ban }}</textarea>
                                         </div>
                                     </div>
                                     <div class="col-md-6">
                                         <div class="form-group">
                                             <label for="thong_so_ky_thuat_thau">Đặc tính thông số kỹ thuật thầu</label>
-                                            <textarea name="thong_so_ky_thuat_thau" id="thong_so_ky_thuat_thau" cols="30" rows="10" class="form-control product-description">
-                                                {{ $product->thong_so_ky_thuat_thau }}
-                                            </textarea>
+                                            <textarea name="thong_so_ky_thuat_thau" id="thong_so_ky_thuat_thau" cols="30" rows="10"
+                                                class="form-control product-description">{{ $product->thong_so_ky_thuat_thau }}</textarea>
                                         </div>
                                     </div>
                                     <div class="col-md-12">
                                         <div class="form-group">
                                             <label for="ghi_chu">Ghi chú</label>
-                                            <textarea name="ghi_chu" id="ghi_chu" cols="30" rows="12" class="form-control">
-                                                {{ $product->ghi_chu }}
-                                            </textarea>
+                                            <textarea name="ghi_chu" id="ghi_chu" cols="30" rows="12" class="form-control">{{ $product->ghi_chu }}</textarea>
                                         </div>
                                     </div>
                                     {{-- <div class="col-md-3">

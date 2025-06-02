@@ -41,7 +41,7 @@
                                                 style="cursor: pointer;" data-bs-toggle="collapse"
                                                 data-bs-target="#thong-tin-nha-thau" aria-expanded="true"
                                                 aria-controls="thong-tin-nha-thau">
-                                                <strong>Thông tin nhà thầu</strong>
+                                                <strong>Thông tin bệnh viện</strong>
                                                 {{-- <i class="fa fa-chevron-down"></i> --}}
                                             </div>
                                             <div class="collapse show" id="thong-tin-nha-thau">

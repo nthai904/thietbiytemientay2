@@ -2,7 +2,8 @@
     <div class="sidebar-logo">
         <!-- Logo Header -->
         <div class="logo-header" data-background-color="dark">
-            <a href="index.html" class="logo">
+            <a href="{{ auth()->user()->department === 'admin' ? route('dashboard.index') : route('product.index') }}"
+                class="logo">
                 <img src="{{ asset('assets/img/mita-1-3193.png') }}" alt="navbar brand" class="navbar-brand"
                     height="90" />
                 {{-- <img src="{{ asset('assets/img/logo_ytemientay.png') }}" alt="navbar brand" class="navbar-brand"
@@ -26,19 +27,19 @@
     <div class="sidebar-wrapper scrollbar scrollbar-inner">
         <div class="sidebar-content">
             <ul class="nav nav-secondary">
-                @if(auth()->user()->department === 'admin')
-                <li class="nav-item {{ request()->routeIs('dashboard.index') ? 'active' : '' }}">
-                    <a href="{{ route('dashboard.index') }}">
-                        <i class="fas fa-home"></i>
-                        <p>Bảng điều khiển</p>
-                        {{-- <span class="caret"></span> --}}
-                    </a>
-                    {{-- <a data-bs-toggle="collapse" href="#dashboard" class="collapsed" aria-expanded="false">
+                @if (auth()->user()->department === 'admin')
+                    <li class="nav-item {{ request()->routeIs('dashboard.index') ? 'active' : '' }}">
+                        <a href="{{ route('dashboard.index') }}">
+                            <i class="fas fa-home"></i>
+                            <p>Bảng điều khiển</p>
+                            {{-- <span class="caret"></span> --}}
+                        </a>
+                        {{-- <a data-bs-toggle="collapse" href="#dashboard" class="collapsed" aria-expanded="false">
                         <i class="fas fa-home"></i>
                         <p>Bảng điều khiển</p>
                         <span class="caret"></span>
                     </a> --}}
-                    {{-- <div class="collapse" id="dashboard">
+                        {{-- <div class="collapse" id="dashboard">
                         <ul class="nav nav-collapse">
                             <li>
                                 <a href="../demo1/index.html">
@@ -47,7 +48,7 @@
                             </li>
                         </ul>
                     </div> --}}
-                </li>
+                    </li>
                 @endif
                 {{-- <li class="nav-section">
                     <span class="sidebar-mini-icon">
@@ -55,23 +56,31 @@
                     </span>
                     <h4 class="text-section">Components</h4>
                 </li> --}}
-                <li class="nav-item {{ request()->routeIs('product.*') ? 'active' : '' }}">
+
+                <li class="nav-item {{ request()->routeIs(['product.*', 'provider.*']) ? 'active' : '' }}">
                     <a data-bs-toggle="collapse" href="#base"
-                        aria-expanded="{{ request()->routeIs('product.*') ? 'true' : 'false' }}">
+                        aria-expanded="{{ request()->routeIs(['product.*', 'provider.*']) ? 'true' : 'false' }}">
                         <i class="fas fa-layer-group"></i>
                         <p>Quản lý hàng hóa</p>
                         <span class="caret"></span>
                     </a>
-                    <div class="collapse {{ request()->routeIs('product.*') ? 'show' : '' }}" id="base">
+                    <div class="collapse {{ request()->routeIs(['product.*', 'provider.*']) ? 'show' : '' }}"
+                        id="base">
                         <ul class="nav nav-collapse">
                             <li class="{{ request()->routeIs('product.index') ? 'active' : '' }}">
                                 <a href="{{ route('product.index') }}">
                                     <span class="sub-item">Hàng hóa</span>
                                 </a>
                             </li>
+                            <li class="{{ request()->routeIs('provider.index') ? 'active' : '' }}">
+                                <a href="{{ route('provider.index') }}">
+                                    <span class="sub-item">Nhà cung cấp</span>
+                                </a>
+                            </li>
                         </ul>
                     </div>
                 </li>
+
 
                 <li
                     class="nav-item {{ request()->routeIs('category.index') || request()->routeIs('bidder.group') || request()->routeIs('bidder.index') ? 'active' : '' }}">
@@ -141,13 +150,13 @@
                         {{-- <span class="caret"></span> --}}
                     </a>
                 </li>
-                @if(auth()->user()->department === 'admin')
-                <li class="nav-item {{ request()->routeIs('user.index') ? 'active' : '' }}">
-                    <a href="{{ route('user.index') }}">
-                        <i class="fas fa-user-alt"></i>
-                        <p>Quản lý người dùng</p>
-                    </a>
-                </li>
+                @if (auth()->user()->department === 'admin')
+                    <li class="nav-item {{ request()->routeIs('user.index') ? 'active' : '' }}">
+                        <a href="{{ route('user.index') }}">
+                            <i class="fas fa-user-alt"></i>
+                            <p>Quản lý người dùng</p>
+                        </a>
+                    </li>
                 @endif
                 {{-- <li class="nav-item">
                     <a data-bs-toggle="collapse" href="#forms">

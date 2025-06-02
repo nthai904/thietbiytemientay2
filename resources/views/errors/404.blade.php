@@ -3,11 +3,10 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>404 page</title>
+    <title>Trang không tồn tại</title>
     <link rel='stylesheet' href='https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css'>
     <link rel='stylesheet' href='https://fonts.googleapis.com/css?family=Arvo'>
     <style>
-    
         .page_404 {
             padding: 40px 0;
             background: #fff;
@@ -67,11 +66,12 @@
                             </h3>
 
                             <p>Trang bạn đang tìm kiếm không tồn tạ!</p>
-                            @if(auth()->user()->department === 'admin')
-                            <a href="{{ route('dashboard.index') }}" class="link_404">Quay về trang chủ</a>
+                            @if (auth()->check() && auth()->user()->department === 'admin')
+                                <a href="{{ route('dashboard.index') }}" class="link_404">Quay về trang chủ</a>
                             @else
-                            <a href="{{ route('product.index') }}" class="link_404">Quay về trang chủ</a>
+                                <a href="{{ route('product.index') }}" class="link_404">Quay về trang chủ</a>
                             @endif
+
                         </div>
                     </div>
                 </div>

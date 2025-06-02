@@ -29,7 +29,21 @@
             },
         });
     </script>
-
+    <!--Start of Tawk.to Script-->
+    <script type="text/javascript">
+        var Tawk_API = Tawk_API || {},
+            Tawk_LoadStart = new Date();
+        (function() {
+            var s1 = document.createElement("script"),
+                s0 = document.getElementsByTagName("script")[0];
+            s1.async = true;
+            s1.src = 'https://embed.tawk.to/6833d183abc701190b015b72/1is56kr1j';
+            s1.charset = 'UTF-8';
+            s1.setAttribute('crossorigin', '*');
+            s0.parentNode.insertBefore(s1, s0);
+        })();
+    </script>
+    <!--End of Tawk.to Script-->
     <!-- CSS Files -->
     <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}" />
     <link rel="stylesheet" href="{{ asset('assets/css/plugins.min.css') }}" />
@@ -130,8 +144,8 @@
                     </div>
 
                     <div>
-                        Distributed by
-                        <a target="_blank" href="https://mitacorp.vn/">MITACORP</a>.
+                        {{-- Distributed by
+                        <a target="_blank" href="https://mitacorp.vn/">MITACORP</a>. --}}
                     </div>
                 </div>
             </footer>
@@ -200,6 +214,7 @@
         <!-- End Custom template -->
     </div>
     <!--   Core JS Files   -->
+
     <script src="{{ asset('assets/js/core/jquery-3.7.1.min.js') }}"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="{{ asset('assets/js/core/popper.min.js') }}"></script>
@@ -284,20 +299,34 @@
                                             <option value="" selected disabled>Chọn mặt hàng</option>
                                             @if (isset($products))
                                                 @foreach ($products as $k => $v)
-                                                    <option value="{{ $v['code'] }}">{{ $v['name'] }}</option>
+                                                    <option value="{{ $v['ky_ma_hieu'] }}">{{ $v['name'] }}</option>
                                                 @endforeach
                                             @endif
                                         </select>
                                     </td>
-                                    <td class="product-quycach"></td>
-                                    <td class="product-brand"></td>
-                                    <td class="product-country"></td>
+                                    <td class="product-kymahieu"><input type="text" name="ky_ma_hieu[]" class="input-full-td"></td>
+                                    <td class="product-thongsokythuatcoban"><textarea name="thong_so_ky_thuat_co_ban[]" rows="3" class="form-control"></textarea></td>
+                                    <td class="product-thongsokythuatthau"><textarea name="thong_so_ky_thuat_thau[]" rows="3" class="form-control"></textarea></td>
+                                    <td class="product-hangsx"><input type="text" name="hang_sx[]" class="input-full-td"></td>
+                                    <td class="product-nuocsx"><input type="text" name="nuoc_sx[]" class="input-full-td"></td>
+                                    <td class="product-hangnuocchusohuu"><input type="text" name="hang_nuoc_chu_so_huu[]" class="input-full-td"></td>
+                                    <td class="product-quycach"><input type="text" name="quy_cach[]" class="input-full-td"></td>
+                                    <td class="product-donvitinh"><input type="text" name="don_vi_tinh[]" class="input-full-td"></td>
+                                    <td class="product-hsd"><input type="text" name="hsd[]" class="input-full-td"></td>
+                                    <td class="product-tenncc"><input type="text" name="ten_ncc[]" class="input-full-td"></td>
+                                    <td class="product-mavtyt"><input type="text" name="ma_vtyt[]" class="input-full-td"></td>
+                                    <td class="product-nhomtheott"><input type="text" name="nhom_theo_tt[]" class="input-full-td"></td>
+                                    <td class="product-phanloaittbyt"><input type="text" name="phan_loai_ttbyt[]" class="input-full-td"></td>
+                                    <td class="product-sodangkyluuhanh"><input type="text" name="so_dang_ky_luu_hanh[]" class="input-full-td"></td>
+                                    <td class="product-sobangphanloai"><input type="text" name="so_bang_phan_loai[]" class="input-full-td"></td>
+                                    <td class="product-ghichu"><textarea name="ghi_chu[]" rows="3" class="form-control"></textarea></td>
                                     <td class="product-price"></td>
+                                    <td class="product-giadexuat"></td>
                                     <td>
                                         <input type="number" class="form-control border-primary extra-price qty-input-document"
                                             title="Nhập giá chênh lệch" value="" name="extra_price[]">
                                     </td>
-                                    <td class="nt-giaduthau"></td>
+                                    <td class="nt-giaduthau" contenteditable="true"></td>
                                     <input type="hidden" class="input-giaduthau" name="giaduthau[]">
                                     <td class="total"></td>
                                     <input type="hidden" class="input-total" name="thanhtien[]">
@@ -306,16 +335,204 @@
                                     $('#product-table').append(row);
                                 });
 
-                                // Initialize select2 for dynamically created selects
                                 $('.select2').select2();
 
                                 $('#thong-tin-nha-thau').show();
                             } else {
-                                alert('Không có thông tin nhà thầu');
+                                const ToastError = Swal.mixin({
+                                    toast: true,
+                                    position: 'top-end',
+                                    showConfirmButton: false,
+                                    timer: 3000,
+                                    timerProgressBar: true,
+                                    customClass: {
+                                        popup: 'error',
+                                        closeButton: 'toast-close-btn'
+                                    }
+                                });
+
+                                ToastError.fire({
+                                    icon: 'error',
+                                    title: 'Không có thông tin đấu thầu, vui lòng thêm đấu thầu',
+                                    showCloseButton: true
+                                });
+
+                                setTimeout(() => {
+                                    const closeBtn = document.querySelector('.toast-close-btn');
+                                    if (closeBtn) {
+                                        closeBtn.addEventListener('click', () => {
+                                            Swal.close();
+                                        });
+                                    }
+                                }, 50);
+
                                 $('#thong-tin-nha-thau').hide();
                             }
                         } else {
-                            alert('Không tìm thấy nhà thầu');
+                            const ToastError = Swal.mixin({
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: true,
+                                customClass: {
+                                    popup: 'error',
+                                    closeButton: 'toast-close-btn'
+                                }
+                            });
+
+                            ToastError.fire({
+                                icon: 'error',
+                                title: 'Không có thông tin đấu thầu, vui lòng thêm đấu thầu',
+                                showCloseButton: true
+                            });
+
+                            setTimeout(() => {
+                                const closeBtn = document.querySelector('.toast-close-btn');
+                                if (closeBtn) {
+                                    closeBtn.addEventListener('click', () => {
+                                        Swal.close();
+                                    });
+                                }
+                            }, 50);
+                            $('#thong-tin-nha-thau').hide();
+                        }
+                    },
+                    error: function() {
+                        alert('Lỗi khi tải thông tin');
+                    }
+                });
+            }
+        });
+        $('#group-da-dau-thau').on('change', function() {
+            var id = $(this).val();
+            var categoryId = $('#select-nha-thau-da-dau-thau').val();
+            if (id && categoryId) {
+                $.ajax({
+                    url: '/category-bidder/' + categoryId + '/' + id,
+                    type: 'GET',
+                    dataType: 'json',
+                    success: function(res) {
+                        if (res.success) {
+                            var data = res.data;
+                            var categoryBidder = data.bidder; // là object chứa thông tin nhà thầu
+                            var groupBidder = data.group_bidder;
+                            var bidderList = categoryBidder.bidder;
+                            // Clear existing rows in the table
+                            $('#product-table').empty();
+
+                            // Loop through all bidders and create rows
+                            if (bidderList && bidderList.length > 0) {
+                                bidderList.forEach(function(bidder) {
+                                    var row = `
+                                <tr>
+                                    <td>${categoryBidder.code || ''}</td>
+                                    <td>${categoryBidder.name || ''}</td>
+                                    <td>${bidder.ma_phan || ''}</td>
+                                    <td>${bidder.ten_phan || ''}</td>
+                                    <td>${bidder.product_name || ''}</td>
+                                    <td id="nt-soluong">${bidder.quantity || ''}</td>
+                                    <td style="width: 160px">
+                                        <select name="id_product[]" class="select2 select-product custom-color" style="width: 100%" required>
+                                            <option value="" selected disabled>Chọn mặt hàng</option>
+                                            @if (isset($products))
+                                                @foreach ($products as $k => $v)
+                                                    <option value="{{ $v['ky_ma_hieu'] }}">{{ $v['name'] }} - ( {{$v['ten_ncc']}} )</option>
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                    </td>
+                                    <td class="product-kymahieu"><input type="text" name="ky_ma_hieu[]" class="input-full-td"></td>
+                                    <td class="product-thongsokythuatcoban"><textarea name="thong_so_ky_thuat_co_ban[]" rows="3" class="form-control"></textarea></td>
+                                    <td class="product-thongsokythuatthau"><textarea name="thong_so_ky_thuat_thau[]" rows="3" class="form-control"></textarea></td>
+                                    <td class="product-hangsx"><input type="text" name="hang_sx[]" class="input-full-td"></td>
+                                    <td class="product-nuocsx"><input type="text" name="nuoc_sx[]" class="input-full-td"></td>
+                                    <td class="product-hangnuocchusohuu"><input type="text" name="hang_nuoc_chu_so_huu[]" class="input-full-td"></td>
+                                    <td class="product-quycach"><input type="text" name="quy_cach[]" class="input-full-td"></td>
+                                    <td class="product-donvitinh"><input type="text" name="don_vi_tinh[]" class="input-full-td"></td>
+                                    <td class="product-hsd"><input type="text" name="hsd[]" class="input-full-td"></td>
+                                    <td class="product-tenncc"><input type="text" name="ten_ncc[]" class="input-full-td"></td>
+                                    <td class="product-mavtyt"><input type="text" name="ma_vtyt[]" class="input-full-td"></td>
+                                    <td class="product-nhomtheott"><input type="text" name="nhom_theo_tt[]" class="input-full-td"></td>
+                                    <td class="product-phanloaittbyt"><input type="text" name="phan_loai_ttbyt[]" class="input-full-td"></td>
+                                    <td class="product-sodangkyluuhanh"><input type="text" name="so_dang_ky_luu_hanh[]" class="input-full-td"></td>
+                                    <td class="product-sobangphanloai"><input type="text" name="so_bang_phan_loai[]" class="input-full-td"></td>
+                                    <td class="product-ghichu"><textarea name="ghi_chu[]" rows="3" class="form-control"></textarea></td>
+                                    <td class="product-price"></td>
+                                    <td class="product-giadexuat"></td>
+                                    <td>
+                                        <input type="number" class="form-control border-primary extra-price qty-input-document"
+                                            title="Nhập giá chênh lệch" value="" name="extra_price[]">
+                                    </td>
+                                    <td class="nt-giaduthau" contenteditable="true"></td>
+                                    <input type="hidden" class="input-giaduthau" name="giaduthau[]">
+                                    <td class="total"></td>
+                                    <input type="hidden" class="input-total" name="thanhtien[]">
+                                </tr>
+                            `;
+                                    $('#product-table').append(row);
+                                });
+
+                                $('.select2').select2();
+
+                                $('#thong-tin-nha-thau').show();
+                            } else {
+                                const ToastError = Swal.mixin({
+                                    toast: true,
+                                    position: 'top-end',
+                                    showConfirmButton: false,
+                                    timer: 3000,
+                                    timerProgressBar: true,
+                                    customClass: {
+                                        popup: 'error',
+                                        closeButton: 'toast-close-btn'
+                                    }
+                                });
+
+                                ToastError.fire({
+                                    icon: 'error',
+                                    title: 'Không có thông tin đấu thầu, vui lòng thêm đấu thầu',
+                                    showCloseButton: true
+                                });
+
+                                setTimeout(() => {
+                                    const closeBtn = document.querySelector('.toast-close-btn');
+                                    if (closeBtn) {
+                                        closeBtn.addEventListener('click', () => {
+                                            Swal.close();
+                                        });
+                                    }
+                                }, 50);
+
+                                $('#thong-tin-nha-thau').hide();
+                            }
+                        } else {
+                            const ToastError = Swal.mixin({
+                                toast: true,
+                                position: 'top-end',
+                                showConfirmButton: false,
+                                timer: 3000,
+                                timerProgressBar: true,
+                                customClass: {
+                                    popup: 'error',
+                                    closeButton: 'toast-close-btn'
+                                }
+                            });
+
+                            ToastError.fire({
+                                icon: 'error',
+                                title: 'Không có thông tin đấu thầu, vui lòng thêm đấu thầu',
+                                showCloseButton: true
+                            });
+
+                            setTimeout(() => {
+                                const closeBtn = document.querySelector('.toast-close-btn');
+                                if (closeBtn) {
+                                    closeBtn.addEventListener('click', () => {
+                                        Swal.close();
+                                    });
+                                }
+                            }, 50);
                             $('#thong-tin-nha-thau').hide();
                         }
                     },
@@ -338,12 +555,39 @@
                     success: function(res) {
                         if (res.success) {
                             var data = res.data;
-                            currentRow.find('.product-quycach').text(data.quy_cach || '');
-                            currentRow.find('.product-brand').text(data.brand || '');
-                            currentRow.find('.product-country').text(data.country || '');
+                            console.log(data)
+                            currentRow.find('.product-kymahieu input').val(data.ky_ma_hieu || '');
+                            currentRow.find('.product-thongsokythuatcoban textarea').text(data
+                                .thong_so_ky_thuat_co_ban || '');
+                            currentRow.find('.product-thongsokythuatthau textarea').text(data
+                                .thong_so_ky_thuat_thau || '');
+                            currentRow.find('.product-hangsx input').val(data.hang_sx || '');
+                            currentRow.find('.product-nuocsx input').val(data.nuoc_sx || '');
+                            currentRow.find('.product-hangnuocchusohuu input').val(data
+                                .hang_nuoc_chu_so_huu || '');
+                            currentRow.find('.product-quycach input').val(data.quy_cach || '');
+                            currentRow.find('.product-donvitinh input').val(data.don_vi_tinh || '');
+                            currentRow.find('.product-hsd input').val(data.hsd || '');
+                            currentRow.find('.product-tenncc input').val(data.ten_ncc || '');
+                            currentRow.find('.product-mavtyt input').val(data.ma_vtyt || '');
+                            currentRow.find('.product-nhomtheott input').val(data.nhom_theo_tt || '');
+                            currentRow.find('.product-phanloaittbyt input').val(data.phan_loai_ttbyt ||
+                                '');
+                            currentRow.find('.product-sodangkyluuhanh input').val(data
+                                .so_dang_ky_luu_hanh ||
+                                '');
+                            currentRow.find('.product-sobangphanloai input').val(data
+                                .so_bang_phan_loai ||
+                                '');
+                            currentRow.find('.product-ghichu textarea').text(data.ghi_chu || '');
                             currentRow.find('.product-price').text(
-                                data.price ?
-                                Number(data.price).toLocaleString('vi-VN') + ' đ' :
+                                data.gia_von ?
+                                Number(data.gia_von).toLocaleString('vi-VN') + ' đ' :
+                                ''
+                            );
+                            currentRow.find('.product-giadexuat').text(
+                                data.gia_de_xuat ?
+                                Number(data.gia_de_xuat).toLocaleString('vi-VN') + ' đ' :
                                 ''
                             );
                             currentRow.find('.extra-price').removeClass('d-none');
@@ -355,15 +599,14 @@
                                     'input'); // Kích hoạt sự kiện input để tính toán lại
                             } else {
                                 // Nếu chưa có giá trị phụ thu, cập nhật giá đấu thầu bằng giá gốc
-                                var originalPrice = data.price || 0;
+                                var originalPrice = data.gia_von || 0;
 
                                 // Cập nhật giá đấu thầu
                                 currentRow.find('.nt-giaduthau').text(Number(originalPrice)
                                     .toLocaleString('vi-VN') + ' đ');
                                 currentRow.find('.input-giaduthau').val(Math.round(originalPrice));
 
-                                // Lấy số lượng
-                                var quantity = parseInt(currentRow.find('td:eq(5)').text()) || 1;
+                                var quantity = parseInt(currentRow.find('#nt-soluong').text()) || 1;
                                 var total = originalPrice * quantity;
 
                                 // Cập nhật tổng giá từng dòng
@@ -382,7 +625,8 @@
                 });
             }
         });
-
+        
+        // Sự kiện xử lý giá phụ thu
         $(document).on('input', '.extra-price', function() {
             var currentRow = $(this).closest('tr');
 
@@ -407,20 +651,95 @@
                 } else {
                     bidPrice = originalPrice + extraPrice;
                 }
-
+                let rounded = Math.round(bidPrice);
                 // Cập nhật giá đấu thầu
-                currentRow.find('.nt-giaduthau').text(bidPrice.toLocaleString('vi-VN') + ' đ');
-                currentRow.find('.input-giaduthau').val(Math.round(bidPrice));
+                currentRow.find('.nt-giaduthau').text(rounded.toLocaleString('vi-VN') + ' đ');
+                currentRow.find('.input-giaduthau').val(Math.round(rounded));
 
                 // Lấy số lượng
                 var quantity = parseInt(currentRow.find('#nt-soluong').text()) || 1;
-                var total = bidPrice * quantity;
+                var total = rounded * quantity;
                 // Cập nhật tổng giá từng dòng
                 currentRow.find('.total').text(total.toLocaleString('vi-VN') + ' đ');
                 currentRow.find('.input-total').val(Math.round(total));
 
                 // Cập nhật tổng tiền toàn bộ
                 updateTotals();
+            }
+        });
+
+        // Khi focus vào ô nt-giaduthau, loại bỏ định dạng giá tiền
+        $(document).on('focus', '.nt-giaduthau[contenteditable="true"]', function() {
+            var numericValue = $(this).text().replace(/[^0-9]/g, '');
+            $(this).text(numericValue); // Chỉ hiển thị số thuần túy
+
+            // Đặt con trỏ ở cuối text
+            if (numericValue.length) {
+                var range = document.createRange();
+                var sel = window.getSelection();
+                range.setStart($(this)[0].childNodes[0], numericValue.length);
+                range.collapse(true);
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }
+        });
+
+        // Sự kiện xử lý khi người dùng trực tiếp chỉnh sửa giá đấu thầu
+        $(document).on('input', '.nt-giaduthau[contenteditable="true"]', function() {
+            var text = $(this).text().trim();
+            // Loại bỏ tất cả ký tự không phải số
+            var numericValue = text.replace(/\D/g, '');
+
+            // Đảm bảo chỉ có số trong ô
+            if (text !== numericValue) {
+                $(this).text(numericValue);
+                // Đặt con trỏ ở cuối text
+                var range = document.createRange();
+                var sel = window.getSelection();
+                range.setStart($(this)[0].childNodes[0], numericValue.length);
+                range.collapse(true);
+                sel.removeAllRanges();
+                sel.addRange(range);
+            }
+
+            // Cập nhật input hidden tương ứng
+            $(this).closest('tr').find('.input-giaduthau').val(numericValue);
+            $(this).closest('tr').find('.input-exchange-price').val(numericValue);
+            $(this).closest('tr').find('.extra-price').val('');
+            $(this).closest('tr').find('.extra-price-exchange').val('');
+            // Lấy giá vốn để so sánh
+            var currentRow = $(this).closest('tr');
+            var priceText = currentRow.find('.product-price').text().replace(/[^0-9]/g, '');
+            var originalPrice = parseFloat(priceText) || 0;
+            var bidPrice = parseFloat(numericValue) || 0;
+
+            // Thêm hoặc xóa bg-red dựa trên việc so sánh giá
+            if (bidPrice < originalPrice) {
+                currentRow.addClass("bg-red");
+            } else {
+                currentRow.removeClass("bg-red");
+            }
+
+            // Tính lại tổng tiền cho dòng này
+            var $target = $(this).closest('tr').find('#nt-soluong');
+            var quantity = parseInt($target.text().trim()) || parseInt($target.val()) || 1;
+            var total = parseInt(numericValue) * quantity;
+
+            // Cập nhật tổng tiền cho dòng
+            $(this).closest('tr').find('.total').text(Number(total).toLocaleString('vi-VN') + ' đ');
+            $(this).closest('tr').find('.input-total').val(Math.round(total));
+
+            // Cập nhật tổng tiền toàn bộ
+            updateTotals();
+        });
+
+        // Thêm sự kiện blur để định dạng lại giá tiền khi người dùng rời khỏi ô
+        $(document).on('blur', '.nt-giaduthau[contenteditable="true"]', function() {
+            var numericValue = $(this).text().replace(/\D/g, '');
+            if (numericValue) {
+                $(this).text(Number(numericValue).toLocaleString('vi-VN') + ' đ');
+            } else {
+                $(this).text('');
             }
         });
 
@@ -809,7 +1128,6 @@
             }
         });
     </script>
-
     <script>
         document.addEventListener('change', function(e) {
             if (e.target && e.target.classList.contains('row-checkbox')) {
@@ -831,43 +1149,113 @@
         document.querySelector('body').addEventListener('click', function(event) {
             if (event.target && event.target.classList.contains('exportButton')) {
                 event.preventDefault();
-
                 var selectedRows = [];
                 var actionType = event.target.getAttribute('data-action');
+                var isDetailQuote = event.target.textContent.trim().includes('chi tiết');
 
-                // Lấy tất cả checkbox đã chọn
                 document.querySelectorAll('.row-checkbox:checked').forEach(function(checkbox) {
                     var row = checkbox.closest('tr');
                     var rowData = row.dataset.id;
                     var rowDate = row.dataset.date;
-                    if (row.dataset.date?.trim()) {
-                        selectedRows.push({
+                    var rowGroup = row.dataset.group;
+
+                    if (rowDate?.trim()) {
+                        var rowObject = {
                             id: rowData,
                             date: rowDate
-                        });
+                        };
+                        // Thêm group nếu có
+                        if (rowGroup?.trim()) {
+                            rowObject.group = rowGroup;
+                        }
+                        if (isDetailQuote) {
+                            rowObject.detail = true;
+                        }
+                        selectedRows.push(rowObject);
                     } else {
-                        selectedRows.push(rowData);
+                        // Nếu không có date
+                        if (isDetailQuote) {
+                            var rowObject = {
+                                id: rowData,
+                                detail: true
+                            };
+                            if (rowGroup?.trim()) {
+                                rowObject.group = rowGroup;
+                            }
+                            selectedRows.push(rowObject);
+                        } else {
+                            // Trường hợp không có date và không phải detail quote
+                            if (rowGroup?.trim()) {
+                                var rowObject = {
+                                    id: rowData,
+                                    group: rowGroup
+                                };
+                                selectedRows.push(rowObject);
+                            } else {
+                                selectedRows.push(rowData);
+                            }
+                        }
                     }
-
                 });
 
-                // Nếu là Word mà chọn nhiều hơn 1 dòng → alert rồi dừng
                 if (actionType === 'word' && selectedRows.length > 1) {
-                    alert('Chỉ có thể xuất 1 nhà thầu');
+                    const ToastError = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        customClass: {
+                            popup: 'error',
+                            closeButton: 'toast-close-btn'
+                        }
+                    });
+                    ToastError.fire({
+                        icon: 'error',
+                        title: 'Chỉ có thể xuất 1 bảng',
+                        showCloseButton: true
+                    });
+                    setTimeout(() => {
+                        const closeBtn = document.querySelector('.toast-close-btn');
+                        if (closeBtn) {
+                            closeBtn.addEventListener('click', () => {
+                                Swal.close();
+                            });
+                        }
+                    }, 50);
                     return;
                 }
 
-                // Nếu không chọn dòng nào → alert rồi dừng
                 if (selectedRows.length === 0) {
-                    alert('Vui lòng chọn ít nhất một bảng để xuất!');
+                    const ToastError = Swal.mixin({
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 3000,
+                        timerProgressBar: true,
+                        customClass: {
+                            popup: 'error',
+                            closeButton: 'toast-close-btn'
+                        }
+                    });
+                    ToastError.fire({
+                        icon: 'error',
+                        title: 'Chọn 1 bảng để xuất',
+                        showCloseButton: true
+                    });
+                    setTimeout(() => {
+                        const closeBtn = document.querySelector('.toast-close-btn');
+                        if (closeBtn) {
+                            closeBtn.addEventListener('click', () => {
+                                Swal.close();
+                            });
+                        }
+                    }, 50);
                     return;
                 }
 
-                // Gán selectedRows vào input hidden
                 document.getElementById('selectedRows' + capitalizeFirstLetter(actionType)).value = JSON.stringify(
                     selectedRows);
-
-                // Submit form tương ứng
                 document.getElementById('exportForm' + capitalizeFirstLetter(actionType)).submit();
             }
         });
@@ -967,7 +1355,29 @@
 
         document.getElementById('addSampleBtn').addEventListener('click', addSampleData);
     </script>
+    <script>
+        $('.required-hospital').on('change select2:select select2:unselect select2:clear', function() {
+            $('#importButton').prop('disabled', !$(this).val());
+        });
+        const deleteButtons = document.querySelectorAll('.btn-delete-baogia');
 
+        deleteButtons.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const row = this.closest('tr');
+                if (row) {
+                    row.remove(); // Xóa row đó khỏi bảng
+
+                    const rows = document.querySelectorAll('tbody tr'); // hoặc 'table tr' nếu ko có tbody
+                    rows.forEach((r, idx) => {
+                        const sttCell = r.querySelector('td:first-child');
+                        if (sttCell) {
+                            sttCell.textContent = idx + 1;
+                        }
+                    });
+                }
+            });
+        });
+    </script>
     <script src="{{ asset('assets/js/app.js') }}"></script>
     <script>
         function hideLoadingOverlay() {
@@ -984,9 +1394,24 @@
 
         setTimeout(hideLoadingOverlay, 8000);
     </script>
+    <!--Start of Tawk.to Script-->
+    <script type="text/javascript">
+        var Tawk_API = Tawk_API || {},
+            Tawk_LoadStart = new Date();
+        (function() {
+            var s1 = document.createElement("script"),
+                s0 = document.getElementsByTagName("script")[0];
+            s1.async = true;
+            s1.src = 'https://embed.tawk.to/6833d183abc701190b015b72/1is56kr1j';
+            s1.charset = 'UTF-8';
+            s1.setAttribute('crossorigin', '*');
+            s0.parentNode.insertBefore(s1, s0);
+        })();
+    </script>
+    <!--End of Tawk.to Script-->
     @if (session('success'))
         <script>
-            const Toast = Swal.mixin({
+            const ToastSuccess = Swal.mixin({
                 toast: true,
                 position: 'top-end',
                 showConfirmButton: false,
@@ -998,7 +1423,7 @@
                 }
             });
 
-            Toast.fire({
+            ToastSuccess.fire({
                 icon: 'success',
                 title: "{{ session('success') }}",
                 showCloseButton: true
@@ -1014,6 +1439,38 @@
             }, 50);
         </script>
     @endif
+
+    @if (session('error'))
+        <script>
+            const ToastError = Swal.mixin({
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 3000,
+                timerProgressBar: true,
+                customClass: {
+                    popup: 'error',
+                    closeButton: 'toast-close-btn'
+                }
+            });
+
+            ToastError.fire({
+                icon: 'error',
+                title: "{{ session('error') }}",
+                showCloseButton: true
+            });
+
+            setTimeout(() => {
+                const closeBtn = document.querySelector('.toast-close-btn');
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', () => {
+                        Swal.close();
+                    });
+                }
+            }, 50);
+        </script>
+    @endif
+
 
 </body>
 

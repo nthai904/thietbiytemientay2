@@ -55,7 +55,8 @@
                                             <i class="fa fa-file-export me-2"></i>
                                             Xuất file
                                         </button>
-                                        <ul class="dropdown-menu" aria-labelledby="dropdownButton" style="min-width: 200px;">
+                                        <ul class="dropdown-menu" aria-labelledby="dropdownButton"
+                                            style="min-width: 200px;">
                                             <li>
                                                 <form action="{{ route('documents.exportExcel') }}" method="POST"
                                                     enctype="multipart/form-data" id="exportFormExcel">
@@ -101,6 +102,18 @@
                                                         data-action="phuluc">
                                                         <i class="fa fa-file-excel me-2"></i>
                                                         Phụ lục - Hợp đồng
+                                                    </button>
+                                                </form>
+                                            </li>
+                                            <li>
+                                                <form action="{{ route('documents.exportBaoGiaKH') }}" method="POST"
+                                                    enctype="multipart/form-data" id="exportFormBaogia">
+                                                    @csrf
+                                                    <input type="hidden" name="selectedRows" id="selectedRowsBaogia">
+                                                    <button type="submit" class="btn ms-2 btn-addnew exportButton"
+                                                        data-action="baogia">
+                                                        <i class="fa fa-file-excel me-2"></i>
+                                                        Báo giá kế hoạch
                                                     </button>
                                                 </form>
                                             </li>
@@ -175,19 +188,22 @@
                                             <th style="min-width: 40px;">
                                                 <input type="checkbox" id="check-all" style="width:17px; height:17px">
                                             </th>
-                                            <th style="min-width: 50px;">STT</th>
+                                            <th style="min-width: 30px;">STT</th>
                                             <th style="min-width: 150px;">Mã bệnh viện</th>
                                             <th style="min-width: 150px;">Tên bệnh viện</th>
                                             <th style="min-width: 150px;">Gói thầu</th>
                                             <th style="min-width: 120px;">Tổng thành tiền</th>
-                                            <th style="min-width: 120px;"></th>
+                                            <th style="min-width: 50px;">Trạng thái</th>
+                                            <th style="min-width: 50px;"></th>
                                         </tr>
                                     </thead>
                                     <tbody class="text-center">
                                         @if (isset($documents) && count($documents) > 0)
                                             @foreach ($documents as $k => $v)
                                                 <tr class="clickable-row" data-id="{{ $v['code_category_bidder'] }}"
-                                                    style="cursor: pointer;" data-url="{{ route('document.edit', ['code' => $v['code_category_bidder'], 'group' => $v['group_id']]) }}">
+                                                    style="cursor: pointer;"
+                                                    data-url="{{ route('document.edit', ['code' => $v['code_category_bidder'], 'group' => $v['group_id']]) }}"
+                                                    data-group="{{ $v['group_id'] }}">
                                                     <td>
                                                         <input type="checkbox" class="row-checkbox"
                                                             style="width:17px; height:17px">
@@ -199,14 +215,22 @@
                                                     <td class="clickable">{{ number_format($v['total_price']) ?? '' }} đ
                                                     </td>
                                                     <td>
+                                                        @if ($v['status'] == 'bannhap')
+                                                            <span class="badge badge-info">Phiếu tạm</span>
+                                                        @else
+                                                            <span class="badge badge-success">Đã tạo</span>
+                                                        @endif
+                                                    </td>
+                                                    <td>
                                                         {{-- @if (is_array($v['code_category_bidder']))
                                                             <a
                                                                 href="{{ route('document.edit', ['code' => $v['code_category_bidder'][0]]) }}">Chi
                                                                 tiết <i class="fa pointer ms-2 fa-caret-right"></i></a>
                                                         @else --}}
                                                         <a href="{{ route('document.edit', ['code' => $v['code_category_bidder'], 'group' => $v['group_id']]) }}"
-                                                            class="text-dark">Chi tiết <i class="fa pointer ms-2 fa-caret-right"></i></a>
-                                                         
+                                                            class="text-dark">Chi tiết <i
+                                                                class="fa pointer ms-2 fa-caret-right"></i></a>
+
                                                         {{-- @endif --}}
                                                     </td>
                                                 </tr>

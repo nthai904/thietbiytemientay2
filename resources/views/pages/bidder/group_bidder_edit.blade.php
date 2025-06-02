@@ -24,13 +24,40 @@
                     </li>
                 </ul>
             </div>
-            <form action="{{ route('bidder.updateGroup', ['id' => $group->id]) }}" method="post">
+            <form action="{{ route('bidder.updateGroup', ['id' => $group->id]) }}" method="post" enctype="multipart/form-data">
                 @csrf
                 <div class="row">
                     <div class="col-md-12">
                         <div class="card">
-                            <div class="card-header">
-                                <div class="card-title">Chi tiết gói thầu</div>
+                            <div class="card-header ">
+                                <div class="d-flex justify-content-between">
+                                    <div class="card-title">Chi tiết gói thầu</div>
+                                    <div class="w-25">
+                                        <div class="form-group">
+                                            <div class="selectgroup w-100">
+                                                <label class="selectgroup-item">
+                                                    <input type="radio" name="status" value="new"
+                                                        class="selectgroup-input"
+                                                        {{ $group->status === 'new' ? 'checked' : '' }}>
+                                                    <span class="selectgroup-button">Mới</span>
+                                                </label>
+                                                <label class="selectgroup-item">
+                                                    <input type="radio" name="status" value="dauthau"
+                                                        class="selectgroup-input"
+                                                        {{ $group->status === 'dauthau' ? 'checked' : '' }}>
+                                                    <span class="selectgroup-button">Đã đấu thầu</span>
+                                                </label>
+                                                <label class="selectgroup-item">
+                                                    <input type="radio" name="status" value="dongthau"
+                                                        class="selectgroup-input"
+                                                        {{ $group->status === 'dongthau' ? 'checked' : '' }}>
+                                                    <span class="selectgroup-button">Đã đóng thầu</span>
+                                                </label>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </div>
                             </div>
                             <div class="card-body">
                                 <div class="row">
@@ -43,14 +70,14 @@
                                                     </label>
                                                     <select name="city" id="city" class="select2 form-control"
                                                         readonly>
-                                                        <option value="" selected>{{ $cities->name }}</option>
+                                                        <option value="{{ $cities->id }}" selected>{{ $cities->name }}</option>
                                                     </select>
                                                 </div>
                                                 <div class="col-md-3">
                                                     <label for="category_id" class="form-label">Bệnh viện</label>
                                                     <select name="category_id" id="category_id"
                                                         class="select2 form-control">
-                                                        <option value="" selected>{{ $group->category->name }}
+                                                        <option value="{{ $group->category->code }}" selected>{{ $group->category->name }}
                                                         </option>
                                                     </select>
                                                 </div>
@@ -80,9 +107,19 @@
                                 </div>
 
                             </div>
-                            <div class="card-action">
-                                <button class="btn btn-success">Cập nhật</button>
-                                <a href="{{ route('bidder.group') }}" class="btn btn-danger">Hủy</a>
+                            <div class="card-action d-flex">
+                                @if($group->status === "new")
+                                <div>
+                                    <input type="file" name="file" accept=".xlsx,.xls,.csv"
+                                        class="form-control d-none" id="fileInput" />
+                                    <button type="button" class="btn btn-primary ms-2 btn-addnew" id="importButton">
+                                        <i class="fa fa-file-import me-2"></i>
+                                        Import đấu thầu
+                                    </button>
+                                </div>
+                                @endif
+                                <button class="btn btn-success ms-2">Cập nhật</button>
+                                <a href="{{ route('bidder.group') }}" class="btn btn-danger ms-2">Hủy</a>
                             </div>
                         </div>
                     </div>
